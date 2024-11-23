@@ -67,7 +67,7 @@ function downloadIconFontFile() {
 }
 
 function replaceFontFilePath() {
-  FontFileContent.value = FontFileContent.value.replace(FontFileURL.value, "./iconfont.woff");
+  FontFileContent.value = FontFileContent.value.replace(FontFileURL.value, "./iconfont.woff2");
   NMessage.success('字体文件路径替换完成');
 }
 
@@ -79,7 +79,7 @@ function downloadCSSFile() {
 function downloadFontFile() {
   fetch(FontFileURL.value).then(res => res.blob()).then(res => {
     DownloadFileLinkElement.href = URL.createObjectURL(res);
-    DownloadFileLinkElement.download = "iconfont.woff";
+    DownloadFileLinkElement.download = "iconfont.woff2";
     DownloadFileLinkElement.click();
   });
 }
