@@ -34,7 +34,7 @@ export default defineConfig({
     // https://vitepress.dev/reference/default-theme-config
     nav: [
       { text: 'Vue', link: '/vue/index' },
-      { text: 'PHP', link: '/php/index' },
+      { text: 'PHP', link: '/php/config' },
       { text: '微信小程序', link: '/wechat_miniProgram/token/index.html' }
     ],
 
@@ -43,6 +43,12 @@ export default defineConfig({
         {
           text: "介绍",
           link: "/vue/index"
+        }
+      ],
+      '/php/': [
+        {
+          text: "配置文件",
+          link: "/php/config"
         }
       ],
       '/wechat_miniProgram/': [
