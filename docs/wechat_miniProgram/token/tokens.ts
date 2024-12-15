@@ -857,80 +857,56 @@ export const tokens = [
     ],
   },
   {
-    name: '容器 - 内边距',
-    nameEN: 'container-padding',
+    name: '页面 - 边距',
+    nameEN: 'page-margin',
     type: 'size',
     tokens: [
       {
-        name: 'container-padding-tiny',
-        desc: '迷你内边距',
+        name: 'page-margin-medium',
+        desc: '页面边距 - 中',
         descEN: 'tiny',
-        value: '24rpx',
+        value: '32rpx',
         cssvar: true,
-        cssValue: "12rpx"
+        cssValue: "16px"
       },
-      {
-        name: 'container-padding-small',
-        desc: '小内边距',
-        descEN: 'small',
-        value: '36rpx',
-        cssvar: true,
-        cssValue: "18rpx"
-      },
-      {
-        name: 'container-padding-medum',
-        desc: '中内边距',
-        descEN: 'mediun',
-        value: '48rpx',
-        cssvar: true,
-        cssValue: "24px"
-      },
-      {
-        name: 'container-padding-large',
-        desc: '大内边距',
-        descEN: 'large',
-        value: '56rpx',
-        cssvar: true,
-        cssValue: "28rpx"
-      }
     ]
   },
   {
-    name: '容器 - 外边距',
+    name: '容器 - 边距',
     nameEN: 'container-margin',
     type: 'size',
     tokens: [
       {
         name: 'container-margin-tiny',
-        desc: ' 迷你外边距',
+        desc: '迷你内边距',
         descEN: 'tiny',
-        value: '20rpx',
+        value: '8rpx',
         cssvar: true,
-        cssValue: "10px"
+        cssValue: "4px"
       },
       {
         name: 'container-margin-small',
-        desc: '小外边距',
+        desc: '小内边距',
         descEN: 'small',
-        value: '32rpx',
+        value: '16rpx',
         cssvar: true,
-        cssValue: "16px"
+        cssValue: "8px"
       },
       {
         name: 'container-margin-medum',
-        desc: '中外边距',
+        desc: '中内边距',
         descEN: 'mediun',
-        value: '36rpx',
+        value: '24rpx',
         cssvar: true,
-        cssValue: "18px"
+        cssValue: "12px"
       },
       {
         name: 'container-margin-large',
-        desc: '大外边距',
+        desc: '大内边距',
         descEN: 'large',
-        value: '40rpx',
+        value: '32rpx',
         cssvar: true,
-        cssValue: "20px"
+        cssValue: "16px"
       }
     ]
   }

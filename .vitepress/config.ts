@@ -62,6 +62,29 @@ export default defineConfig({
             {
               text: "图标",
               link: "/wechat_miniProgram/icons/index"
+            },
+            {
+              text: "组件",
+              items: [
+                {
+                  text: "面板",
+                  collapsed: false,
+                  items: [
+                    {
+                      text: "面板列表",
+                      link: "/wechat_miniProgram/components/panel/panelList"
+                    },
+                    {
+                      text: "普通面板",
+                      link: "/wechat_miniProgram/components/panel/panel"
+                    },
+                    {
+                      text: "内嵌面板",
+                      link: "/wechat_miniProgram/components/panel/innerPanel"
+                    }
+                  ]
+                }
+              ]
             }
           ]
         }
