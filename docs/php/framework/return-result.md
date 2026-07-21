@@ -12,6 +12,44 @@ ReturnResult 继承自 Response，用于封装方法的返回值（成功或失�
 
 ### 方法列表
 
+#### 静态工厂方法
+
+##### `succeeded($data = null, $statusCode = 200, $code = 200, $message = "ok")`
+
+快速创建成功结果。
+
+| 参数 | 类型 | 说明 |
+|------|------|------|
+| `$data` | `mixed` | 返回的数据 |
+| `$statusCode` | `int` | HTTP 状态码（默认 200） |
+| `$code` | `int\|string` | 响应码（默认 200） |
+| `$message` | `string` | 响应信息（默认 "ok"） |
+
+返回值：`static`
+
+```php
+$result = ReturnResult::succeeded(["id" => 1, "name" => "张三"]);
+```
+
+##### `failed($statusCode = 400, $code = "400:FAIL", $message = "error", $details = null)`
+
+快速创建失败结果。
+
+| 参数 | 类型 | 说明 |
+|------|------|------|
+| `$statusCode` | `int` | HTTP 状态码（默认 400） |
+| `$code` | `int\|string` | 错误码（默认 "400:FAIL"） |
+| `$message` | `string` | 错误信息（默认 "error"） |
+| `$details` | `mixed` | 错误详情 |
+
+返回值：`static`
+
+```php
+$result = ReturnResult::failed(400, "400:ValidateFailed:Custom", "用户名已存在");
+```
+
+#### 实例方法
+
 #### `__construct($result, $errorStatusCode = null, $errorCode = 500, $errorMessage = "error", $errorDetails = null)`
 
 构建返回结果。
@@ -125,6 +163,44 @@ ReturnList 继承自 ReturnResult，专门用于封装列表/分页数据。
 - **继承**: `ReturnResult`
 
 ### 方法列表
+
+#### 静态工厂方法
+
+##### `succeeded($data = null, $statusCode = 200, $code = 200, $message = "ok")`
+
+快速创建成功结果。
+
+| 参数 | 类型 | 说明 |
+|------|------|------|
+| `$data` | `mixed` | 返回的数据 |
+| `$statusCode` | `int` | HTTP 状态码（默认 200） |
+| `$code` | `int\|string` | 响应码（默认 200） |
+| `$message` | `string` | 响应信息（默认 "ok"） |
+
+返回值：`static`
+
+```php
+$result = ReturnResult::succeeded(["id" => 1, "name" => "张三"]);
+```
+
+##### `failed($statusCode = 400, $code = "400:FAIL", $message = "error", $details = null)`
+
+快速创建失败结果。
+
+| 参数 | 类型 | 说明 |
+|------|------|------|
+| `$statusCode` | `int` | HTTP 状态码（默认 400） |
+| `$code` | `int\|string` | 错误码（默认 "400:FAIL"） |
+| `$message` | `string` | 错误信息（默认 "error"） |
+| `$details` | `mixed` | 错误详情 |
+
+返回值：`static`
+
+```php
+$result = ReturnResult::failed(400, "400:ValidateFailed:Custom", "用户名已存在");
+```
+
+#### 实例方法
 
 #### `__construct($list, $total = 0, $page = null, $limit = null, $items = null)`
 

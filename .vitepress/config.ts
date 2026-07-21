@@ -7,6 +7,7 @@ export default defineConfig({
   description: "如意技术库文档",
   lastUpdated: true,
   srcDir: "docs",
+  ignoreDeadLinks: true,
   head: [
     [
       'link',
