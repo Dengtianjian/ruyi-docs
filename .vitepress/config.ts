@@ -130,6 +130,10 @@ export default defineConfig({
               link: "/php/framework/store"
             },
             {
+              text: "Provisioner 生命周期编排器",
+              link: "/php/framework/provisioner"
+            },
+            {
               text: "Event 事件",
               link: "/php/framework/event"
             },
