@@ -24,7 +24,7 @@
 ## 数据与校验
 
 - [Validator 校验器](./framework/validator.md) — 请求参数校验
-- [DataConversion 类型转换](./framework/data-conversion.md) — 数据类型安全转换
+- [Mutator 数据突变器](./framework/data-conversion.md) — 数据类型安全转换
 - [Serializer 序列化](./framework/serializer.md) — 响应数据过滤和转换
 - [ReturnResult 返回结果](./framework/return-result.md) — 标准化方法返回值
 

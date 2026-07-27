@@ -248,7 +248,7 @@ Serializer 会在序列化后的数据中添加 `_serilizer` 标记，防止数�
 | `"字段名"` | 仅过滤字段（保留原值） | `"username"` |
 | `"字段名" => "类型"` | 过滤 + 类型转换 | `"id" => "int"` |
 | `"字段名" => Serializer` | 使用已注册的规则 | `"author" => new Serializer("user")` |
-| `"字段名" => DataConversion` | 使用 DataConversion 实例 | `"price" => new DataConversion("double")` |
+| `"字段名" => Mutator` | 使用 Mutator 实例 | `"price" => new Mutator("double")` |
 | `"字段名" => "json"` | JSON 字符串自动解析 | `"settings" => "json"` |
 | `"字段名" => "serialize"` | PHP serialized 字符串自动解析 | `"meta" => "serialize"` |
 | `"字段名" => callable` | 自定义处理函数 | `"name" => function($v){...}` |
@@ -259,4 +259,4 @@ Serializer 会在序列化后的数据中添加 `_serilizer` 标记，防止数�
 | 类 | 关系 | 说明 |
 |------|------|------|
 | [Controller](./controller.md) | 集成 | 控制器通过 `$responseSerializes` 自动序列化 |
-| [DataConversion](./data-conversion.md) | 配合 | 序列化时用 DataConversion 做类型转换 |
+| [Mutator](./data-conversion.md) | 配合 | 序列化时用 Mutator 做类型转换 |

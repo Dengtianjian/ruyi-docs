@@ -42,12 +42,12 @@ $response->output()
 | `$request` | `Request` | 当前请求实例 |
 | `$response` | `Response` | 控制器响应实例。生命周期内可能被替换为 ReturnResult / ResponsePagination 等 |
 | `$requestBody` | `ControllerBody` | 请求体数据（构造时已完成类型转换和校验） |
-| `$requestBodySerializes` | `array\|DataConversion\|null` | 请求体数据的序列化规则（类型转换） |
+| `$requestBodySerializes` | `array\|Mutator\|null` | 请求体数据的序列化规则（类型转换） |
 | `$requestBodyValidator` | `array\|Validator\|null` | 请求体数据校验器 |
 | `$requestQuery` | `ControllerQuery` | 查询参数数据（构造时已完成类型转换和校验） |
-| `$requestQuerySerializes` | `array\|DataConversion\|null` | 查询参数的序列化规则（类型转换） |
+| `$requestQuerySerializes` | `array\|Mutator\|null` | 查询参数的序列化规则（类型转换） |
 | `$requestQueryValidator` | `array\|Validator\|null` | 查询参数校验器 |
-| `$responseSerializes` | `array\|string\|DataConversion\|Serializer\|null` | 响应数据序列化规则（输出字段过滤） |
+| `$responseSerializes` | `array\|string\|Mutator\|Serializer\|null` | 响应数据序列化规则（输出字段过滤） |
 | `$allowedTransformers` | `string[]` | 允许客户端通过 `_transform` 调用的数据转换器白名单 |
 
 ## 方法列表
@@ -371,5 +371,5 @@ class ListArticlesController extends Controller
 | [Request](./request.md) | 依赖 | 获取请求参数 |
 | [Transform](../data/transform.md) | 工具类 | 解析 `_transform` 参数，执行转换器链 |
 | [Validator](./validator.md) | 校验器 | 参数校验 |
-| [DataConversion](./data-conversion.md) | 类型转换 | 参数类型转换 |
+| [Mutator](./data-conversion.md) | 类型转换 | 参数类型转换 |
 | [Serializer](./serializer.md) | 序列化 | 响应数据过滤 |
