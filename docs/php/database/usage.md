@@ -85,12 +85,15 @@ Connections::addDriver($logDriver, "log");
 
 ```php
 use kernel\Foundation\Database\PDO\DB;
+use kernel\Foundation\Database\PDO\Connections;
 
 // 使用从库查询
-DB::connection('slave')->table('users')->where('status', 1)->get();
+DB::connection('slave');
+$users = DB::table('users')->where('status', 1)->get();
 
 // 写入日志库
-DB::connection('log')->table('access_logs')->insert([
+DB::connection('log');
+DB::table('access_logs')->insert([
     'user_id' => 1,
     'action'  => 'login',
     'ip'      => $_SERVER['REMOTE_ADDR'],
@@ -100,7 +103,8 @@ DB::connection('log')->table('access_logs')->insert([
 Connections::switchToDefaultDriver();
 
 // 指定连接 + 原生 SQL
-DB::connection('slave')->select('SELECT * FROM users WHERE id = ?', [1]);
+DB::connection('slave');
+$user = DB::select('SELECT * FROM users WHERE id = ?', [1]);
 ```
 
 ### 在 Model 中使用不同连接

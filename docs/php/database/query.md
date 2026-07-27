@@ -36,6 +36,42 @@ Query::table()->fromSub(function ($q) {                         // 子查询作�
 
 ---
 
+## JOIN 关联
+
+```php
+// INNER JOIN（默认）
+Query::table('orders', 'o')
+    ->join('users AS u', 'o.user_id', '=', 'u.id')
+    ->select('o.*', 'u.name as user_name')
+    ->get();
+
+// LEFT JOIN
+Query::table('users', 'u')
+    ->leftJoin('profiles AS p', 'u.id', '=', 'p.user_id')
+    ->select('u.*', 'p.bio', 'p.avatar')
+    ->get();
+
+// RIGHT JOIN
+Query::table('products')
+    ->rightJoin('categories', 'products.category_id', '=', 'categories.id')
+    ->get();
+
+// 多个 JOIN 叠加
+Query::table('orders', 'o')
+    ->join('users AS u', 'o.user_id', '=', 'u.id')
+    ->leftJoin('payments AS p', 'o.id', '=', 'p.order_id')
+    ->select('o.*', 'u.name', 'p.amount')
+    ->get();
+
+// join() 通用方法签名
+// join($table, $first, $operator, $second, $type = 'INNER')
+// $table 支持 "表名 AS 别名" 自动解析
+```
+
+> JOIN 对 SELECT/INSERT/UPDATE/DELETE 均可用，但非 SELECT 操作需谨慎使用。
+
+---
+
 ## SELECT
 
 ```php
@@ -360,4 +396,4 @@ $result = Query::table('orders', 'o')
     ->paginate(['page' => 1, 'perPage' => 20]);
 ```
 
-> 注意：Query 不支持 `JOIN` 语法。跨表查询可通过 `whereColumn` / `whereExists` 子查询或 Model 层面的关联来实现。需要执行原生 JOIN 时，使用 `DB::select()` 直接写 SQL。
+> 复杂关联查询推荐使用 [Model 关联查询](/php/database/relation)（`hasOne` / `hasMany` / `belongsTo`）。

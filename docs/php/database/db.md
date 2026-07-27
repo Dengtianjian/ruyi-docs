@@ -90,9 +90,15 @@ DB::table('orders')->where('amount', '>', DB::raw('100 + 50'))->get();
 ### connection() — 切换连接
 
 ```php
-// 切换后，后续链式调用都使用指定连接
-DB::connection('slave')->table('users')->get();
-DB::connection('slave')->select('SELECT * FROM users WHERE id = ?', [1]);
+// 切换连接后，后续所有 DB 操作均使用指定连接
+DB::connection('slave');
+$users = DB::table('users')->get();
+
+DB::connection('slave');
+$user = DB::select('SELECT * FROM users WHERE id = ?', [1]);
+
+// 切回默认连接
+Connections::switchToDefaultDriver();
 ```
 
 ### getPdo() — 获取底层 PDO

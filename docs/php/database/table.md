@@ -4,7 +4,12 @@ title: Table
 
 # Table — DDL 与表管理
 
-`Table` 提供数据库表的 DDL 操作（建表/删表/重命名等）和表结构信息查询。它是 `Model` 的基类，`Model` 在其上扩展了 ActiveRecord 能力。
+`Table` 提供数据库表的 DDL 操作（建表/删表/重命名等）和表结构信息查询。
+它是 `Model` 的基类，`Model` 在其上扩展了 ActiveRecord 能力。
+
+`Table` 自动为表名添加配置前缀（`database.mysql.prefix`），
+子类可通过 `$prefixReplaces` 属性对前缀中的占位符做动态替换，
+并通过 `$schema` 属性定义表结构用于 `create()` 建表。
 
 ## 基础信息查询
 

@@ -114,13 +114,21 @@ Connections::setDefaultDriver('slave');
 
 ## DB 门面中的连接切换
 
-`DB::connection()` 是对 `Connections::useDriver()` 的便捷封装：
+`DB::connection()` 是对 `Connections::useDriver()` 的便捷封装，切换全局活跃连接后
+后续所有 DB/Query/Model 操作均使用新连接：
 
 ```php
 use kernel\Foundation\Database\PDO\DB;
 
+// 切到从库后，后续所有操作均走从库
+DB::connection('slave');
+$users = DB::table('users')->get();
+$count = DB::scalar('SELECT COUNT(*) FROM users');
+
 // 以下两种写法等价
-DB::connection('slave')->table('users')->get();
+DB::connection('slave');
+DB::table('users')->get();
+
 Connections::useDriver('slave');
 DB::table('users')->get();
 ```
@@ -140,9 +148,10 @@ Connections::addDriver($slaveDriver, "slave");           // 从库
 // 写操作 — 走主库（默认连接）
 DB::table('users')->insert(['name' => 'Alice']);
 
-// 读操作 — 走从库
-$users = DB::connection('slave')->table('users')->get();
-$count = DB::connection('slave')->scalar('SELECT COUNT(*) FROM users');
+// 读操作 — 切到从库后执行
+DB::connection('slave');
+$users = DB::table('users')->get();
+$count = DB::scalar('SELECT COUNT(*) FROM users');
 ```
 
 ### 跨库查询
@@ -153,8 +162,10 @@ Connections::addDriver($dbADriver, "db_a", true);
 Connections::addDriver($dbBDriver, "db_b");
 
 // 从 db_a 查用户，从 db_b 查订单
-$user   = DB::connection('db_a')->table('users')->where('id', 1)->first();
-$orders = DB::connection('db_b')->table('orders')->where('user_id', 1)->get();
+DB::connection('db_a');
+$user   = DB::table('users')->where('id', 1)->first();
+DB::connection('db_b');
+$orders = DB::table('orders')->where('user_id', 1)->get();
 ```
 
 ### 在 Service 层封装切换逻辑
@@ -165,15 +176,16 @@ class UserService
     public function getActiveUsers()
     {
         // 查询走从库
-        return DB::connection('slave')
-            ->table('users')
+        DB::connection('slave');
+        return DB::table('users')
             ->where('status', 1)
             ->get();
     }
 
     public function createUser($data)
     {
-        // 写入走主库（默认）
+        // 写入切回主库
+        Connections::switchToDefaultDriver();
         return DB::table('users')->insertGetId($data);
     }
 }

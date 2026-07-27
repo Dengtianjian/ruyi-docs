@@ -31,14 +31,14 @@ foreach ($items as $user) {
     echo $user['name'];
 }
 
-// 第一条
+// 第一条 — 数据为空时返回 null（安全边界）
 $first = $paginator->getFirstItem();
 
-// 最后一条
+// 最后一条 — 数据为空时返回 null（安全边界）
 $last = $paginator->getLastItem();
 
-// 数组格式导出
-$data = $paginator->toArray();  // 等同于 getItems()
+// 数组格式导出 — 等同于 getItems()
+$data = $paginator->toArray();
 ```
 
 ## 获取分页元信息

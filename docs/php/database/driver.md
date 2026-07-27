@@ -4,7 +4,13 @@ title: Driver 驱动
 
 # Driver — PDO 驱动封装
 
-`Driver` 是 PDO 数据库操作的最底层封装，直接包裹 PHP 原生 `PDO` 实例，提供连接管理、SQL 执行、预处理、事务等基础能力。
+`Driver` 是 PDO 数据库操作的最底层封装，直接包裹 PHP 原生 `PDO` 实例，
+提供连接管理、SQL 执行、预处理、事务等基础能力。
+
+Driver 通常不直接使用，而是通过 `Connections` 注册后由 `DB` 门面、`Query` 构建器、
+`Model` 等上层组件间接调用。
+
+> 源码类级注释中的架构图和使用示例参见 [Driver 源码](https://github.com/.../Driver.php)。
 
 ## 构造连接
 
@@ -34,7 +40,8 @@ $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
 ### query() — 通用 SQL 执行
 
-根据 SQL 类型自动返回不同结果：SELECT 类语句返回 `PDOStatement`，写操作返回受影响行数。
+根据 SQL 类型自动选择执行方式：SELECT 类语句通过 `PDO::query()` 返回 `PDOStatement`，
+写操作通过 `PDO::exec()` 返回受影响行数，确保跨数据库驱动（MySQL/SQLite 等）行为一致。
 
 ```php
 // SELECT 查询 → 返回 PDOStatement
@@ -45,6 +52,9 @@ while ($row = $stmt->fetch()) { ... }
 $affected = $driver->query("UPDATE users SET status = 0 WHERE id = 1");
 echo $affected;  // 1
 ```
+
+> **内部实现**：非 SELECT 语句（INSERT/UPDATE/DELETE/DDL 等）使用 `PDO::exec()`，
+> 比 `query() + rowCount()` 组合在不同数据库驱动下行为更一致。
 
 ### exec() — 仅返回受影响行数
 

@@ -123,7 +123,13 @@ $user = UserModel::find(1);
 echo $user->id;          // int
 echo $user->name;       // string
 echo $user->created_at; // Unix 时间戳 int
+
+// 配合 with() 预加载关联
+$user = UserModel::with('profile')->find(1);
+echo $user->profile->bio;  // 已预加载，不会额外查库
 ```
+
+> `find()` 通过 `__call` 代理执行，与 `first()` 同机制。`with()` 创建的实例状态（`$eagerLoads`）得以保留，预加载生效。
 
 ### save — 插入/更新
 
@@ -248,6 +254,79 @@ UserModel::where('status', 0)->update(['status' => 1]);
 
 ---
 
+## 关联查询
+
+通过 `hasOne` / `hasMany` / `belongsTo` 在 Model 内定义关系，支持懒加载和 Eager Loading。
+
+### 定义关系
+
+```php
+class User extends Model {
+    public function profile() {
+        return $this->hasOne(Profile::class);
+    }
+    public function posts() {
+        return $this->hasMany(Post::class);
+    }
+}
+
+class Post extends Model {
+    public function author() {
+        return $this->belongsTo(User::class);
+    }
+}
+```
+
+### 懒加载
+
+```php
+$user = User::where('id', 1)->first();
+echo $user->profile->bio;           // hasOne → 单个 Model
+foreach ($user->posts as $post) {}  // hasMany → Model 数组
+echo $post->author->name;           // belongsTo → 单个 Model
+```
+
+### Eager Loading（预加载）
+
+```php
+// 预加载单个关联
+$users = User::with('profile')->where('status', 1)->get();
+
+// 预加载多个关联
+$posts = Post::with('comments', 'author')->limit(10)->get();
+
+// 按主键查询 + 预加载
+$user = User::with('profile')->find(1);
+
+// 配合 where + first
+$user = User::with('profile')->where('id', 1)->first();
+```
+
+### 关联查询约束
+
+```php
+$activePosts = $user->posts()->where('status', 1)->get();
+$count = $user->posts()->where('status', 1)->count();
+```
+
+### 手动加载
+
+```php
+$user = User::where('id', 1)->first();
+$user->load('profile', 'posts');
+```
+
+### 外键约定
+
+| 关系 | foreignKey（默认值） | localKey（默认值） |
+|------|--------------------|-------------------|
+| hasOne / hasMany | `{当前表名}_{当前主键}` | 关联 Model 的 `primaryKey` |
+| belongsTo | `{关联表名}_{关联主键}` | 关联 Model 的 `primaryKey` |
+
+> 详细用法参见 [关联查询完整文档](/php/database/relation)。
+
+---
+
 ## Schema 自动推导类型
 
 如果 Model 定义了 `$schema`，`schemaCasts` 会自动生成，影响写入 DB 时的类型转换：
@@ -304,7 +383,8 @@ Connections::addDriver($slaveDriver, 'slave');
 PostModel::insert(['title' => 'Hello']);
 
 // 切换到 slave 读数据
-$posts = DB::connection('slave')->table('posts')->where('status', 1)->get();
+DB::connection('slave');
+$posts = DB::table('posts')->where('status', 1)->get();
 
 // 或者用 Connections 直接切换
 Connections::useDriver('slave');

@@ -161,48 +161,76 @@ export default defineConfig({
               link: "/php/database/usage"
             },
             {
-              text: "DB 门面",
-              link: "/php/database/db"
+              text: "核心 API",
+              collapsed: false,
+              items: [
+                {
+                  text: "DB 门面",
+                  link: "/php/database/db"
+                },
+                {
+                  text: "Query Builder",
+                  link: "/php/database/query"
+                },
+                {
+                  text: "Model 模型",
+                  link: "/php/database/model"
+                },
+                {
+                  text: "Relation 关联查询",
+                  link: "/php/database/relation"
+                }
+              ]
             },
             {
-              text: "Query Builder",
-              link: "/php/database/query"
+              text: "底层组件",
+              collapsed: true,
+              items: [
+                {
+                  text: "Driver 驱动",
+                  link: "/php/database/driver"
+                },
+                {
+                  text: "Connections 连接管理器",
+                  link: "/php/database/connections"
+                },
+                {
+                  text: "Statement SQL 生成器",
+                  link: "/php/database/statement"
+                }
+              ]
             },
             {
-              text: "Model 模型",
-              link: "/php/database/model"
+              text: "表结构与辅助",
+              collapsed: true,
+              items: [
+                {
+                  text: "Table",
+                  link: "/php/database/table"
+                },
+                {
+                  text: "Schema",
+                  link: "/php/database/schema"
+                },
+                {
+                  text: "Paginator 分页器",
+                  link: "/php/database/paginator"
+                }
+              ]
             },
             {
-              text: "Table",
-              link: "/php/database/table"
-            },
-            {
-              text: "Schema",
-              link: "/php/database/schema"
-            },
-            {
-              text: "Driver 驱动",
-              link: "/php/database/driver"
-            },
-            {
-              text: "Connections 连接管理器",
-              link: "/php/database/connections"
-            },
-            {
-              text: "Statement SQL 生成器",
-              link: "/php/database/statement"
-            },
-            {
-              text: "Paginator 分页器",
-              link: "/php/database/paginator"
-            },
-            {
-              text: "MongoDB",
-              link: "/php/database/mongodb"
-            },
-            {
-              text: "SQLite",
-              link: "/php/database/sqlite"
+              text: "其他数据库",
+              collapsed: true,
+              items: [
+                {
+                  text: "MongoDB",
+                  link: "/php/database/mongodb"
+                },
+                {
+                  text: "SQLite",
+                  link: "/php/database/sqlite"
+                }
+              ]
             }
           ]
         },

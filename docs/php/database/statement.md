@@ -4,9 +4,30 @@ title: Statement SQL 生成器
 
 # Statement — SQL 语句生成器
 
-`Statement` 是底层 SQL 生成引擎，负责将结构化的查询条件转换为 SQL 字符串。`Query` 构建器内部大量使用 `Statement` 的静态方法来生成 SELECT、WHERE、ORDER BY、INSERT、UPDATE 等 SQL 片段。
+`Statement` 是底层 SQL 生成引擎，负责将结构化的查询条件转换为 SQL 字符串。
+`Query` 构建器内部大量使用 `Statement` 的静态方法来生成 SELECT、WHERE、ORDER BY、
+INSERT、UPDATE 等 SQL 片段。
 
-> 大部分情况下，你不需要直接使用 `Statement`，而是通过 `Query` 构建器间接调用。但在需要自定义 SQL 生成逻辑或`DB::raw()`表达式时，`Statement` 是核心组件。
+`Statement` 的所有方法均为纯静态、无状态、无副作用 — 输入结构化数组，输出 SQL 字符串。
+
+> 大部分情况下，你不需要直接使用 `Statement`，而是通过 `Query` 构建器间接调用。
+> 但在需要自定义 SQL 生成逻辑或 `DB::raw()` 表达式时，`Statement` 是核心组件。
+
+## 条件类型速查
+
+`Statement::where()` 支持以下条件类型，各类型由 `Query::addWhere()` 自动选择：
+
+| 类型 | 说明 | 示例 SQL 片段 |
+|------|------|-------------|
+| `comparsion` | 比较运算 | `` `status` = 1 `` |
+| `columnComparsion` | 列对列比较 | `` `updated_at` > `created_at` `` |
+| `nullValue` | NULL 判断 | `` `deleted_at` IS NULL `` |
+| `rangeTesting` | 范围测试 | `` `age` BETWEEN 18 AND 60 `` |
+| `patternMatching` | 模式匹配 | `` `name` LIKE '%John%' `` |
+| `func` | 函数条件 | `DATE(created_at) = '2025-01-01'`、`EXISTS(...)` |
+| `raw` | 原始 SQL | `FIND_IN_SET(?, tags)` |
+| `sub` | 子查询 | `(SELECT COUNT(*) FROM ...)` |
+| `boolean` | 纯连接符 | 仅 AND / OR，不产生条件 SQL |
 
 ## 基础概念
 
