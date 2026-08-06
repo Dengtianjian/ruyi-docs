@@ -143,7 +143,18 @@ export default defineConfig({
             },
             {
               text: "File 文件操作",
-              link: "/php/framework/file"
+              link: "/php/framework/file",
+              collapsed: true,
+              items: [
+                {
+                  text: "Filesystem 文件管理",
+                  link: "/php/framework/filesystem"
+                },
+                {
+                  text: "FileHelper 文件辅助",
+                  link: "/php/framework/file-helper"
+                }
+              ]
             },
             {
               text: "BaseObject & DataObject",
