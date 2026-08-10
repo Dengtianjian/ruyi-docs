@@ -142,6 +142,14 @@ export default defineConfig({
               link: "/php/framework/log"
             },
             {
+              text: "Str 字符串工具",
+              link: "/php/framework/str"
+            },
+            {
+              text: "Numeric 数值工具",
+              link: "/php/framework/numeric"
+            },
+            {
               text: "File 文件操作",
               link: "/php/framework/file",
               collapsed: true,
