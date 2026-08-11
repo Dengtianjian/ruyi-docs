@@ -122,17 +122,9 @@ export default defineConfig({
           ]
         },
         {
-          text: "工具类",
+          text: "事件与日志",
           collapsed: false,
           items: [
-            {
-              text: "Store 全局存储",
-              link: "/php/framework/store"
-            },
-            {
-              text: "Provisioner 生命周期编排器",
-              link: "/php/framework/provisioner"
-            },
             {
               text: "Event 事件",
               link: "/php/framework/event"
@@ -140,7 +132,13 @@ export default defineConfig({
             {
               text: "Log 日志",
               link: "/php/framework/log"
-            },
+            }
+          ]
+        },
+        {
+          text: "数据工具",
+          collapsed: false,
+          items: [
             {
               text: "Str 字符串工具",
               link: "/php/framework/str"
@@ -149,6 +147,20 @@ export default defineConfig({
               text: "Numeric 数值工具",
               link: "/php/framework/numeric"
             },
+            {
+              text: "Money 货币工具",
+              link: "/php/framework/money"
+            },
+            {
+              text: "Store 全局存储",
+              link: "/php/framework/store"
+            }
+          ]
+        },
+        {
+          text: "文件系统",
+          collapsed: false,
+          items: [
             {
               text: "File 文件操作",
               link: "/php/framework/file",
@@ -163,6 +175,16 @@ export default defineConfig({
                   link: "/php/framework/file-helper"
                 }
               ]
+            }
+          ]
+        },
+        {
+          text: "基础设施",
+          collapsed: false,
+          items: [
+            {
+              text: "Provisioner 生命周期编排器",
+              link: "/php/framework/provisioner"
             },
             {
               text: "BaseObject & DataObject",
