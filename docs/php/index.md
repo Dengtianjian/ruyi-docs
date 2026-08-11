@@ -30,7 +30,6 @@
 
 ## 工具类
 
-- [Store 全局存储](./framework/store.md) — 请求级数据共享
 - [Event 事件](./framework/event.md) — 事件注册和分发
 - [Log 日志](./framework/log.md) — 文件日志记录
 - [File 文件操作](./framework/file.md) — 文件和目录操作

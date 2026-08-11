@@ -150,10 +150,6 @@ export default defineConfig({
             {
               text: "Money 货币工具",
               link: "/php/framework/money"
-            },
-            {
-              text: "Store 全局存储",
-              link: "/php/framework/store"
             }
           ]
         },

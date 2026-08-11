@@ -53,7 +53,7 @@ function verifyAdmin(): ReturnResult
 // 子类覆写示例
 function verifyAdmin(): ReturnResult
 {
-    $userId = Store::getApp("userId");
+    $userId = Arr::get($GLOBALS['_STORE'], '__App.userId');
     $user = (new UsersModel())->where("id", $userId)->getOne();
     if ($user && $user['role'] === 'admin') {
         return new ReturnResult(null);
@@ -70,7 +70,7 @@ function verifyAdmin(): ReturnResult
 // 子类覆写示例
 function verifyAuth(): ReturnResult
 {
-    $logged = Store::getApp("logged");
+    $logged = Arr::get($GLOBALS['_STORE'], '__App.logged');
     if ($logged) {
         return new ReturnResult(null);
     }
@@ -115,7 +115,7 @@ class UpdateUserController extends AuthController
 
     public function data()
     {
-        $userId = Store::getApp("userId");
+        $userId = Arr::get($GLOBALS['_STORE'], '__App.userId');
         // 只有登录用户才能执行到这里
     }
 }
@@ -132,7 +132,7 @@ class SystemInstallController extends AuthController
     // 可选：覆盖 verifyAdmin 添加自定义权限逻辑
     function verifyAdmin(): ReturnResult
     {
-        $userId = Store::getApp("userId");
+        $userId = Arr::get($GLOBALS['_STORE'], '__App.userId');
         $user = (new UsersModel())->where("id", $userId)->getOne();
         if ($user && $user['isAdmin']) {
             return new ReturnResult(null);
@@ -157,7 +157,7 @@ class ListLinksController extends AuthController
 
     public function data()
     {
-        $auth = Store::getApp("auth");
+        $auth = Arr::get($GLOBALS['_STORE'], '__App.auth');
         if (!$auth) {
             // 未登录用户只能看公开内容
         }
@@ -206,4 +206,3 @@ after() → transform() → serialization()
 | [Controller](./controller.md) | 父类 | 基础控制器功能（beforeValidate 生命周期集成） |
 | [Middleware](./middleware.md) | 配合 | 中间件读取认证属性，执行 Token 和权限校验 |
 | [ReturnResult](./return-result.md) | 返回值 | verifyAdmin / verifyAuth 返回 ReturnResult |
-| [Store](./store.md) | 数据存储 | 登录信息存储在 Store 中 |
