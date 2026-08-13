@@ -90,6 +90,10 @@ export default defineConfig({
               link: "/php/framework/response"
             },
             {
+              text: "ReturnResult 返回结果",
+              link: "/php/framework/return-result"
+            },
+            {
               text: "Config 配置",
               link: "/php/framework/config"
             },
@@ -100,7 +104,7 @@ export default defineConfig({
           ]
         },
         {
-          text: "数据与校验",
+          text: "校验 Validation",
           collapsed: false,
           items: [
             {
@@ -108,16 +112,16 @@ export default defineConfig({
               link: "/php/framework/validator"
             },
             {
-              text: "Mutator 数据突变器",
-              link: "/php/framework/data-conversion"
+              text: "校验规则详解",
+              link: "/php/framework/validation/rules"
             },
             {
-              text: "Serializer 序列化",
-              link: "/php/framework/serializer"
+              text: "关联数组校验",
+              link: "/php/framework/validation/array-rules"
             },
             {
-              text: "ReturnResult 返回结果",
-              link: "/php/framework/return-result"
+              text: "使用场景示例",
+              link: "/php/framework/validation/examples"
             }
           ]
         },
@@ -136,7 +140,7 @@ export default defineConfig({
           ]
         },
         {
-          text: "数据工具",
+          text: "数据处理",
           collapsed: false,
           items: [
             {
@@ -150,6 +154,26 @@ export default defineConfig({
             {
               text: "Money 货币工具",
               link: "/php/framework/money"
+            },
+            {
+              text: "Date 时间工具",
+              link: "/php/framework/date"
+            },
+            {
+              text: "Arr 数组工具",
+              link: "/php/framework/arr"
+            },
+            {
+              text: "Transform 数据转换器",
+              link: "/php/framework/transform"
+            },
+            {
+              text: "Mutator 数据突变器",
+              link: "/php/framework/mutator"
+            },
+            {
+              text: "Serializer 序列化",
+              link: "/php/framework/serializer"
             }
           ]
         },

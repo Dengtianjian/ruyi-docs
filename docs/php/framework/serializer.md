@@ -259,4 +259,4 @@ Serializer 会在序列化后的数据中添加 `_serilizer` 标记，防止数�
 | 类 | 关系 | 说明 |
 |------|------|------|
 | [Controller](./controller.md) | 集成 | 控制器通过 `$responseSerializes` 自动序列化 |
-| [Mutator](./data-conversion.md) | 配合 | 序列化时用 Mutator 做类型转换 |
+| [Mutator](./mutator.md) | 配合 | 序列化时用 Mutator 做类型转换 |

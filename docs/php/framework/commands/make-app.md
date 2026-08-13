@@ -31,7 +31,7 @@ php app/console make:app <AppName>
 
 | 文件 | 内容 |
 |------|------|
-| `console` | 应用 CLI 入口，自动发现内核与当前应用命令，已加可执行权限 |
+| `console` | 应用 CLI 入口，自动发现内核与当前应用命令，已加可执行权限。引导时**必选加载内核 vendor**（提供 `kernel\` 命名空间），**可选加载应用自身 vendor**（提供 `<AppName>\` 命名空间与第三方依赖），与 `index.php` 引导方式一致 |
 | `Configs/Config.php` | 应用配置数组，包含 `version`、`mode` |
 | `Controller/IndexController.php` | 示例控制器（继承 Controller 基类） |
 | `Routes/index.php` | 路由入口，注册 `/` 指向 IndexController |

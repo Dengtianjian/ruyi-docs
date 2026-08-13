@@ -5,8 +5,6 @@ Mutator 提供灵活的数据类型转换功能，支持基本类型转换、管
 - **命名空间**: `kernel\Foundation\Data`
 - **文件位置**: `kernel/Foundation/Data/Mutator.php`
 
-> **注意**：Mutator 是 `DataConversion` 的升级替代品。`DataConversion` 已废弃，请使用 Mutator。
-
 ## 快速开始
 
 ```php

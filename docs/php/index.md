@@ -18,15 +18,16 @@
 
 - [Request 请求](./framework/request.md) — HTTP 请求信息封装
 - [Response 响应](./framework/response.md) — HTTP 响应构建和输出
+- [ReturnResult 返回结果](./framework/return-result.md) — 标准化方法返回值
 - [Config 配置](./framework/config.md) — 多环境配置管理
 - [Cache 缓存](./framework/cache.md) — 文件缓存读写
 
-## 数据与校验
+## 校验 Validation
 
-- [Validator 校验器](./framework/validator.md) — 请求参数校验
-- [Mutator 数据突变器](./framework/data-conversion.md) — 数据类型安全转换
-- [Serializer 序列化](./framework/serializer.md) — 响应数据过滤和转换
-- [ReturnResult 返回结果](./framework/return-result.md) — 标准化方法返回值
+- [Validator 校验器](./framework/validator.md) — 单字段/关联数组/条件规则校验
+- [校验规则详解](./framework/validation/rules.md) — 30+ 规则签名、示例与错误码
+- [关联数组校验](./framework/validation/array-rules.md) — Rules 字段映射、点号/通配符、条件规则
+- [使用场景示例](./framework/validation/examples.md) — 控制器/手动/自定义等完整示例
 
 ## 工具类
 
@@ -34,6 +35,17 @@
 - [Log 日志](./framework/log.md) — 文件日志记录
 - [File 文件操作](./framework/file.md) — 文件和目录操作
 - [BaseObject & DataObject](./framework/base-object.md) — 基类和值对象
+
+### 数据处理
+
+- [Str 字符串工具](./framework/str.md) — 字符串处理
+- [Numeric 数值工具](./framework/numeric.md) — 数值转换与格式化
+- [Money 货币工具](./framework/money.md) — 金额处理
+- [Date 时间工具](./framework/date.md) — 高精度时间戳、单位转换与耗时计算
+- [Arr 数组工具](./framework/arr.md) — 数组判断、合并、分组与树形分级
+- [Transform 数据转换器](./framework/transform.md) — _transform 参数解析与转换器链执行
+- [Mutator 数据突变器](./framework/mutator.md) — 数据类型安全转换
+- [Serializer 序列化](./framework/serializer.md) — 响应数据过滤和转换
 
 ## 依赖管理
 

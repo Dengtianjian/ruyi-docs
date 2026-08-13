@@ -371,5 +371,5 @@ class ListArticlesController extends Controller
 | [Request](./request.md) | 依赖 | 获取请求参数 |
 | [Transform](../data/transform.md) | 工具类 | 解析 `_transform` 参数，执行转换器链 |
 | [Validator](./validator.md) | 校验器 | 参数校验 |
-| [Mutator](./data-conversion.md) | 类型转换 | 参数类型转换 |
+| [Mutator](./mutator.md) | 类型转换 | 参数类型转换 |
 | [Serializer](./serializer.md) | 序列化 | 响应数据过滤 |
