@@ -35,6 +35,14 @@
 - [File 文件操作](./framework/file.md) — 文件和目录操作
 - [BaseObject & DataObject](./framework/base-object.md) — 基类和值对象
 
+## 依赖管理
+
+- [依赖按需安装](./framework/dependencies.md) — 内核零依赖，云存储 SDK 按需安装
+
+## 控制台
+
+- [Console 控制台与命令执行](./framework/console.md) — CLI 命令注册、参数解析、系统命令执行器
+
 ## 数据库
 
 - [DB 门面](./database/db.md) — 数据库操作入口

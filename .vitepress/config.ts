@@ -189,6 +189,48 @@ export default defineConfig({
           ]
         },
         {
+          text: "控制台",
+          collapsed: false,
+          items: [
+            {
+              text: "Console 控制台与命令执行",
+              link: "/php/framework/console"
+            },
+            {
+              text: "内置命令",
+              collapsed: false,
+              items: [
+                {
+                  text: "make:app 创建应用",
+                  link: "/php/framework/commands/make-app"
+                },
+                {
+                  text: "make:model 生成模型",
+                  link: "/php/framework/commands/make-model"
+                },
+                {
+                  text: "make:controller 生成控制器",
+                  link: "/php/framework/commands/make-controller"
+                },
+                {
+                  text: "make:middleware 生成中间件",
+                  link: "/php/framework/commands/make-middleware"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          text: "依赖管理",
+          collapsed: false,
+          items: [
+            {
+              text: "依赖按需安装",
+              link: "/php/framework/dependencies"
+            }
+          ]
+        },
+        {
           text: "数据库",
           link: "/php/database",
           collapsed: false,
