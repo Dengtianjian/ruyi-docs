@@ -149,7 +149,7 @@ $console->discover(F_APP_ROOT . "/VendorCommands", "App\\VendorCommands");
 
 ## 内置命令
 
-内核自带一组生成类命令（放 `kernel/Commands/`，随自动发现注册），用于快速生成应用骨架文件。每个命令的详细用法见对应文档：
+内核自带一组命令（放 `kernel/Commands/`，随自动发现注册），用于生成应用骨架文件与定时任务调度。每个命令的详细用法见对应文档：
 
 | 命令 | 用途 | 文档 |
 |------|------|------|
@@ -157,6 +157,7 @@ $console->discover(F_APP_ROOT . "/VendorCommands", "App\\VendorCommands");
 | `make:model` | 生成模型（继承 PDO Model，自动推断表名） | [make:model](/php/framework/commands/make-model) |
 | `make:controller` | 生成控制器（继承 Controller 基类） | [make:controller](/php/framework/commands/make-controller) |
 | `make:middleware` | 生成中间件（继承 Middleware 基类） | [make:middleware](/php/framework/commands/make-middleware) |
+| `schedule:run` | 运行定时任务（扫描 Crons/ 目录任务类，按 `$schedule` 按需执行） | [schedule:run](/php/framework/commands/schedule-run) |
 
 **生成位置**：写入当前应用 `{F_APP_ROOT}` 对应目录（`Model/`、`Controller/`、`Middleware/`），命名空间取 `{F_APP_ID}\Model` 等，支持 `/` 分隔的子命名空间。
 

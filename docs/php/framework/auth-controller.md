@@ -13,7 +13,7 @@ AuthController 采用**双层认证**架构：
 | 层级 | 组件 | 职责 |
 |------|------|------|
 | Middleware 层 | `GlobalAuthMiddleware` | Token 校验 + 平台相关权限校验，是主防线 |
-| Controller 层 | `beforeValidate()` | 安全兜底，确保 CronApp 等非 Middleware 场景也执行认证 |
+| Controller 层 | `beforeValidate()` | 安全兜底，确保 CLI（如 `schedule:run` 定时任务）等非 Middleware 场景也执行认证 |
 
 两层均通过 `$Admin` / `$Auth` 属性决定是否启用认证。
 
@@ -80,7 +80,7 @@ function verifyAuth(): ReturnResult
 
 ### `beforeValidate()`（覆盖自 Controller）
 
-认证校验钩子，在 `Controller::before()` 的标准输入校验之前执行。作为 Middleware 认证的兜底，确保 CronApp 等非 Middleware 场景也执行认证。
+认证校验钩子，在 `Controller::before()` 的标准输入校验之前执行。作为 Middleware 认证的兜底，确保 CLI（如 `schedule:run` 定时任务）等非 Middleware 场景也执行认证。
 
 ```php
 protected function beforeValidate(): void

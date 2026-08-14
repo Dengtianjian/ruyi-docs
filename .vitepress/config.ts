@@ -239,6 +239,10 @@ export default defineConfig({
                 {
                   text: "make:middleware 生成中间件",
                   link: "/php/framework/commands/make-middleware"
+                },
+                {
+                  text: "schedule:run 定时任务",
+                  link: "/php/framework/commands/schedule-run"
                 }
               ]
             }
