@@ -147,7 +147,7 @@ Cache::clear("temp_data");
 Cache::remove("old_cache");
 ```
 
-### `remember($id, $callback, $expiresIn = 30)` （新增）
+### `remember($id, $callback, $expiresIn = 30)`
 
 缓存-回调模式：缓存命中直接返回，未命中调用回调生成并写入。
 
@@ -165,7 +165,7 @@ $articles = Cache::remember("home_articles", function () {
 }, 1 / 24); // 缓存 1 小时
 ```
 
-### `get($id, $default = null)` （新增）
+### `get($id, $default = null)`
 
 读取缓存，未命中（不存在或已过期）时返回默认值。
 
@@ -180,7 +180,7 @@ $articles = Cache::remember("home_articles", function () {
 $settings = Cache::get("user_settings", ["theme" => "light"]);
 ```
 
-### `increment($id, $step = 1, $expiresIn = 30)` / `decrement($id, $step = 1, $expiresIn = 30)` （新增）
+### `increment($id, $step = 1, $expiresIn = 30)` / `decrement($id, $step = 1, $expiresIn = 30)`
 
 原子自增 / 自减计数器。基于文件锁保证并发安全，内容为数字；缓存不存在时从 0 开始。
 
@@ -190,7 +190,7 @@ $settings = Cache::get("user_settings", ["theme" => "light"]);
 | `$step` | `int/float` | 增量/减量，默认 1 |
 | `$expiresIn` | `int/float/null` | 有效期（天） |
 
-返回值：`int|float` 操作后的新值
+返回值：`int|float|false` 操作后的新值（打开文件失败时返回 `false`）
 
 ```php
 Cache::increment("page_views");            // 1
@@ -198,7 +198,7 @@ Cache::increment("page_views", 5);         // 6
 Cache::decrement("stock", 2);              // 4
 ```
 
-### `flush()` （新增）
+### `flush()`
 
 清空缓存目录下的全部缓存文件，并清空进程内缓存。
 
@@ -208,7 +208,7 @@ Cache::decrement("stock", 2);              // 4
 Cache::flush();
 ```
 
-### `gc()` （新增）
+### `gc()`
 
 清理过期或损坏的缓存文件。
 
