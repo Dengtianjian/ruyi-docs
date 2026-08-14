@@ -75,7 +75,8 @@ class RateLimitMiddleware extends Middleware
         $ip = \kernel\Foundation\HTTP\Request::realClientIp();
         $key = "rate_limit:" . $ip;
         
-        $count = \kernel\Foundation\Cache::read($key) ?: 0;
+        // 原子自增计数（基于文件锁，并发安全）
+        $count = \kernel\Foundation\Cache::increment($key, 1, 0);
         
         if ($count > 100) {
             // 超过限制，返回错误
@@ -83,8 +84,6 @@ class RateLimitMiddleware extends Middleware
             $RR->error(429, "429001", "请求过于频繁，请稍后再试");
             return $RR;
         }
-        
-        \kernel\Foundation\Cache::overwrite($key, $count + 1, 1);
         
         // 继续执行后续中间件和控制器
         return $next();
