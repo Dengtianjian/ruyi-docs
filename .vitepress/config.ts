@@ -195,6 +195,10 @@ export default defineConfig({
                   link: "/php/framework/file-helper"
                 }
               ]
+            },
+            {
+              text: "Zip 压缩解压",
+              link: "/php/framework/zip"
             }
           ]
         },

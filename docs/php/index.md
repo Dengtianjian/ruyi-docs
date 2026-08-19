@@ -35,6 +35,7 @@
 - [Event 事件](./framework/event.md) — 事件注册和分发
 - [Log 日志](./framework/log.md) — 文件日志记录
 - [File 文件操作](./framework/file.md) — 文件和目录操作
+- [Zip 压缩解压](./framework/zip.md) — 目录打包与安全解压（zip slip / zip bomb 防护）
 - [BaseObject & DataObject](./framework/base-object.md) — 基类和值对象
 
 ### 数据处理
