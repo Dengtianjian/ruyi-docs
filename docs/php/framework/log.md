@@ -4,7 +4,7 @@ Log 提供基于文件的日志记录功能。按年/月目录组织，按日创
 
 - **命名空间**: `kernel\Foundation`
 - **文件位置**: `kernel/Foundation/Log.php`
-- **存储路径**: `Data/Logs/年/月/日.jsonl`（根目录为 `F_APP_DATA/Logs`，由 [App](./app.md) 启动时定义）
+- **存储路径**: `Data/Logs/年/月/日.jsonl`（根目录为 `FileSystem::appData()/Logs`，由 [App](./app.md) 启动时赋值）
 - **文件格式**: JSON Lines，每行一条单行 JSON：`{"time":"...","level":"...","content":...}`
 - **调用方式**: 全部为静态方法，直接 `Log::xxx()` 调用
 
@@ -413,7 +413,7 @@ Data/Logs/
 3. **未来日期读不到日志**：`read()` 对晚于当前时刻的日期返回空数组（防止误读尚未发生的数据）。
 4. **`cleanup(0)` 全删**：保留 0 天会删除今天及之前的全部日志文件，使用前确认。
 5. **`$context` 判空**：快捷方法的上下文合并使用 `empty()` 判定——传 `null`、`0`、`""` 同样视为"无上下文"，消息原样存储。
-6. **存储路径不可配置**：根目录固定为 `F_APP_DATA/Logs`（`F_APP_DATA` 未定义时退化为相对路径），无配置项可修改。
+6. **存储路径不可配置**：根目录固定为 `FileSystem::appData()/Logs`（未赋值时退化为相对路径），无配置项可修改。
 
 ## 与其他类的协作
 

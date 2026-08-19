@@ -79,7 +79,7 @@ $result = Serializer::serialization([
 // ["id" => 1, "username" => "admin", "phone" => "123456"]
 ```
 
-### `load($FileName, $ruleName = null, $BasePath = F_APP_ROOT)`
+### `load($FileName, $ruleName = null, $BasePath = null)`
 
 静态方法，从文件加载序列化规则。
 
@@ -95,7 +95,7 @@ $result = Serializer::serialization([
 Serializer::load("Serializers/user", "user_profile");
 ```
 
-### `loadGet($FileName, $ruleName = null, $Names = null, $upperLevel = null, $BasePath = F_APP_ROOT)`
+### `loadGet($FileName, $ruleName = null, $Names = null, $upperLevel = null, $BasePath = null)`
 
 静态方法，加载并获取规则（`load()` + `get()` 的合体）。
 

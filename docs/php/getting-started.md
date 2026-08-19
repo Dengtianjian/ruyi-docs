@@ -25,7 +25,7 @@
 └── ...
 ```
 
-应用目录名由 `new App("AppId")` 的第一个参数决定。`AppId` 就是应用文件夹的名称，框架通过它自动推导 `F_APP_ROOT`、`F_APP_ID` 等路径常量。
+应用目录名由 `new App("AppId")` 的第一个参数决定。`AppId` 就是应用文件夹的名称，框架通过 `App::id()` 静态方法获取（从当前实例读取），并由它自动推导 `FileSystem::root()`/`FileSystem::data()` 等路径 getter（无静态属性，每次调用时自动计算）。
 
 ## 请求入口
 
@@ -61,19 +61,22 @@ server {
 include_once("../kernel/index.php");   // 引入内核自动加载
 
 $App = new App("app1");                // AppId = 目录名
+$App->onBootUp(\app1\Lifecycle\Bootup::class);   // 加载应用引导装配类
+$App->onShutdown(\app1\Lifecycle\Shutdown::class);     // 加载应用关闭装配类
 $App->run();                           // 启动应用
 ```
 
 `new App("app1")` 做了以下初始化工作：
 
-1. 定义路径常量：`F_ROOT`、`F_APP_ROOT`、`F_APP_ID`、`F_KERNEL_ROOT` 等
+1. 实例化 App（构造参数决定 `App::id()`/`App::kernelId()`，从当前实例读取）并实例化 FileSystem（`defineConstants()` 之后 `new FileSystem`，无需传参，构造时确保 `data`/`storage` 目录存在；`FileSystem::projectRoot()`/`FileSystem::root()` 等 7 个路径 getter 在每次静态方法调用时自动计算——`kernelRoot` 为本类所在内核目录，`projectRoot` 为 DiscuzX 平台 `DISCUZ_ROOT`（去尾斜杠）/ 普通项目内核上级目录，`root`/`data`/`storage` 由 `App::id()` 推导；无任何静态属性，依赖 `App::id()` 的 getter 在未实例化 App 时返回 null）
 2. 载入 `Common.php` 全局函数
 3. 读取 `Configs/` 下的配置文件（按优先级覆盖）
 4. 注册全局异常/错误处理
 5. 加载错误码
 6. 加载路由文件（先内核路由，再应用路由）
-7. 加载事件文件
-8. 创建 `Request` 实例
+7. 创建 `Request` 实例
+
+随后入口调用 `$App->onBootUp(Bootup::class)` 与 `$App->onShutdown(Shutdown::class)` 注册应用引导装配类与关闭装配类（由 `run()` 在对应时机实例化、构造即装配），最后 `$App->run()` 启动应用。
 
 ## 整体架构
 
@@ -91,7 +94,7 @@ $App->run();                           // 启动应用
                                    │
                     ┌──────────────▼───────────────────┐
                     │          生命周期钩子              │
-                    │     bootUp() 回调执行              │
+                    │     onBootUp() 回调执行              │
                     └──────────────┬───────────────────┘
                                    │
                     ┌──────────────▼───────────────────┐
@@ -244,7 +247,7 @@ return $this->response->file("/path/to/file.pdf");
 ## 请求处理生命周期
 
 1. **App 启动** — 初始化配置、加载路由、注册全局中间件
-2. **bootUp 回调** — 执行注册的启动回调
+2. **bootup 回调** — 执行注册的启动回调
 3. **路由匹配** — 根据 URL 和方法匹配路由
 4. **实例化控制器** — 创建控制器实例
 5. **before() 钩子** — 校验请求参数
@@ -288,7 +291,8 @@ return $this->response->file("/path/to/file.pdf");
 │   ├── Model/               #   数据模型
 │   ├── Middleware/          #   应用中间件
 │   ├── Service/             #   业务服务
-│   ├── Events/              #   事件定义
+│   ├── Lifecycle/             #   应用装配目录（Bootup.php 引导 + Shutdown.php 关闭，其余按需引入）
+│   ├── Event/               #   事件订阅者类
 │   └── Storage/             #   文件存储
 │
 ├── app2/                    # 应用 2（AppId = "app2"）
@@ -317,6 +321,7 @@ include_once("../kernel/index.php");
 use kernel\Foundation\App;
 
 $App = new App("myapp");     // AppId 必须与目录名一致
+$App->onBootUp(\myapp\Lifecycle\Bootup::class);   // 加载应用引导装配类
 $App->run();
 ```
 
@@ -360,6 +365,7 @@ $driver = new Driver(
 );
 Connections::addDriver($driver);
 
+$App->onBootUp(\myapp\Lifecycle\Bootup::class);   // 加载应用引导装配类
 $App->run();
 ```
 
@@ -422,6 +428,7 @@ class IndexController extends Controller
 include_once("../kernel/index.php");
 
 $App = new App("anotherapp");  // 目录名 = "anotherapp"
+$App->onBootUp(\anotherapp\Lifecycle\Bootup::class);   // 加载应用引导装配类
 $App->run();
 ```
 
@@ -429,17 +436,17 @@ $App->run();
 
 ## 框架路径常量
 
-框架在 `new App()` 时自动定义以下常量，可在应用任意位置使用：
+框架在 `new App()` 时自动设置以下常量与静态属性，可在应用任意位置使用：
 
-| 常量 | 值 | 说明 |
+| 常量 / 静态属性 | 值 | 说明 |
 |------|------|------|
-| `F_ROOT` | `/path/to/project` | 项目根目录绝对路径 |
-| `F_APP_ID` | `"myapp"` | 当前应用 AppId |
-| `F_APP_ROOT` | `/path/to/project/myapp` | 当前应用根目录 |
-| `F_APP_DIR` | `"myapp"` | 当前应用相对路径名 |
-| `F_KERNEL_ID` | `"kernel"` | 内核目录名 |
-| `F_KERNEL_ROOT` | `/path/to/project/kernel` | 内核根目录 |
-| `F_APP_MODE` | `"production"` / `"development"` | 当前运行模式 |
+| `FileSystem::root()` | `/path/to/project` | 项目根目录绝对路径 |
+| `App::id()` | `"myapp"` | 当前应用 AppId（静态属性，取构造第一个参数） |
+| `FileSystem::appRoot()` | `/path/to/project/myapp` | 当前应用根目录 |
+| `FileSystem::appDir()` | `"myapp"` | 当前应用相对路径名 |
+| `App::kernelId()` | `"kernel"` | 内核目录名（静态属性，取构造第二个参数） |
+| `FileSystem::kernelRoot()` | `/path/to/project/kernel` | 内核根目录 |
+| `App::mode()` | `"production"` / `"development"` | 当前运行模式 |
 | `F_BASE_URL` | `"http://example.com"` | 应用基础 URL |
 
 ## 下一步

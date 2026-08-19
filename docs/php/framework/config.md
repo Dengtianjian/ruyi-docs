@@ -102,7 +102,7 @@ Config::read("/path/to/other-app.php", "otherApp");
 
 ## 方法详解
 
-### `read($filePath = null, $appId = F_APP_ID)`
+### `read($filePath = null, $appId = null)`
 
 读取配置文件，将其内容通过 `Arr::merge()` 深度合并到指定 appId 的内存配置中。
 
@@ -111,7 +111,7 @@ Config::read("/path/to/other-app.php", "otherApp");
 | 参数 | 类型 | 说明 |
 |------|------|------|
 | `$filePath` | `string\|null` | 配置文件完整路径，为 `null` 或文件不存在时返回 `false` |
-| `$appId` | `string` | 应用 ID，决定配置写入哪个应用的分组，默认当前应用 |
+| `$appId` | `string\|null` | 应用 ID，决定配置写入哪个应用的分组；为 `null` 时取 `App::id()`（当前应用） |
 
 **返回值**：`bool` — 成功返回 `true`，文件不存在或内容非数组返回 `false`
 
@@ -119,7 +119,7 @@ Config::read("/path/to/other-app.php", "otherApp");
 
 ```php
 // 主应用加载
-Config::read("/path/to/config.php");                      // → F_APP_ID
+Config::read("/path/to/config.php");                      // → App::id()（当前应用）
 
 // 同一份配置加载到 B 应用
 Config::read("/path/to/config.php", "appB");              // → appB
@@ -129,7 +129,7 @@ Config::read("/path/to/config.php", "appB");              // → appB
 
 ---
 
-### `get($key = null, $defaultValue = null, $appId = F_APP_ID)`
+### `get($key = null, $defaultValue = null, $appId = null)`
 
 按键路径逐层深入查找配置值。任一层级不存在，或目标 appId 未加载时，返回 `$defaultValue`。
 
@@ -156,11 +156,11 @@ $all = Config::get();
 $otherMode = Config::get("mode", "production", "otherApp");
 ```
 
-> **注意**：若键存在但值为 `null`，`get()` 也会返回 `null`。需要区分「不存在」与「值为 null」时请使用 [`has()`](#haskey-appid--f_app_id)。
+> **注意**：若键存在但值为 `null`，`get()` 也会返回 `null`。需要区分「不存在」与「值为 null」时请使用 [`has()`](#haskey-appid--null)。
 
 ---
 
-### `set($keyOrValue, $value = null, $appId = F_APP_ID)`
+### `set($keyOrValue, $value = null, $appId = null)`
 
 运行时设置配置值，仅修改内存中的缓存，**不会写入文件**。支持两种调用模式。
 
@@ -201,7 +201,7 @@ Config::set("mode", "development", "otherApp");
 
 ---
 
-### `has($key, $appId = F_APP_ID)`
+### `has($key, $appId = null)`
 
 判断指定配置键是否存在。**区分「键不存在」与「键存在但值为 null」**，弥补 `get()` 无法区分两者的不足。
 
@@ -229,7 +229,7 @@ if (!Config::has("database.mysql")) {
 
 ---
 
-### `forget($key, $appId = F_APP_ID)`
+### `forget($key, $appId = null)`
 
 删除指定配置键。键或其中间路径不存在时静默返回，不会抛异常。
 
@@ -253,7 +253,7 @@ Config::forget("nonexistent.key");  // 静默返回
 
 ---
 
-### `push($key, $value, $appId = F_APP_ID)`
+### `push($key, $value, $appId = null)`
 
 向数组类型的配置项末尾追加值。目标不存在或不是数组时**自动创建空数组**再追加。
 
@@ -285,7 +285,7 @@ Config::get("audit.logTargets");  // => ["database"]
 
 ---
 
-### `flush($appId = F_APP_ID)`
+### `flush($appId = null)`
 
 清空指定应用的全部内存配置。清空后 `get()` 返回 `$defaultValue`，`set()`/`push()` 会重新初始化空数组。
 
@@ -438,5 +438,5 @@ return [
 
 | 类 | 关系 | 说明 |
 |------|------|------|
-| [App](./app.md) | 初始化加载 | `App::initConfig()` 在启动时遍历并按顺序加载多层配置文件 |
+| [App](./app.md) | 初始化加载 | App 构造时执行 `new Config;`，由构造方法按顺序加载多层配置文件 |
 | [Middleware](./middleware.md) | 读取配置 | 中间件通过 `Config::get()` 获取运行时参数 |

@@ -5,7 +5,7 @@ Cache 提供基于文件的缓存读写功能。支持设置过期时间，缓�
 - **命名空间**: `kernel\Foundation`
 - **文件位置**: `kernel/Foundation/Cache.php`
 - **存储位置**: `Data/Cache/` 目录下
-- **特点**: 全部为静态方法
+- **特点**: 缓存读写全部为静态方法；构造方法（`new Cache;`）生成缓存动态 KEY
 
 ## 特性
 
@@ -27,6 +27,20 @@ Cache 提供基于文件的缓存读写功能。支持设置过期时间，缓�
 | `format` | 存储格式（`php_serialize`） |
 
 ## 方法列表
+
+### `__construct()` / `key()`
+
+缓存动态 KEY：App 构造时执行 `new Cache;`，构造方法生成 16 位随机字符串并注册当前实例；`Cache::key()` 读取该 KEY，主要用于静态文件（替代原 `F_CACHE_KEY` 常量）。
+
+| 方法 | 说明 |
+|------|------|
+| `new Cache;` | 生成 16 位随机 KEY 并注册当前实例（每次 App 实例化时自动执行） |
+| `Cache::key()` | 返回当前实例的 KEY（16 位随机字符串）；未实例化 Cache 时返回空字符串 |
+
+```php
+// App 构造时已自动 new Cache; 并生成 KEY
+echo Cache::key(); // 例：3f2a8b1c9d0e4f5a
+```
 
 ### `read($id)`
 
@@ -276,6 +290,7 @@ $removed = Cache::gc();
 
 | 类 | 关系 | 说明 |
 |------|------|------|
+| [App](./app.md) | 实例化 | App 构造时执行 `new Cache;`，生成缓存动态 KEY |
 | [Controller](./controller.md) | 使用 | 控制器中缓存查询结果 |
 | [Model] | 使用 | 缓存数据库查询结果 |
 | [Middleware](./middleware.md) | 使用 | 限流计数等场景 |

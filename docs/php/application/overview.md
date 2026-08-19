@@ -16,7 +16,8 @@ myapp/                     # AppId = "myapp"，命名空间 = myapp\
 ├── Model/                 # 数据模型（命名空间: myapp\Model\）
 ├── Middleware/            # 中间件（命名空间: myapp\Middleware\）
 ├── Service/               # 业务服务（命名空间: myapp\Service\）
-├── Events/                # 事件定义
+├── Lifecycle/              # 应用装配目录（Bootup.php 引导 + Shutdown.php 关闭，其余按需引入）
+├── Event/                 # 事件订阅者类（命名空间: myapp\Event\）
 └── Storage/               # 文件存储
 ```
 

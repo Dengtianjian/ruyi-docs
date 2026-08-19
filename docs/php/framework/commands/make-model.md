@@ -13,8 +13,8 @@ php app/console make:model <ModelName> [--force]
 
 ## 生成位置
 
-- 文件：`{F_APP_ROOT}/Model/<名称>.php`（如 `Model/UserModel.php`、`Model/Admin/UserModel.php`）
-- 命名空间：`{F_APP_ID}\Model`，子目录追加在后（如 `{F_APP_ID}\Model\Admin`）
+- 文件：`{FileSystem::appRoot()}/Model/<名称>.php`（如 `Model/UserModel.php`、`Model/Admin/UserModel.php`）
+- 命名空间：`{App::id()}\Model`，子目录追加在后（如 `{App::id()}\Model\Admin`）
 
 ## 命名规则
 

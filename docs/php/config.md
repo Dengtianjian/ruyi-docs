@@ -79,9 +79,9 @@ return [
 - `production` ：生产环境，会抑制未拦截的报错，显示 `500` 错误；并且接口 `details` 字段会是空
 
 默认是 `production` 模式，**只有通过配置文件中的 `mode` 参数才可以修改当前运行模式**  
-可以通过 `F_APP_MODE` 常亮获取当前的运行模式
+可以通过 `App::mode()` 获取当前的运行模式
 ```php
 <?php 
 
-print_r(F_APP_MODE);
+print_r(App::mode());
 ```

@@ -13,8 +13,8 @@ php app/console make:middleware <MiddlewareName> [--force]
 
 ## 生成位置
 
-- 文件：`{F_APP_ROOT}/Middleware/<名称>.php`（如 `Middleware/AuthMiddleware.php`、`Middleware/Admin/AuthMiddleware.php`）
-- 命名空间：`{F_APP_ID}\Middleware`，子目录追加在后（如 `{F_APP_ID}\Middleware\Admin`）
+- 文件：`{FileSystem::appRoot()}/Middleware/<名称>.php`（如 `Middleware/AuthMiddleware.php`、`Middleware/Admin/AuthMiddleware.php`）
+- 命名空间：`{App::id()}\Middleware`，子目录追加在后（如 `{App::id()}\Middleware\Admin`）
 
 ## 命名规则
 

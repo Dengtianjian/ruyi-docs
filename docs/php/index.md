@@ -9,6 +9,7 @@
 ## 框架核心
 
 - [App 应用入口](./framework/app.md) — 应用启动器，管理生命周期、中间件和控制器
+- [Lifecycle 应用装配](./framework/lifecycle.md) — 入口中 `$app->onBootUp(Bootup::class)` / `$app->onShutdown(Shutdown::class)` 加载的应用装配类
 - [Router 路由](./framework/router.md) — URL 与控制器的映射，支持静态/动态/分组路由
 - [Controller 控制器](./framework/controller.md) — 基础控制器，参数校验和数据序列化
 - [AuthController 认证控制器](./framework/auth-controller.md) — 带用户认证的控制器

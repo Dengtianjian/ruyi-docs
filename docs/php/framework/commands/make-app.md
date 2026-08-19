@@ -24,6 +24,7 @@ php app/console make:app <AppName>
 | `Model/` | 模型 |
 | `Routes/` | 路由 |
 | `Service/` | 服务 |
+| `Lifecycle/` | 应用装配（引导类 `Lifecycle\Bootup` 与关闭类 `Lifecycle\Shutdown`，入口中 `$app->onBootUp(...)` / `$app->onShutdown(...)` 加载） |
 | `Storage/` | 存储（文件） |
 | `Data/` | 数据（日志等） |
 
@@ -31,11 +32,13 @@ php app/console make:app <AppName>
 
 | 文件 | 内容 |
 |------|------|
-| `console` | 应用 CLI 入口，自动发现内核与当前应用命令，已加可执行权限。引导时**必选加载内核 vendor**（提供 `kernel\` 命名空间），**可选加载应用自身 vendor**（提供 `<AppName>\` 命名空间与第三方依赖），与 `index.php` 引导方式一致 |
+| `console` | 应用 CLI 入口，命令统一在 `Routes/index.php` 中注册（`Router::command`），已加可执行权限。引导时**必选加载内核 vendor**（提供 `kernel\` 命名空间），**可选加载应用自身 vendor**（提供 `<AppName>\` 命名空间与第三方依赖），与 `index.php` 引导方式一致 |
 | `Configs/Config.php` | 应用配置数组，包含 `version`、`mode` |
 | `Controller/IndexController.php` | 示例控制器（继承 Controller 基类） |
 | `Routes/index.php` | 路由入口，注册 `/` 指向 IndexController |
-| `index.php` | 应用 HTTP 入口，引导 kernel 并运行 App |
+| `Lifecycle/Bootup.php` | 应用引导装配类（`{App}\Lifecycle\Bootup`），入口中 `$app->onBootUp(...)` 实例化，构造即装配 |
+| `Lifecycle/Shutdown.php` | 应用关闭装配类（`{App}\Lifecycle\Shutdown`），入口中 `$app->onShutdown(...)` 实例化，构造即装配 |
+| `index.php` | 应用 HTTP 入口，引导 kernel、调用 `$app->onBootUp(Bootup::class)` / `$app->onShutdown(Shutdown::class)` 并运行 App |
 | `README.md` | 项目说明与使用方式 |
 | `install.key` | 安装密钥，随机生成的 16 位十六进制字符串 |
 | `composer.json` | 自动写入 PSR-4 加载规则（`"<AppName>\\": ""`） |
@@ -52,7 +55,7 @@ return [
 ```
 
 - `version`：应用版本，生成时按 `0.1.0.<yyyyMMdd.HHmm>` 自动生成
-- `mode`：运行模式，默认 `production`；与 `F_APP_MODE` 及路由加载判断（`Config::get("mode")`）相关
+- `mode`：运行模式，默认 `production`；与 `App::mode()` 及路由加载判断（`Config::get("mode")`）相关
 
 ## PSR-4 自动加载
 

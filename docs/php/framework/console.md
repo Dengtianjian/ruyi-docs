@@ -37,9 +37,15 @@ if (file_exists($appVendor)) {
 }
 
 use kernel\Foundation\Console\Console;
+use app\Lifecycle\Bootup;
+use app\Lifecycle\Shutdown;
 
-// 构造时已自动发现内核与当前应用的 Commands/ 目录命令类
+// 命令统一在 Routes/index.php 中注册（Router::command），CLI 按命令名分发，不解析 URI
 $console = new Console("app");
+
+// 加载应用引导装配类与关闭装配类（CLI 同样生效）
+$console->onBootUp(Bootup::class);
+$console->onShutdown(Shutdown::class);
 
 // 执行命令分发，并以退出码结束（Console::run 内部调用 handle 后 exit）
 $console->run();
@@ -53,7 +59,33 @@ php app/console --help
 
 ### 2. 注册命令
 
-在应用的 console 入口中注册命令：
+命令与 HTTP 路由统一在应用 `Routes/index.php` 中注册：
+
+```php
+use kernel\Foundation\Router;
+use app\Controller\HelloController;
+
+Router::command("hello", HelloController::class, "Say hello");
+```
+
+命令控制器迁移到 `Controller/` 目录（内核内置命令放 `Controller/Console/`），实现 `handle($console, $args, $options): int`：
+
+```php
+namespace app\Controller\Console;
+
+use kernel\Foundation\Console\Console;
+
+class HelloController
+{
+  public function handle(Console $console, $args, $options): int
+  {
+    $console->success("Hello " . ($args[0] ?? "World"));
+    return 0;
+  }
+}
+```
+
+也可在 console 入口用 `register()` 补充实例级命令（同名覆盖 Router 命令）：
 
 ```php
 $console->register("hello", function ($console, $args, $options) {
@@ -73,83 +105,37 @@ php app/console hello Tianjian --name=john
 
 ## 命令处理器
 
-支持两种形式：
+支持三种形式：
 
 | 形式 | 签名 | 说明 |
 |------|------|------|
-| 闭包 | `function (Console $console, array $args, array $options): int` | 注册时直接传入闭包 |
-| 命令类 | `handle(Console $console, array $args, array $options): int` | 注册时传入类名，由框架实例化并调用 |
-
-命令类示例：
-
-```php
-namespace App\Commands;
-
-class HelloCommand
-{
-  public function handle($console, $args, $options): int
-  {
-    $console->success("Hello " . ($args[0] ?? "World"));
-    return 0;
-  }
-}
-
-// 注册
-$console->register("hello", \App\Commands\HelloCommand::class, "Say hello");
-```
+| 命令控制器类 | `handle(Console $console, array $args, array $options): int` | `Router::command()` 传入类名，由框架实例化并调用 |
+| 类名 + 方法名 | `[类名, 方法名]`（方法签名同 `handle`） | `Router::command("name", [Class::class, "run"])` 指定处理方法 |
+| 闭包 | `function (Console $console, array $args, array $options): int` | 注册时直接传入闭包（`Router::command` 或 `register()` 均可） |
 
 处理器返回整数作为命令退出码；返回非整数时按 0 处理。
 
-### 自动发现命令类
+### 命令注册与分发（Routes 统一注册）
 
-**实例化 `Console` 时自动发现两个约定目录**（无需手动调用）：
+**命令与 HTTP 路由统一在 Routes 文件中注册**，不再有独立的 Commands/ 目录自动发现机制：
 
-| 目录 | 命名空间 | 说明 |
+| 场景 | 匹配依据 | 说明 |
 |------|----------|------|
-| `{F_APP_ROOT}/Commands` | `{F_APP_ID}\Commands` | 当前应用命令 |
-| `{F_KERNEL_ROOT}/Commands` | `{F_KERNEL_ID}\Commands` | 内核命令 |
+| CLI（Console） | **命令名**（Router 命令表） | `Router::match()`（command 模式）按命令名匹配，不解析 URI |
+| HTTP | **URI**（路由表） | `Router::match()` 只匹配 URI 路由，不匹配命令 |
 
-- 应用命令后注册，同名时覆盖内核命令
-- 内核与应用目录相同（如 `new Console("kernel")`）时只扫描一次
-- 目录不存在或类无法自动加载（未配置 PSR-4）时静默跳过
-
-命令类约定（类名取文件名，按 PSR-4 定位，命名空间前缀 = AppId/目录名）：
-
-```php
-namespace App\Commands;
-
-class CacheClearCommand
-{
-  protected $name = "cache:clear";        // 命令名（必填）
-  protected $description = "Clear cache"; // 命令说明（可选）
-
-  public function handle($console, $args, $options): int
-  {
-    // ...
-    return 0;
-  }
-}
-```
-
-应用侧需在 `composer.json` 配置 PSR-4（与目录名一致）：
-
-```json
-{
-  "autoload": {
-    "psr-4": { "App\\": "" }
-  }
-}
-```
-
-**手动扫描额外目录**：`discover($directory, $namespace)` 仍可用，适合读取其他文件夹的命令：
+- 内核命令在 `kernel/Routes/index.php` 注册；应用命令在应用 `Routes/index.php` 注册
+- CLI 下实例化 `Console`（继承 App）同样加载 Routes，命令表因此就绪
+- `register()`/`discover()` 为实例级补充注册（可选）：同名命令覆盖 Router 命令
+- `discover($directory, $namespace)` 仍可用于手动扫描其他目录中的命令控制器类（约定：类名取文件名，静态 `$name` 声明命令名，`$description` 声明说明）：
 
 ```php
-$console->discover(F_APP_ROOT . "/VendorCommands", "App\\VendorCommands");
+$console->discover(FileSystem::root() . "/VendorCommands", "App\\VendorCommands");
 ```
 
 ## 内置命令
 
-内核自带一组命令（放 `kernel/Commands/`，随自动发现注册），用于生成应用骨架文件与定时任务调度。每个命令的详细用法见对应文档：
+内核自带一组命令，命令控制器放 `kernel/Controller/Console/`，在 `kernel/Routes/index.php` 中通过 `Router::command()` 注册，用于生成应用骨架文件与定时任务调度。每个命令的详细用法见对应文档：
 
 | 命令 | 用途 | 文档 |
 |------|------|------|
@@ -159,7 +145,7 @@ $console->discover(F_APP_ROOT . "/VendorCommands", "App\\VendorCommands");
 | `make:middleware` | 生成中间件（继承 Middleware 基类） | [make:middleware](/php/framework/commands/make-middleware) |
 | `schedule:run` | 运行定时任务（扫描 Crons/ 目录任务类，按 `$schedule` 按需执行） | [schedule:run](/php/framework/commands/schedule-run) |
 
-**生成位置**：写入当前应用 `{F_APP_ROOT}` 对应目录（`Model/`、`Controller/`、`Middleware/`），命名空间取 `{F_APP_ID}\Model` 等，支持 `/` 分隔的子命名空间。
+**生成位置**：写入当前应用 `{FileSystem::root()}` 对应目录（`Model/`、`Controller/`、`Middleware/`），命名空间取 `{App::id()}\Model` 等，支持 `/` 分隔的子命名空间。
 
 **常用选项**：
 
@@ -331,7 +317,7 @@ $console = new Console("app");
 // 基于 Command 的命令
 $console->register("cache:clear", function ($console) {
   $console->info("Clearing cache...");
-  $result = (new \kernel\Foundation\Console\Command())->execResult("rm -rf " . F_APP_ROOT . "/Storage/cache/*");
+  $result = (new \kernel\Foundation\Console\Command())->execResult("rm -rf " . \kernel\Foundation\FileSystem\FileSystem::root() . "/Storage/cache/*");
   if ($result["exitcode"] === 0) {
     $console->success("Cache cleared.");
     return 0;

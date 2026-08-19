@@ -2,7 +2,7 @@
 
 `schedule:run` 是内核内置的定时任务调度命令。每次执行时扫描应用 `Crons/` 目录下的任务类，读取类属性 `$schedule` 声明的执行时间，命中当前时刻的任务会被按需执行。
 
-- **命令类**: `kernel/Commands/ScheduleRunCommand.php`
+- **命令控制器**: `kernel/Controller/Console/ScheduleRunCommand.php`（在 `kernel/Routes/index.php` 中经 `Router::command()` 注册）
 - **触发方式**: `php {应用}/console schedule:run`
 
 ## 为什么用它
@@ -13,7 +13,7 @@
 - **无需维护注册文件**：新增任务只需新增一个类文件，`schedule:run` 每次自动扫描，按需执行
 - **执行时间即类属性**：`$schedule` 属性直接声明该任务何时执行，声明即调度
 - 统一使用应用自己的 `console` 入口，无需单独维护 cron 入口脚本
-- CLI 生命周期钩子（`bootUp` / `shutdown`）对全部命令生效，定时任务同样可用
+- CLI 生命周期钩子（`bootup` / `shutdown`）对全部命令生效，定时任务同样可用
 - 单个任务失败不会中断其他任务，结束时报成功/失败统计，并以退出码反馈（有失败返回 1，便于 crontab 感知）
 
 ## 任务类
@@ -24,8 +24,8 @@
 
 | 文件 | 类命名空间 |
 |------|-----------|
-| `Crons/CleanupTask.php` | `{F_APP_ID}\Crons\CleanupTask` |
-| `Crons/System/CleanupTask.php` | `{F_APP_ID}\Crons\System\CleanupTask` |
+| `Crons/CleanupTask.php` | `{App::id()}\Crons\CleanupTask` |
+| `Crons/System/CleanupTask.php` | `{App::id()}\Crons\System\CleanupTask` |
 
 > 类命名空间必须与文件路径对应（PSR-4），子目录对应追加子命名空间。
 
@@ -110,14 +110,14 @@ Finished: 2 succeeded, 0 failed.
 
 ## 生命周期钩子
 
-`Console::handle()` 在命令分发前触发 `bootUp`、结束后触发 `shutdown`，因此 `schedule:run` 同样能利用应用入口中注册的生命周期钩子：
+`Console::handle()` 在命令分发前触发 `bootup`、结束后触发 `shutdown`，因此 `schedule:run` 同样能利用应用入口中注册的生命周期钩子：
 
 ```php
 // 应用 console 入口
-$console->bootUp(function () {
+$console->onBootUp(function () {
     // 任务执行前的初始化（如数据库连接池预热）
 });
-$console->shutdown(function ($exitCode) {
+$console->onShutdown(function ($exitCode) {
     // 任务执行后的清理
 });
 
@@ -126,4 +126,4 @@ $console->run();
 
 ## 相关导航
 
-- [Console 控制台与命令执行](../console.md) — 命令分发、生命周期与自动发现
+- [Console 控制台与命令执行](../console.md) — 命令注册（Routes）、分发与生命周期

@@ -11,7 +11,7 @@ Request 封装了 HTTP 请求的所有信息，包括请求方法、URI、查询
 |------|------|------|
 | `$method` | `string` | 请求方法（get/post/put/patch/delete） |
 | `$URI` | `string` | 请求 URI |
-| `$Route` | `array` | 当前匹配到的路由信息 |
+| `$Route` | `array` | 当前匹配到的路由（`App::run()` 路由匹配后写入；业务代码从 `$request->Route` 获取） |
 | `$query` | `RequestQuery` | 查询参数（URL ? 后的参数） |
 | `$body` | `RequestBody` | 请求体数据（POST/PUT/PATCH 的数据） |
 | `$header` | `RequestHeader` | 请求头 |
@@ -151,6 +151,6 @@ POST /links?_method=put  → 实际被识别为 PUT 请求
 |------|------|------|
 | [App](./app.md) | 创建者 | App 初始化时创建 Request |
 | [Controller](./controller.md) | 依赖 | 控制器通过 `$this->request` 获取 |
-| [Router](./router.md) | 匹配依据 | 根据 URI 和 method 匹配路由 |
+| [Router](./router.md) | 匹配结果写入方 | 匹配后的路由写入 `$Route`，参数写入 `$params` |
 | [Middleware](./middleware.md) | 读取参数 | 中间件读取 Token、IP 等 |
 | [Response](./response.md) | 配对 | 请求-响应对 |

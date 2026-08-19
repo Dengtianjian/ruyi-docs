@@ -1,10 +1,32 @@
-# Filesystem — 文件管理
+# FileSystem — 文件系统
 
-Filesystem 提供文件的上传、创建、复制、移动、删除、读取等高级文件操作。所有路径操作均通过 FileHelper 进行规范化处理，确保跨平台兼容。
+FileSystem 是文件系统的总管理类：负责路径计算（调用时自动计算）与文件操作（上传、创建、复制、移动、删除、读取等）。所有路径操作均通过 FileHelper 进行规范化处理，确保跨平台兼容。
 
-- **命名空间**: `kernel\Foundation\File\Filesystem`
-- **文件位置**: `kernel/Foundation/File/Filesystem.php`
-- **特点**: 全部为静态方法，无需实例化
+- **命名空间**: `kernel\Foundation\FileSystem\FileSystem`
+- **文件位置**: `kernel/Foundation/FileSystem/FileSystem.php`
+- **特点**: 全部为静态方法，无需实例化（无参构造由 `App` 在 `defineConstants()` 之后执行，构造时确保应用 `data`/`storage` 目录存在）
+
+## 目录结构
+
+### 路径 getter
+
+| 方法 | 返回 | 说明 |
+|------|------|------|
+| `projectRoot()` | `string\|null` | 项目根目录（DiscuzX 平台取 `DISCUZ_ROOT` 去尾斜杠，普通项目为内核上级目录） |
+| `kernelRoot()` | `string` | 内核根目录（本类所在目录，永远正确） |
+| `root()` | `string\|null` | 当前 App 根目录（`kernelRoot` 同级目录下的 `{App::id()}`） |
+| `data()` | `string\|null` | App 数据目录（`root/Data`） |
+| `storage()` | `string\|null` | App 存储目录（`root/Storage`） |
+| `kernelDir()` | `string\|null` | 内核目录相对 `projectRoot` 的路径 |
+| `dir()` | `string\|null` | App 目录相对 `projectRoot` 的路径 |
+
+依赖 `App::id()` 的 getter（`root`/`data`/`storage`/`dir`）在未实例化 App 时返回 `null`。
+
+```php
+$root = FileSystem::root();        // App 根目录
+$data = FileSystem::data();        // App 数据目录
+$storage = FileSystem::storage();  // App 存储目录
+```
 
 ## 文件上传
 
@@ -14,19 +36,19 @@ Filesystem 提供文件的上传、创建、复制、移动、删除、读取等
 - 通过 `$_FILES` 数组上传（HTTP POST 文件上传）
 - 通过本地文件路径上传（用于服务端已存在的文件）
 
-文件默认保存到 `F_APP_STORAGE` 常量指定的存储根目录下，通过 `$savePath` 参数可指定相对子目录。对于图片类型的文件，会自动获取宽高信息。
+文件默认保存到 `FileSystem::storage()` 指定的存储根目录下，通过 `$savePath` 参数可指定相对子目录。对于图片类型的文件，会自动获取宽高信息。
 
 | 参数 | 类型 | 说明 |
 |------|------|------|
 | `$file` | `array\|string` | `$_FILES` 数组中的某一项，或本地文件的完整路径 |
-| `$savePath` | `string` | 保存的相对路径（相对于 `F_APP_STORAGE`），传入 `"."` 或空字符串表示直接保存在存储根目录 |
+| `$savePath` | `string` | 保存的相对路径（相对于 `FileSystem::storage()`），传入 `"."` 或空字符串表示直接保存在存储根目录 |
 | `$fileName` | `string\|null` | 自定义存储文件名（不含扩展名），`null` 时自动使用 `uniqid()` 生成 |
 
 返回值：`array`
 
 ```php
 // 通过 $_FILES 上传
-$fileInfo = Filesystem::upload($_FILES['avatar'], 'avatars', 'user_123');
+$fileInfo = FileSystem::upload($_FILES['avatar'], 'avatars', 'user_123');
 // 返回: {
 //   name: "user_123.jpg",
 //   sourceFileName: "original_name.jpg",
@@ -39,12 +61,12 @@ $fileInfo = Filesystem::upload($_FILES['avatar'], 'avatars', 'user_123');
 // }
 
 // 通过本地路径上传
-$fileInfo = Filesystem::upload('/tmp/export.csv', 'exports');
+$fileInfo = FileSystem::upload('/tmp/export.csv', 'exports');
 ```
 
-::: warning 注意
+:::: warning 注意
 当使用字符串路径（本地文件）方式上传时，源文件会在复制完成后被删除（即实际行为是"移动"）。
-:::
+::::
 
 **返回值字段说明:**
 
@@ -72,7 +94,7 @@ $fileInfo = Filesystem::upload('/tmp/export.csv', 'exports');
 返回值：`array|false` — 文件信息数组，文件不存在时返回 `false`
 
 ```php
-$info = Filesystem::getFileInfo('/storage/avatars/user_123.jpg');
+$info = FileSystem::getFileInfo('/storage/avatars/user_123.jpg');
 echo $info['size'];   // 文件大小（字节）
 echo $info['width'];  // 图片宽度，非图片时为 null
 echo $info['height']; // 图片高度，非图片时为 null
@@ -89,7 +111,7 @@ echo $info['height']; // 图片高度，非图片时为 null
 返回值：`int|false` — 文件大小（字节），文件不存在或读取失败时返回 `false`
 
 ```php
-$size = Filesystem::fileSize('/path/to/file.txt');
+$size = FileSystem::fileSize('/path/to/file.txt');
 if ($size !== false) {
     echo '文件大小: ' . FileHelper::humanReadableSize($size);
 }
@@ -106,7 +128,7 @@ if ($size !== false) {
 返回值：`string|false` — 文件内容字符串，文件不存在时返回 `false`
 
 ```php
-$content = Filesystem::readFile('/path/to/config.json');
+$content = FileSystem::readFile('/path/to/config.json');
 if ($content !== false) {
     $config = json_decode($content, true);
 }
@@ -128,13 +150,13 @@ if ($content !== false) {
 
 ```php
 // 创建新文件
-Filesystem::createFile('/path/to/newfile.txt', 'Hello World');
+FileSystem::createFile('/path/to/newfile.txt', 'Hello World');
 
 // 覆盖已存在的文件
-Filesystem::createFile('/path/to/existing.txt', 'New Content', true);
+FileSystem::createFile('/path/to/existing.txt', 'New Content', true);
 
 // 文件已存在时不覆盖（直接返回 true）
-Filesystem::createFile('/path/to/existing.txt', 'ignored', false);
+FileSystem::createFile('/path/to/existing.txt', 'ignored', false);
 ```
 
 ## 文件复制与移动
@@ -153,10 +175,10 @@ Filesystem::createFile('/path/to/existing.txt', 'ignored', false);
 
 ```php
 // 复制文件（不覆盖）
-Filesystem::copyFile('/path/to/source.txt', '/path/to/dest.txt');
+FileSystem::copyFile('/path/to/source.txt', '/path/to/dest.txt');
 
 // 复制并覆盖
-Filesystem::copyFile('/path/to/source.txt', '/path/to/dest.txt', true);
+FileSystem::copyFile('/path/to/source.txt', '/path/to/dest.txt', true);
 ```
 
 ### `moveFile($sourcePath, $destPath, $overwrite = false)`
@@ -173,13 +195,13 @@ Filesystem::copyFile('/path/to/source.txt', '/path/to/dest.txt', true);
 
 ```php
 // 重命名文件
-Filesystem::moveFile('/path/to/oldname.txt', '/path/to/newname.txt');
+FileSystem::moveFile('/path/to/oldname.txt', '/path/to/newname.txt');
 
 // 移动文件到另一个目录
-Filesystem::moveFile('/path/to/file.txt', '/another/path/file.txt');
+FileSystem::moveFile('/path/to/file.txt', '/another/path/file.txt');
 
 // 移动并覆盖目标文件
-Filesystem::moveFile('/path/to/source.txt', '/path/to/dest.txt', true);
+FileSystem::moveFile('/path/to/source.txt', '/path/to/dest.txt', true);
 ```
 
 ### `cloneDirectory($sourcePath, $destPath)`
@@ -195,7 +217,7 @@ Filesystem::moveFile('/path/to/source.txt', '/path/to/dest.txt', true);
 
 ```php
 // 将 templates/default 克隆到 themes/newtheme
-Filesystem::cloneDirectory('/path/to/templates/default', '/path/to/themes/newtheme');
+FileSystem::cloneDirectory('/path/to/templates/default', '/path/to/themes/newtheme');
 ```
 
 ### `copyFolder($targetPath, $destPath, $whiteList = [])`
@@ -213,7 +235,7 @@ Filesystem::cloneDirectory('/path/to/templates/default', '/path/to/themes/newthe
 ```php
 // 复制主题文件夹，跳过配置文件
 $whiteList = ['/themes/newtheme/config.php'];
-Filesystem::copyFolder('/themes/default', '/themes/newtheme', $whiteList);
+FileSystem::copyFolder('/themes/default', '/themes/newtheme', $whiteList);
 ```
 
 ## 文件删除
@@ -229,16 +251,16 @@ Filesystem::copyFolder('/themes/default', '/themes/newtheme', $whiteList);
 返回值：`bool` — 文件不存在时返回 `true`（视为已删除）
 
 ```php
-Filesystem::deleteFile('/path/to/file.txt');
+FileSystem::deleteFile('/path/to/file.txt');
 ```
 
 ### `deleteDirectory($path)`
 
 递归删除目录及其所有子文件和子目录。
 
-::: danger 危险操作
+:::: danger 危险操作
 删除后无法恢复，请谨慎使用。
-:::
+::::
 
 | 参数 | 类型 | 说明 |
 |------|------|------|
@@ -247,7 +269,7 @@ Filesystem::deleteFile('/path/to/file.txt');
 返回值：`bool`
 
 ```php
-Filesystem::deleteDirectory('/path/to/temp');
+FileSystem::deleteDirectory('/path/to/temp');
 ```
 
 ### `clearFolder($targetPath, $whiteList = [])`
@@ -263,7 +285,7 @@ Filesystem::deleteDirectory('/path/to/temp');
 
 ```php
 // 清空缓存目录，但保留 index.html
-Filesystem::clearFolder('/path/to/cache', ['/path/to/cache/index.html']);
+FileSystem::clearFolder('/path/to/cache', ['/path/to/cache/index.html']);
 ```
 
 ## 目录操作
@@ -281,8 +303,8 @@ Filesystem::clearFolder('/path/to/cache', ['/path/to/cache/index.html']);
 
 ```php
 // 确保日志目录存在
-Filesystem::ensureDirectory('/var/log/myapp');
+FileSystem::ensureDirectory('/var/log/myapp');
 
 // 指定目录权限
-Filesystem::ensureDirectory('/data/uploads', 0775);
+FileSystem::ensureDirectory('/data/uploads', 0775);
 ```

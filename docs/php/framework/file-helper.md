@@ -2,8 +2,8 @@
 
 FileHelper 提供文件类型判断、路径处理、目录扫描、格式化等底层工具方法。所有方法均为静态方法，无需实例化。
 
-- **命名空间**: `kernel\Foundation\File\FileHelper`
-- **文件位置**: `kernel/Foundation/File/FileHelper.php`
+- **命名空间**: `kernel\Foundation\FileSystem\FileHelper`
+- **文件位置**: `kernel/Foundation/FileSystem/FileHelper.php`
 - **特点**: 全部为静态方法
 
 ## 文件类型判断
