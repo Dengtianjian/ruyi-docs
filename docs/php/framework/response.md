@@ -307,4 +307,4 @@ return $this->response->view("index", ["title" => "首页"]);
 | [Controller](./controller.md) | 使用 | 控制器通过 `$this->response` 构建响应 |
 | [App](./app.md) | 输出 | App 在流程最后调用 output() |
 | [Request](./request.md) | 配对 | 请求-响应对 |
-| [ReturnResult](./return-result.md) | 父类 | ReturnResult 继承自 Response |
+| [Result](./result.md) | 父类 | Result 继承自 Response |

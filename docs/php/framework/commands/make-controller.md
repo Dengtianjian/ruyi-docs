@@ -38,7 +38,7 @@ class UserController extends Controller
   /**
    * 业务处理入口
    *
-   * @return mixed 响应数据、Response 或 ReturnResult 等
+   * @return mixed 响应数据、Response 或 Result 等
    */
   public function data()
   {
@@ -48,7 +48,7 @@ class UserController extends Controller
 ```
 
 - `__construct(Request $R)`：注入请求对象
-- `data()`：业务处理入口，返回响应数据、`Response` 或 `ReturnResult` 等
+- `data()`：业务处理入口，返回响应数据、`Response` 或 `Result` 等
 
 ## 示例
 

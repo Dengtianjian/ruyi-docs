@@ -450,19 +450,19 @@ $rules = new Rules([
 回调签名：`function ($value, $rule, $data): mixed`
 
 ```php
-use kernel\Foundation\ReturnResult\ReturnResult;
+use kernel\Foundation\Result;
 
 $rule = Rule::required()->type('string')->custom(function ($value, $rule, $data) {
     // 查询数据库判断唯一性
     $exists = DB::table('users')->where('username', $value)->exists();
     if ($exists) {
-        return ReturnResult::failed(400, '400:ValidateFailed:Custom', '用户名已存在');
+        return Result::failed(400, '400:ValidateFailed:Custom', '用户名已存在');
     }
-    // 返回非 error 的 ReturnResult 或不返回 → 视为通过
+    // 返回非 error 的 Result 或不返回 → 视为通过
 });
 ```
 
-回调返回 `ReturnResult` 且 `$error === true` 时判定失败，其余情况视为通过。
+回调返回 `Result` 且 `$error === true` 时判定失败，其余情况视为通过。
 
 ### useRule — 复用规则
 

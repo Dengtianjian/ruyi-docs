@@ -90,8 +90,8 @@ export default defineConfig({
               link: "/php/framework/response"
             },
             {
-              text: "ReturnResult 返回结果",
-              link: "/php/framework/return-result"
+              text: "Result 返回结果",
+              link: "/php/framework/result"
             },
             {
               text: "Config 配置",

@@ -40,7 +40,7 @@ $response->output()
 | 属性 | 类型 | 说明 |
 |------|------|------|
 | `$request` | `Request` | 当前请求实例 |
-| `$response` | `Response` | 控制器响应实例。生命周期内可能被替换为 ReturnResult / ResponsePagination 等 |
+| `$response` | `Response` | 控制器响应实例。生命周期内可能被替换为 Result / ResponsePagination 等 |
 | `$requestBody` | `ControllerBody` | 请求体数据（构造时已完成类型转换和校验） |
 | `$requestBodySerializes` | `array\|Mutator\|null` | 请求体数据的序列化规则（类型转换） |
 | `$requestBodyValidator` | `array\|Validator\|null` | 请求体数据校验器 |

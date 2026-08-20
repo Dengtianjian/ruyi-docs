@@ -188,7 +188,7 @@ $validator = new Validator($rules, [
 ## 场景八：自定义校验（唯一性检查）
 
 ```php
-use kernel\Foundation\ReturnResult\ReturnResult;
+use kernel\Foundation\Result;
 use kernel\Foundation\Validation\Rule;
 use kernel\Foundation\Validation\Validator;
 
@@ -197,7 +197,7 @@ $rule = Rule::required('用户名不能为空')
     ->custom(function ($value, $rule, $data) {
         $exists = DB::table('users')->where('username', $value)->exists();
         if ($exists) {
-            return ReturnResult::failed(400, '400:ValidateFailed:Custom', '用户名已被占用');
+            return Result::failed(400, '400:ValidateFailed:Custom', '用户名已被占用');
         }
     });
 

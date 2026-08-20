@@ -306,7 +306,7 @@ class ComplexController extends AuthController
         $result = $service->execute($this->requestBody->all());
         
         if ($result->error) {
-            return $result;  // ReturnResult 继承自 Response
+            return $result;  // Result 继承自 Response
         }
         
         return $result->result();

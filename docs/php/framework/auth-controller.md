@@ -37,44 +37,44 @@ AuthController 采用**双层认证**架构：
 
 ## 方法列表
 
-### `verifyAdmin(): ReturnResult`
+### `verifyAdmin(): Result`
 
 验证管理员权限。由 Middleware 在 Token 校验通过后调用，也在 `beforeValidate()` 中兜底调用。
 
-基类返回 `ReturnResult(null)`（无错误，即默认通过）。子类可覆盖此方法以添加额外的业务权限校验。
+基类返回 `Result(null)`（无错误，即默认通过）。子类可覆盖此方法以添加额外的业务权限校验。
 
 ```php
 // 基类默认实现（无额外校验，直接通过）
-function verifyAdmin(): ReturnResult
+function verifyAdmin(): Result
 {
-    return new ReturnResult(null);
+    return new Result(null);
 }
 
 // 子类覆写示例
-function verifyAdmin(): ReturnResult
+function verifyAdmin(): Result
 {
     $userId = Arr::get($GLOBALS['_STORE'], '__App.userId');
     $user = (new UsersModel())->where("id", $userId)->getOne();
     if ($user && $user['role'] === 'admin') {
-        return new ReturnResult(null);
+        return new Result(null);
     }
-    return new ReturnResult(null, 403, 'ADMIN_REQUIRED', '需要管理员权限');
+    return new Result(null, 403, 'ADMIN_REQUIRED', '需要管理员权限');
 }
 ```
 
-### `verifyAuth(): ReturnResult`
+### `verifyAuth(): Result`
 
 验证用户登录状态。与 `verifyAdmin()` 对称，用于非管理员级别的登录校验。
 
 ```php
 // 子类覆写示例
-function verifyAuth(): ReturnResult
+function verifyAuth(): Result
 {
     $logged = Arr::get($GLOBALS['_STORE'], '__App.logged');
     if ($logged) {
-        return new ReturnResult(null);
+        return new Result(null);
     }
-    return new ReturnResult(null, 401, 'LOGIN_REQUIRED', '请登录后重试');
+    return new Result(null, 401, 'LOGIN_REQUIRED', '请登录后重试');
 }
 ```
 
@@ -130,14 +130,14 @@ class SystemInstallController extends AuthController
     public $Admin = true;
 
     // 可选：覆盖 verifyAdmin 添加自定义权限逻辑
-    function verifyAdmin(): ReturnResult
+    function verifyAdmin(): Result
     {
         $userId = Arr::get($GLOBALS['_STORE'], '__App.userId');
         $user = (new UsersModel())->where("id", $userId)->getOne();
         if ($user && $user['isAdmin']) {
-            return new ReturnResult(null);
+            return new Result(null);
         }
-        return new ReturnResult(null, 403, 'ADMIN_ONLY', '仅管理员可操作');
+        return new Result(null, 403, 'ADMIN_ONLY', '仅管理员可操作');
     }
 
     public function data()
@@ -205,4 +205,4 @@ after() → transform() → serialization()
 |------|------|------|
 | [Controller](./controller.md) | 父类 | 基础控制器功能（beforeValidate 生命周期集成） |
 | [Middleware](./middleware.md) | 配合 | 中间件读取认证属性，执行 Token 和权限校验 |
-| [ReturnResult](./return-result.md) | 返回值 | verifyAdmin / verifyAuth 返回 ReturnResult |
+| [Result](./result.md) | 返回值 | verifyAdmin / verifyAuth 返回 Result |

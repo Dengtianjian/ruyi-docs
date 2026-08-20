@@ -129,15 +129,15 @@ echo $validator->getErrorMessage('required');  // "用户名必填"
 echo $validator->getErrorMessage('type');      // "参数错误"（未设置）
 ```
 
-### `validate(): ReturnResult`
+### `validate(): Result`
 
-执行校验并返回 `ReturnResult` 实例：
+执行校验并返回 `Result` 实例：
 - 校验通过：`$result->error === false`，`$result->getData()` 为 `true`
 - 校验失败：`$result->error === true`，可通过 `errorCode()`、`errorMessage()`、`errorDetails()` 获取详情
 
 `validate()` 会先处理条件规则（`sometimes`），随后按顺序执行全部规则，命中首个失败规则即短路返回。
 
-### `ReturnParamError(): ReturnResult`
+### `ReturnParamError(): Result`
 
 返回通用"参数错误"结果（`400:ValidateFailed:ParamError`）。内部在参数类型不合法时调用（如 `min` 规则遇到数组、`hasKeys` 遇到非数组等）。
 
@@ -186,20 +186,20 @@ Rule (门面)  ──委托──▶  RuleBuilder (构建器)  ──实现─�
     │
     └── Rules (继承 Rule，扩展字段映射、点号/通配符、条件规则)
 
-Validator (引擎)  ──消费──▶  Rule / Rules   ──输出──▶  ReturnResult
+Validator (引擎)  ──消费──▶  Rule / Rules   ──输出──▶  Result
 ```
 
 - `Rule` 是门面，通过 `__call` / `__callStatic` / `__get` / `__set` 透明代理到 `RuleBuilder`
 - `Rules extends Rule`，在继承链式调用能力的基础上增加关联数组字段管理
 - `Validator` 读取 `$rule` / `$errorMessages` 属性执行校验，支持规则短路、通配符展开、条件规则合并
-- 校验结果统一为 [`ReturnResult`](./return-result.md)，与框架错误体系无缝衔接
+- 校验结果统一为 [`Result`](./result.md)，与框架错误体系无缝衔接
 
 ## 与其他类的协作
 
 | 类 | 关系 | 说明 |
 |------|------|------|
 | [Controller](./controller.md) | 集成 | `$requestQueryValidator` / `$requestBodyValidator` 自动校验 |
-| [ReturnResult](./return-result.md) | 返回值 | `validate()` 返回 ReturnResult，供控制器统一处理 |
+| [Result](./result.md) | 返回值 | `validate()` 返回 Result，供控制器统一处理 |
 | [Arr](./arr.md) | 使用 | 点号取值（`Arr::get`）、关联数组判断（`Arr::isAssoc`） |
 | [Numeric](./numeric.md) | 使用 | 数值归一化（`Numeric::val`） |
 

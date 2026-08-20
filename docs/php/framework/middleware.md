@@ -67,7 +67,7 @@ Router::group("admin", function () {
 namespace myapp\Middleware;
 
 use kernel\Foundation\Middleware\MiddlewareBase;
-use kernel\Foundation\ReturnResult\ReturnResult;
+use kernel\Foundation\Result;
 
 class RateLimitMiddleware extends MiddlewareBase
 {
@@ -81,7 +81,7 @@ class RateLimitMiddleware extends MiddlewareBase
         
         if ($count > 100) {
             // 超过限制，返回错误
-            $RR = new ReturnResult(false);
+            $RR = new Result(false);
             $RR->error(429, "429001", "请求过于频繁，请稍后再试");
             return $RR;
         }
@@ -183,4 +183,4 @@ $App->set(["middleware" => $middleware]);
 | [Router](./router.md) | 路由级中间件 | 路由注册时指定 |
 | [AuthController](./auth-controller.md) | 配合认证 | 中间件读取认证属性 |
 | [Controller](./controller.md) | 拦截目标 | 中间件在控制器前后执行 |
-| [ReturnResult](./return-result.md) | 错误返回 | 中间件用 ReturnResult 返回错误 |
+| [Result](./result.md) | 错误返回 | 中间件用 Result 返回错误 |
