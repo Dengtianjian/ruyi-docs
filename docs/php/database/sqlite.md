@@ -30,7 +30,7 @@ $db = new SQLite('data/app.db', SQLITE3_OPEN_READONLY);
 $db = new SQLite('data/app.db', SQLITE3_OPEN_READWRITE, 'encryption_key');
 ```
 
-> 文件路径相对于 `FileSystem::appRoot()`（应用根目录）。如果文件不存在会抛出异常。
+> 文件路径相对于 `Path::root()`（应用根目录）。如果文件不存在会抛出异常。
 
 **Flags 选项**：
 

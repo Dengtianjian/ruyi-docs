@@ -68,10 +68,10 @@ use app\Controller\HelloController;
 Router::command("hello", HelloController::class, "Say hello");
 ```
 
-命令控制器迁移到 `Controller/` 目录（内核内置命令放 `Controller/Console/`），实现 `handle($console, $args, $options): int`：
+命令控制器迁移到 `Controller/` 目录（内核内置命令放 `Controller/Commands/`），实现 `handle($console, $args, $options): int`：
 
 ```php
-namespace app\Controller\Console;
+namespace app\Controller\Commands;
 
 use kernel\Foundation\Console\Console;
 
@@ -130,12 +130,12 @@ php app/console hello Tianjian --name=john
 - `discover($directory, $namespace)` 仍可用于手动扫描其他目录中的命令控制器类（约定：类名取文件名，静态 `$name` 声明命令名，`$description` 声明说明）：
 
 ```php
-$console->discover(FileSystem::root() . "/VendorCommands", "App\\VendorCommands");
+$console->discover(Path::root() . "/VendorCommands", "App\\VendorCommands");
 ```
 
 ## 内置命令
 
-内核自带一组命令，命令控制器放 `kernel/Controller/Console/`，在 `kernel/Routes/index.php` 中通过 `Router::command()` 注册，用于生成应用骨架文件与定时任务调度。每个命令的详细用法见对应文档：
+内核自带一组命令，命令控制器放 `kernel/Controller/Commands/`，在 `kernel/Routes/index.php` 中通过 `Router::command()` 注册，用于生成应用骨架文件与定时任务调度。每个命令的详细用法见对应文档：
 
 | 命令 | 用途 | 文档 |
 |------|------|------|
@@ -145,7 +145,7 @@ $console->discover(FileSystem::root() . "/VendorCommands", "App\\VendorCommands"
 | `make:middleware` | 生成中间件（继承 Middleware 基类） | [make:middleware](/php/framework/commands/make-middleware) |
 | `schedule:run` | 运行定时任务（扫描 Crons/ 目录任务类，按 `$schedule` 按需执行） | [schedule:run](/php/framework/commands/schedule-run) |
 
-**生成位置**：写入当前应用 `{FileSystem::root()}` 对应目录（`Model/`、`Controller/`、`Middleware/`），命名空间取 `{App::id()}\Model` 等，支持 `/` 分隔的子命名空间。
+**生成位置**：写入当前应用 `{Path::root()}` 对应目录（`Model/`、`Controller/`、`Middleware/`），命名空间取 `{App::id()}\Model` 等，支持 `/` 分隔的子命名空间。
 
 **常用选项**：
 
@@ -317,7 +317,7 @@ $console = new Console("app");
 // 基于 Command 的命令
 $console->register("cache:clear", function ($console) {
   $console->info("Clearing cache...");
-  $result = (new \kernel\Foundation\Console\Command())->execResult("rm -rf " . \kernel\Foundation\FileSystem\FileSystem::root() . "/Storage/cache/*");
+  $result = (new \kernel\Foundation\Console\Command())->execResult("rm -rf " . \kernel\Foundation\FileSystem\Path::root() . "/Storage/cache/*");
   if ($result["exitcode"] === 0) {
     $console->success("Cache cleared.");
     return 0;

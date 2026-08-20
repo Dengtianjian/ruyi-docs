@@ -25,7 +25,7 @@
 └── ...
 ```
 
-应用目录名由 `new App("AppId")` 的第一个参数决定。`AppId` 就是应用文件夹的名称，框架通过 `App::id()` 静态方法获取（从当前实例读取），并由它自动推导 `FileSystem::root()`/`FileSystem::data()` 等路径 getter（无静态属性，每次调用时自动计算）。
+应用目录名由 `new App("AppId")` 的第一个参数决定。`AppId` 就是应用文件夹的名称，框架通过 `App::id()` 静态方法获取（从当前实例读取），并由它自动推导 `Path::root()`/`Path::data()` 等路径 getter（无静态属性，每次调用时自动计算）。
 
 ## 请求入口
 
@@ -68,7 +68,7 @@ $App->run();                           // 启动应用
 
 `new App("app1")` 做了以下初始化工作：
 
-1. 实例化 App（构造参数决定 `App::id()`/`App::kernelId()`，从当前实例读取）并实例化 FileSystem（`defineConstants()` 之后 `new FileSystem`，无需传参，构造时确保 `data`/`storage` 目录存在；`FileSystem::projectRoot()`/`FileSystem::root()` 等 7 个路径 getter 在每次静态方法调用时自动计算——`kernelRoot` 为本类所在内核目录，`projectRoot` 为 DiscuzX 平台 `DISCUZ_ROOT`（去尾斜杠）/ 普通项目内核上级目录，`root`/`data`/`storage` 由 `App::id()` 推导；无任何静态属性，依赖 `App::id()` 的 getter 在未实例化 App 时返回 null）
+1. 实例化 App（构造参数决定 `App::id()`/`App::kernelId()`，从当前实例读取）并实例化 FileSystem（`defineConstants()` 之后 `new FileSystem`，无需传参，构造时通过 `Path::root()` 确保 `data`/`storage` 目录存在；`Path::projectRoot()`/`Path::root()` 等 7 个路径 getter 在每次静态方法调用时自动计算——`kernelRoot` 为本类所在内核目录，`projectRoot` 为 DiscuzX 平台 `DISCUZ_ROOT`（去尾斜杠）/ 普通项目内核上级目录，`root`/`data`/`storage` 由 `App::id()` 推导；无任何静态属性，依赖 `App::id()` 的 getter 在未实例化 App 时返回 null）
 2. 载入 `Common.php` 全局函数
 3. 读取 `Configs/` 下的配置文件（按优先级覆盖）
 4. 注册全局异常/错误处理
@@ -129,9 +129,9 @@ $App->run();                           // 启动应用
 
 ```php
 // <app-id>/index.php
-$App = new App("my-app");       // AppId = 目录名，框架据此定位应用根目录
-$App->setMiddlware(XXX::class); // 注册全局中间件
-$App->run();                    // 启动应用
+$App = new App("my-app");          // AppId = 目录名，框架据此定位应用根目录
+$App->setup(\myapp\Setup\Bootstrap::class);  // 装配应用（Bootstrap 构造内注册中间件、生命周期等）
+$App->run();                       // 启动应用
 ```
 
 ### 2. Router — 路由
@@ -182,7 +182,7 @@ class ListLinksController extends AuthController
 中间件在控制器执行前/后进行拦截处理，常用于认证、日志等。
 
 ```php
-class GlobalAuthMiddleware extends Middleware
+class GlobalAuthMiddleware extends MiddlewareBase
 {
     public function handle(\Closure $next)
     {
@@ -316,12 +316,12 @@ return $this->response->file("/path/to/file.pdf");
 ```php
 <?php
 // myapp/index.php
-include_once("../kernel/index.php");
+include_once("{$kernelRoot}/vendor/autoload.php");
 
 use kernel\Foundation\App;
 
-$App = new App("myapp");     // AppId 必须与目录名一致
-$App->onBootUp(\myapp\Lifecycle\Bootup::class);   // 加载应用引导装配类
+$App = new App("myapp");             // AppId 必须与目录名一致
+$App->setup(\myapp\Setup\Bootstrap::class);    // 装配应用（Bootstrap 构造内注册引导/关闭装配类）
 $App->run();
 ```
 
@@ -349,23 +349,39 @@ server {
 
 ```php
 <?php
-// myapp/index.php（在 new App() 之后，run() 之前）
+// myapp/Setup/Bootstrap.php（应用装配类，在 new App() 之后、run() 之前由 setup() 调用）
+namespace myapp\Setup;
+
+use kernel\Foundation\App;
 use kernel\Foundation\Config;
 use kernel\Foundation\Database\PDO\Connections;
 use kernel\Foundation\Database\PDO\Driver;
 
+class Bootstrap
+{
+    public function __construct(App $app)
+    {
+        // 创建并注册数据库连接
+        $driver = new Driver(
+            Config::get("database/mysql/host"),
+            Config::get("database/mysql/username"),
+            Config::get("database/mysql/password"),
+            Config::get("database/mysql/name")
+        );
+        Connections::addDriver($driver);
+    }
+}
+```
+
+```php
+<?php
+// myapp/index.php
+include_once("{$kernelRoot}/vendor/autoload.php");
+
+use kernel\Foundation\App;
+
 $App = new App("myapp");
-
-// 创建并注册数据库连接
-$driver = new Driver(
-    Config::get("database/mysql/host"),
-    Config::get("database/mysql/username"),
-    Config::get("database/mysql/password"),
-    Config::get("database/mysql/name")
-);
-Connections::addDriver($driver);
-
-$App->onBootUp(\myapp\Lifecycle\Bootup::class);   // 加载应用引导装配类
+$App->setup(\myapp\Setup\Bootstrap::class);   // 装配应用
 $App->run();
 ```
 
@@ -440,12 +456,12 @@ $App->run();
 
 | 常量 / 静态属性 | 值 | 说明 |
 |------|------|------|
-| `FileSystem::root()` | `/path/to/project` | 项目根目录绝对路径 |
+| `Path::root()` | `/path/to/project/myapp` | 当前应用根目录绝对路径 |
 | `App::id()` | `"myapp"` | 当前应用 AppId（静态属性，取构造第一个参数） |
-| `FileSystem::appRoot()` | `/path/to/project/myapp` | 当前应用根目录 |
-| `FileSystem::appDir()` | `"myapp"` | 当前应用相对路径名 |
+| `Path::projectRoot()` | `/path/to/project` | 项目根目录 |
+| `Path::dir()` | `"myapp"` | 当前应用相对路径名 |
 | `App::kernelId()` | `"kernel"` | 内核目录名（静态属性，取构造第二个参数） |
-| `FileSystem::kernelRoot()` | `/path/to/project/kernel` | 内核根目录 |
+| `Path::kernelRoot()` | `/path/to/project/kernel` | 内核根目录 |
 | `App::mode()` | `"production"` / `"development"` | 当前运行模式 |
 | `F_BASE_URL` | `"http://example.com"` | 应用基础 URL |
 

@@ -9,7 +9,7 @@ Provisioner 是应用安装、增量升级、回滚和卸载的编排器。通�
 
 ### 版本管理
 
-`.version` 文件位于 `{FileSystem::appData()}/.version`，存储完整版本号，格式为 `主版本.次版本.修订版.日期.构建号`：
+`.version` 文件位于 `{Path::data()}/.version`，存储完整版本号，格式为 `主版本.次版本.修订版.日期.构建号`：
 
 ```
 2.2.0.20260721.1746
@@ -71,7 +71,7 @@ class Upgrade_1_1_0
 
 ### 命名空间推导
 
-类名从 `upgradesDir` 路径自动推导命名空间。推导逻辑：`upgradesDir` 相对 `FileSystem::appRoot()` 的路径 → 目录分隔符转为反斜杠 → 拼接类短名。
+类名从 `upgradesDir` 路径自动推导命名空间。推导逻辑：`upgradesDir` 相对 `Path::root()` 的路径 → 目录分隔符转为反斜杠 → 拼接类短名。
 
 ```
 upgradesDir = /app/Upgrades
@@ -95,14 +95,14 @@ upgradesDir = /app/Upgrades
 
 | 参数 | 类型 | 说明 |
 |------|------|------|
-| `$upgradesDir` | `string\|null` | 升级脚本目录，`null` 时默认为 `{FileSystem::appRoot()}/Upgrades` |
+| `$upgradesDir` | `string\|null` | 升级脚本目录，`null` 时默认为 `{Path::root()}/Upgrades` |
 
 构造时自动读取 `.version` 文件并解析基础版本号：
 
 ```php
 $p = new Provisioner();
-// 读取 {FileSystem::appData()}/.version → 2.2.0.20260721.1746
-// 自动解析为 currentSemver = 2.2.0，升级脚本目录默认为 {FileSystem::appRoot()}/Upgrades
+// 读取 {Path::data()}/.version → 2.2.0.20260721.1746
+// 自动解析为 currentSemver = 2.2.0，升级脚本目录默认为 {Path::root()}/Upgrades
 ```
 
 ## 方法列表
@@ -114,7 +114,7 @@ $p = new Provisioner();
 ```php
 $p = new Provisioner();
 $p->install();
-// 创建 {FileSystem::appData()}/ 和 {FileSystem::appStorage()}/ 目录
+// 创建 {Path::data()}/ 和 {Path::storage()}/ 目录
 ```
 
 返回值：`$this`（支持链式调用）
@@ -162,7 +162,7 @@ $p->rollback('1.0.0');
 
 ```php
 $p->uninstall();
-// 删除 {FileSystem::appData()}/.version
+// 删除 {Path::data()}/.version
 ```
 
 ### `getStatus()`
@@ -189,7 +189,7 @@ $status = $p->getStatus();
 | `current_version` | 三段基础版本号（如 `2.2.0`） |
 | `latest_version` | 完整版本号原文（如 `2.2.0.20260721.1746`） |
 | `upgrade_dir` | 升级脚本目录路径 |
-| `data_dir` | 数据目录路径（`FileSystem::appData()`） |
+| `data_dir` | 数据目录路径（`Path::data()`） |
 
 ### `getPendingUpgrades($targetVersion = null)`
 

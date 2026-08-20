@@ -13,7 +13,7 @@ php app/console make:controller <ControllerName> [--force]
 
 ## 生成位置
 
-- 文件：`{FileSystem::appRoot()}/Controller/<名称>.php`（如 `Controller/UserController.php`、`Controller/Admin/UserController.php`）
+- 文件：`{Path::root()}/Controller/<名称>.php`（如 `Controller/UserController.php`、`Controller/Admin/UserController.php`）
 - 命名空间：`{App::id()}\Controller`，子目录追加在后（如 `{App::id()}\Controller\Admin`）
 
 ## 命名规则

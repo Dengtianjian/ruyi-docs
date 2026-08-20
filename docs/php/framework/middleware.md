@@ -1,9 +1,9 @@
-# Middleware — 中间件基类
+# MiddlewareBase — 中间件基类
 
-Middleware 是所有中间件的基类。中间件用于在控制器执行前/后进行拦截处理，常用于认证、日志、CORS 等场景。
+`MiddlewareBase` 是所有中间件的基类。中间件用于在控制器执行前/后进行拦截处理，常用于认证、日志、CORS 等场景。
 
-- **命名空间**: `kernel\Foundation`
-- **文件位置**: `kernel/Foundation/Middleware.php`
+- **命名空间**: `kernel\Foundation\Middleware`
+- **文件位置**: `kernel/Foundation/Middleware/MiddlewareBase.php`
 
 ## 属性
 
@@ -37,12 +37,13 @@ Middleware 是所有中间件的基类。中间件用于在控制器执行前/�
 
 ### 1. 创建全局中间件
 
-全局中间件对每个请求都执行，在入口文件中注册：
+全局中间件对每个请求都执行，在装配类 `Setup/Bootstrap.php`（或入口文件）中手动 `new Middleware` 后注册，再注入 App：
 
 ```php
-// index.php
-$App->setMiddlware(GlobalAuthMiddleware::class);
-$App->setMiddlware(GlobalCorsMiddleware::class);
+$middleware = new Middleware;
+$middleware->set(GlobalAuthMiddleware::class);
+$middleware->set(GlobalCorsMiddleware::class);
+$App->set(["middleware" => $middleware]);
 ```
 
 ### 2. 创建路由级中间件
@@ -65,10 +66,10 @@ Router::group("admin", function () {
 <?php
 namespace myapp\Middleware;
 
-use kernel\Foundation\Middleware;
+use kernel\Foundation\Middleware\MiddlewareBase;
 use kernel\Foundation\ReturnResult\ReturnResult;
 
-class RateLimitMiddleware extends Middleware
+class RateLimitMiddleware extends MiddlewareBase
 {
     public function handle(\Closure $next)
     {
@@ -93,10 +94,11 @@ class RateLimitMiddleware extends Middleware
 
 ### 4. 闭包中间件
 
-也可以用闭包直接作为中间件：
+也可以用闭包直接作为中间件，在 `Middleware` 实例上 `set()` 注册：
 
 ```php
-$App->setMiddlware(function ($request, $next) {
+$middleware = new Middleware;
+$middleware->set(function ($request, $next) {
     // 前置处理
     $startTime = microtime(true);
     
@@ -109,6 +111,7 @@ $App->setMiddlware(function ($request, $next) {
     
     return $response;
 });
+$App->set(["middleware" => $middleware]);
 ```
 
 ## 中间件执行顺序
@@ -139,6 +142,8 @@ $App->setMiddlware(function ($request, $next) {
 ```
 
 ## 内置全局中间件
+
+内置全局中间件（子类）位于 `kernel/Middleware/`，继承 `kernel\Foundation\Middleware\MiddlewareBase` 基类；基类与管理器位于 `kernel/Foundation/Middleware/`。
 
 ### GlobalAuthMiddleware
 
@@ -174,7 +179,7 @@ $App->setMiddlware(function ($request, $next) {
 
 | 类 | 关系 | 说明 |
 |------|------|------|
-| [App](./app.md) | 注册全局中间件 | `setMiddlware()` |
+| [App](./app.md) | 注入全局中间件 | `set(["middleware" => $middleware])` |
 | [Router](./router.md) | 路由级中间件 | 路由注册时指定 |
 | [AuthController](./auth-controller.md) | 配合认证 | 中间件读取认证属性 |
 | [Controller](./controller.md) | 拦截目标 | 中间件在控制器前后执行 |

@@ -2,7 +2,7 @@
 
 `schedule:run` 是内核内置的定时任务调度命令。每次执行时扫描应用 `Crons/` 目录下的任务类，读取类属性 `$schedule` 声明的执行时间，命中当前时刻的任务会被按需执行。
 
-- **命令控制器**: `kernel/Controller/Console/ScheduleRunCommand.php`（在 `kernel/Routes/index.php` 中经 `Router::command()` 注册）
+- **命令控制器**: `kernel/Controller/Commands/ScheduleRunCommand.php`（在 `kernel/Routes/index.php` 中经 `Router::command()` 注册）
 - **触发方式**: `php {应用}/console schedule:run`
 
 ## 为什么用它

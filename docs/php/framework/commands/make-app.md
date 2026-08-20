@@ -5,7 +5,7 @@
 ## 语法
 
 ```bash
-php app/console make:app <AppName>
+php kernel/console make:app <AppName>
 ```
 
 - `<AppName>`：应用名，即应用目录名 = 命名空间前缀 = AppId（如 `myapp` → `myapp\`），必须以字母开头，仅限字母、数字、下划线
@@ -18,68 +18,67 @@ php app/console make:app <AppName>
 
 | 目录 | 用途 |
 |------|------|
-| `Configs/` | 应用配置 |
 | `Controller/` | 控制器 |
-| `Middleware/` | 中间件 |
-| `Model/` | 模型 |
 | `Routes/` | 路由 |
-| `Service/` | 服务 |
-| `Lifecycle/` | 应用装配（引导类 `Lifecycle\Bootup` 与关闭类 `Lifecycle\Shutdown`，入口中 `$app->onBootUp(...)` / `$app->onShutdown(...)` 加载） |
-| `Storage/` | 存储（文件） |
+| `Setup/` | 应用装配目录，存放装配类 `Setup\Bootstrap`、引导类 `Setup\Bootup` 与关闭类 `Setup\Shutdown`（由 `Setup/Bootstrap.php` 中 `$lifeCycle->onBootUp/onShutdown()` 注册） |
 | `Data/` | 数据（日志等） |
+| `Storage/` | 存储（文件） |
 
 ## 生成文件
 
 | 文件 | 内容 |
 |------|------|
-| `console` | 应用 CLI 入口，命令统一在 `Routes/index.php` 中注册（`Router::command`），已加可执行权限。引导时**必选加载内核 vendor**（提供 `kernel\` 命名空间），**可选加载应用自身 vendor**（提供 `<AppName>\` 命名空间与第三方依赖），与 `index.php` 引导方式一致 |
-| `Configs/Config.php` | 应用配置数组，包含 `version`、`mode` |
+| `Setup/Bootstrap.php` | 应用装配类（`{App}\Setup\Bootstrap`），构造参数为当前 App 实例 `$app`；手动 `new Config/FileSystem/Cache` 装配基础组件、`new Lifecycle` 后 `->onBootUp(Setup\Bootup::class)` / `->onShutdown(Setup\Shutdown::class)` 注册钩子，最后 `$app->set(["lifeCycle" => $lifeCycle])` 注入 |
+| `Setup/Bootup.php` | 应用引导装配类（`{App}\Setup\Bootup`），请求处理开始前由 `run()` 实例化，构造即装配 |
+| `Setup/Shutdown.php` | 应用关闭装配类（`{App}\Setup\Shutdown`），请求结束时（正常或异常）由 `run()` 实例化，构造即装配 |
+| `Routes/index.php` | 路由入口，注册 `/` 指向 IndexController（HTTP 路由 + `Router::command` 命令注册统一在此） |
 | `Controller/IndexController.php` | 示例控制器（继承 Controller 基类） |
-| `Routes/index.php` | 路由入口，注册 `/` 指向 IndexController |
-| `Lifecycle/Bootup.php` | 应用引导装配类（`{App}\Lifecycle\Bootup`），入口中 `$app->onBootUp(...)` 实例化，构造即装配 |
-| `Lifecycle/Shutdown.php` | 应用关闭装配类（`{App}\Lifecycle\Shutdown`），入口中 `$app->onShutdown(...)` 实例化，构造即装配 |
-| `index.php` | 应用 HTTP 入口，引导 kernel、调用 `$app->onBootUp(Bootup::class)` / `$app->onShutdown(Shutdown::class)` 并运行 App |
-| `README.md` | 项目说明与使用方式 |
-| `install.key` | 安装密钥，随机生成的 16 位十六进制字符串 |
-| `composer.json` | 自动写入 PSR-4 加载规则（`"<AppName>\\": ""`） |
+| `index.php` | 应用 HTTP 入口，引导内核 vendor、`$app->setup(\{App}\Setup\Bootstrap::class)` 装配并运行 App |
+| `console` | 应用 CLI 入口，`$console->setup(\{App}\Setup\Bootstrap::class)` 装配并运行 |
 
-## 配置数组
+## 装配流程
 
-`Configs/Config.php` 返回数组：
+`index.php` / `console` 均在 `run()` 之前调用 `setup(\{App}\Setup\Bootstrap::class)` 装配：
 
 ```php
-return [
-  "version" => "0.1.0.<date>",
-  "mode" => "production",
-];
+<?php
+// index.php
+include_once("{$kernelRoot}/vendor/autoload.php");
+
+use kernel\Foundation\App;
+
+$app = new App("myapp");
+$app->setup(\myapp\Setup\Bootstrap::class);   // setup() 必须在 run() 之前调用
+$app->run();
 ```
 
-- `version`：应用版本，生成时按 `0.1.0.<yyyyMMdd.HHmm>` 自动生成
-- `mode`：运行模式，默认 `production`；与 `App::mode()` 及路由加载判断（`Config::get("mode")`）相关
+`Setup/Bootstrap.php` 构造内手动实例化并注入组件：
 
-## PSR-4 自动加载
+```php
+<?php
+namespace myapp\Setup;
+use kernel\Foundation\Cache;
+use kernel\Foundation\Config;
+use kernel\Foundation\FileSystem\FileSystem;
+use kernel\Foundation\Lifecycle;
+use kernel\Foundation\Middleware\Middleware;
 
-`composer.json` 已写入 PSR-4 规则，应用内类名空间前缀为 `<AppName>\`：
-
-```json
+class Bootstrap
 {
-  "autoload": {
-    "psr-4": {
-      "myapp\\": ""
+    public function __construct($app)
+    {
+        new Config;      // 加载配置
+        new FileSystem;  // 创建 Data/、Storage/ 等目录
+        new Cache;       // 生成缓存 KEY
+
+        // 生命周期：手动 new Lifecycle 后注册钩子，再注入 App
+        $lifeCycle = new Lifecycle;
+        $lifeCycle->onBootUp(\myapp\Setup\Bootup::class);
+        $lifeCycle->onShutdown(\myapp\Setup\Shutdown::class);
+        $app->set(["lifeCycle" => $lifeCycle]);
     }
-  }
 }
 ```
-
-生成后在应用目录执行 `composer dump-autoload` 即可生效。
-
-## 示例
-
-```bash
-php app/console make:app myapp
-```
-
-输出生成结果数组（app、version、mode、install_key、directories、files）。
 
 ## 退出码
 
