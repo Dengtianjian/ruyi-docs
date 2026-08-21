@@ -233,12 +233,12 @@ $users = $model->where('status', 1)->get();  // 走 slave，不影响其他实�
 
 ## 异常处理
 
-当切换到一个不存在的连接名称时，会抛出 `RuyiException`：
+当切换到一个不存在的连接名称时，会抛出 `Error`：
 
 ```php
 try {
     Connections::useDriver('non_existent');
-} catch (RuyiException $e) {
+} catch (Error $e) {
     // 错误码: databaseStaticDriverNotExist:500
 }
 ```

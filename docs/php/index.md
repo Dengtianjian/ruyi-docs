@@ -40,6 +40,7 @@
 - [AbilityBaseObject 能力基对象](./framework/ability-base-object.md) — 实例级错误机制
 - [DataObject 数据对象](./framework/data-object.md) — 不可变值对象
 - [Output 输出工具](./framework/output.md) — 调试输出、堆栈打印与数据格式化
+- [Common 全局函数](./framework/common.md) — getApp/import/config 等全局便捷函数
 
 ### 数据处理
 

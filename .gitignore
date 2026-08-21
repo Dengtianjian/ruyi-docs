@@ -1,5 +1,6 @@
 .vitepress/cache
 .vitepress/dist
+.vitepress/.temp
 
 package-lock.json
 node_modules

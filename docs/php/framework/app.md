@@ -50,7 +50,7 @@ getApp();                  // 返回 isdtj 实例
 
 构造函数执行以下初始化工作：
 - 设置静态属性（`App::id()`、`App::kernelId()`）并实例化 FileSystem（`defineConstants()` 之后 `new FileSystem`，无需传参，构造时确保 `data`/`storage` 目录存在；7 个路径 getter 在每次静态方法调用时自动计算，无任何静态属性）
-- 载入 `Common.php` 全局函数
+- 载入 `Common.php` 全局函数（`getApp` / `import` / `config` 等，见 [Common 全局函数](./common.md)）
 - 初始化配置（按优先级读取 Configs/ 下的文件）
 - 注册异常/错误处理
 - 加载错误码

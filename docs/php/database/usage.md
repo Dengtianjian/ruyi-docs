@@ -421,7 +421,7 @@ use kernel\Foundation\Database\PDO\DB;
 
 try {
     DB::table('users')->insert(['name' => 'Test']);
-} catch (\kernel\Foundation\Exception\RuyiException $e) {
+} catch (\kernel\Foundation\Error $e) {
     // 框架统一异常
     echo $e->getMessage();
 

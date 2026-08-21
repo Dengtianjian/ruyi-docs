@@ -116,7 +116,7 @@ $pretty = $user->toJson(JSON_PRETTY_PRINT);               // 美化输出
 
 ### `__set($k, $v)`
 
-魔术 setter。实例化后不允许写入**未声明的属性**，会抛 `kernel\Foundation\Exception\Exception`。构造期对已声明属性的赋值不受影响。
+魔术 setter。实例化后不允许写入**未声明的属性**，会抛 `kernel\Foundation\Error`。构造期对已声明属性的赋值不受影响。
 
 ### `__toString()`
 

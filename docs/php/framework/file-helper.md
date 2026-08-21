@@ -226,6 +226,6 @@ FileHelper::humanReadableSize(1536000, 0);   // "1 MB"
 ```php
 $maxSize = FileHelper::maxUploadSize();
 if ($fileSize > $maxSize) {
-    throw new Exception('文件大小超出限制: ' . FileHelper::humanReadableSize($maxSize));
+    throw new Error('文件大小超出限制: ' . FileHelper::humanReadableSize($maxSize));
 }
 ```
