@@ -34,7 +34,21 @@ URL 解析、构建与修改工具。实例化时把 URL 拆解为 protocol / ho
 | `combinedPathName(...$paths)` | 组合多个路径段 |
 | `toString()` | 将当前属性重组为 URL 字符串 |
 | `__toString()` | 转字符串时调用 `toString()` |
+| `setProtocol($protocol)` | 设置协议（链式） |
+| `setHost($host)` | 设置主机（链式） |
+| `setPath($pathName)` | 设置路径（链式） |
+| `setPort($port)` | 设置端口（链式） |
+| `setFragment($fragment)` | 设置 hash 片段（链式） |
 | `queryParam($value, $key)` | 设置查询参数（链式） |
+| `getQueryParam($key, $default)` | 读取查询参数 |
+| `hasQueryParam($key)` | 判断查询参数是否存在 |
+| `removeQueryParam($key)` | 移除查询参数（链式） |
+| `clearQueryParams()` | 清空查询参数（链式） |
+| `isHttps()` | 是否 HTTPS 协议 |
+| `getDomain()` | 获取去 `www.` 前缀的域名 |
+| `getBase()` | 获取站点根（protocol://host[:port]） |
+| `current()` | 从 `$_SERVER` 获取当前请求完整 URL |
+| `fromCurrent()` | 从当前请求构造 URL 实例 |
 
 ## 方法
 
@@ -169,3 +183,176 @@ $url->queryParam("s", 40);                 // 添加单个参数
 $url->queryParam(["s" => 40, "q" => 80]);  // 批量添加
 $url->toString();                          // "https://example.com/files/a.png?s=40&q=80"
 ```
+
+### `setProtocol($protocol)` — 设置协议
+
+链式。修改 `$protocol` 属性。
+
+**参数**
+
+| 参数 | 类型 | 默认 | 说明 |
+|------|------|------|------|
+| `$protocol` | `string` | 无 | 协议（scheme） |
+
+**返回值**
+
+- `$this`：支持链式调用。
+
+### `setHost($host)` — 设置主机
+
+链式。修改 `$host` 属性。
+
+**参数**
+
+| 参数 | 类型 | 默认 | 说明 |
+|------|------|------|------|
+| `$host` | `string` | 无 | 主机名 |
+
+**返回值**
+
+- `$this`：支持链式调用。
+
+### `setPath($pathName)` — 设置路径
+
+链式。修改 `$pathName` 属性，保留已有 query 与 fragment。
+
+**参数**
+
+| 参数 | 类型 | 默认 | 说明 |
+|------|------|------|------|
+| `$pathName` | `string` | 无 | 路径 |
+
+**返回值**
+
+- `$this`：支持链式调用。
+
+### `setPort($port)` — 设置端口
+
+链式。修改 `$port` 属性。
+
+**参数**
+
+| 参数 | 类型 | 默认 | 说明 |
+|------|------|------|------|
+| `$port` | `int\|null` | 无 | 端口 |
+
+**返回值**
+
+- `$this`：支持链式调用。
+
+### `setFragment($fragment)` — 设置 hash 片段
+
+链式。修改 `$fragment` 属性。
+
+**参数**
+
+| 参数 | 类型 | 默认 | 说明 |
+|------|------|------|------|
+| `$fragment` | `string\|null` | 无 | hash 片段 |
+
+**返回值**
+
+- `$this`：支持链式调用。
+
+### `getQueryParam($key, $default = null)` — 读取查询参数
+
+**参数**
+
+| 参数 | 类型 | 默认 | 说明 |
+|------|------|------|------|
+| `$key` | `string` | 无 | 参数名 |
+| `$default` | `mixed` | `null` | 参数不存在时的默认值 |
+
+**返回值**
+
+- `mixed`：参数值，或 `$default`。
+
+### `hasQueryParam($key)` — 判断查询参数是否存在
+
+**参数**
+
+| 参数 | 类型 | 默认 | 说明 |
+|------|------|------|------|
+| `$key` | `string` | 无 | 参数名 |
+
+**返回值**
+
+- `bool`：是否存在。
+
+### `removeQueryParam($key)` — 移除查询参数
+
+链式。
+
+**参数**
+
+| 参数 | 类型 | 默认 | 说明 |
+|------|------|------|------|
+| `$key` | `string` | 无 | 参数名 |
+
+**返回值**
+
+- `$this`：支持链式调用。
+
+### `clearQueryParams()` — 清空查询参数
+
+链式。
+
+**参数**
+
+- 无。
+
+**返回值**
+
+- `$this`：支持链式调用。
+
+### `isHttps()` — 是否 HTTPS 协议
+
+**参数**
+
+- 无。
+
+**返回值**
+
+- `bool`：`$protocol === "https"`。
+
+### `getDomain()` — 获取去 `www.` 前缀的域名
+
+**参数**
+
+- 无。
+
+**返回值**
+
+- `string\|null`：去掉 `www.` 前缀的域名；无 host 时为 `null`。
+
+### `getBase()` — 获取站点根
+
+**参数**
+
+- 无。
+
+**返回值**
+
+- `string\|null`：`protocol://host[:port]`；无协议或 host 时为 `null`。
+
+### `current()` — 获取当前请求完整 URL
+
+基于 `$_SERVER` 推导当前请求完整地址（含路径与 query）。
+
+**参数**
+
+- 无。
+
+**返回值**
+
+- `string`：当前请求完整 URL；`baseURL()` 推导失败时为 `""`。
+
+### `fromCurrent()` — 从当前请求构造 URL 实例
+
+**参数**
+
+- 无。
+
+**返回值**
+
+- `URL`：以 `current()` 解析出的实例。

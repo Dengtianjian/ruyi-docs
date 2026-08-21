@@ -438,6 +438,10 @@ export default defineConfig({
         link: "/php/api/foundation/service",
       },
       {
+        text: "URL 统一地址",
+        link: "/php/api/foundation/url",
+      },
+      {
         text: "Common 全局函数",
         link: "/php/api/foundation/common",
       },

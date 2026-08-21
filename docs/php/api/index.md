@@ -13,7 +13,7 @@ kernel/
 ├── Foundation/            → 框架基础层（根层级类 + 命名空间子目录）
 │   ├── App.php            → 应用入口
 │   ├── Cache.php          → 缓存
-│   ├── Common.php         → 全局函数（getApp/config/path…）
+│   ├── Common.php         → 全局函数（getApp/config/path/url…）
 │   ├── Config.php         → 配置
 │   ├── Event.php          → 事件
 │   ├── Lifecycle.php      → 生命周期
@@ -23,6 +23,7 @@ kernel/
 │   ├── Result.php         → 返回结果
 │   ├── Router.php         → 路由
 │   ├── Service.php        → 服务基类
+│   ├── URL.php            → 统一 URL 静态门面
 │   ├── Console/           → 控制台与命令
 │   ├── Controller/        → 控制器体系
 │   ├── Data/              → 数据/字符串工具类
@@ -58,6 +59,7 @@ kernel/
 - [Result 返回结果](./foundation/result.md)
 - [Router 路由](./foundation/router.md)
 - [Service 服务基类](./foundation/service.md)
+- [URL 统一地址](./foundation/url.md)
 - [Common 全局函数](./foundation/common.md)
 
 ### Foundation 命名空间子目录
