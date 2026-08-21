@@ -43,7 +43,7 @@ composer require aliyuncs/oss-sdk-php:^2.7 alibabacloud/sts-20150401:^1.1
 
 ## 未安装依赖时的行为
 
-云存储类是**按需加载**的：`StorageService::useService()` 传入的平台类在 `loadSDK()` 阶段才 `new` 对应 SDK。因此：
+云存储类是**按需加载**的：`StorageService::bootstrap()` 传入的平台类在 `loadSDK()` 阶段才 `new` 对应 SDK。因此：
 
 - 未安装对应 SDK 且不调用该云存储功能 → 完全无影响，正常使用
 - 未安装 SDK 却调用该云存储 → 抛 `Class not found` 异常，提示先安装对应包

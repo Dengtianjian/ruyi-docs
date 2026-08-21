@@ -1,35 +1,48 @@
 # BaseObject — 基对象
 
-BaseObject 是所有模型和服务的基类，提供单例模式和快速实例化调用。
+BaseObject 是所有模型、服务和能力类的基类，提供**单例**与**工厂实例化**能力。
 
 - **命名空间**: `kernel\Foundation\Object`
 - **文件位置**: `kernel/Foundation/Object/BaseObject.php`
+- **子类**: `AbilityBaseObject`（提供实例级错误机制）
+
+## 设计约定
+
+- 单例缓存按 `get_called_class()`（后期静态绑定的实际类名）分类存放，互不共享、不随继承传递——每个具体子类各持有一份单例。
+- 单例「只认类型、不认参数」：构造参数仅在**首次实例化**时生效。
+- 单例不可通过 `clone` 或反序列化绕过唯一性（已私有化 `__clone`，`__wakeup` 会抛 `LogicException`）。
 
 ## 方法列表
 
 ### `singleton(...$args)`
 
-单例调用。同一类名多次调用返回同一个实例。
+单例调用。每个类仅实例化一次，后续调用返回缓存实例。
 
 | 参数 | 类型 | 说明 |
 |------|------|------|
-| `$args` | `mixed` | 实例化参数 |
+| `$args` | `mixed` | 首次实例化时传入的构造参数 |
 
 返回值：`static`
+
+| 异常 | 说明 |
+|------|------|
+| `\LogicException` | 首次实例化后，又以**不同的非空参数**调用 |
 
 ```php
 // 第一次调用：创建实例
 $instance1 = MyService::singleton();
 
-// 第二次调用：返回同一个实例
+// 再次无参调用：返回同一个实例（取缓存，不受影响）
 $instance2 = MyService::singleton();
 
 // $instance1 === $instance2  // true
 ```
 
-### `call(...$args)`
+**参数一致性**：单例只认类型、不认参数。若首次用一组参数实例化，之后又以**不同的非空参数**调用，会抛出 `\LogicException`；无参再调用始终返回缓存。
 
-快速实例化调用。每次调用都创建新实例。
+### `make(...$args)`
+
+工厂调用。每次调用都会实例化一次类。
 
 | 参数 | 类型 | 说明 |
 |------|------|------|
@@ -38,10 +51,44 @@ $instance2 = MyService::singleton();
 返回值：`static`
 
 ```php
-$instance1 = MyService::call();
-$instance2 = MyService::call();
+$instance1 = MyService::make();
+$instance2 = MyService::make();
 
 // $instance1 !== $instance2  // true
+```
+
+需要单例时请用 `singleton()`。
+
+### `hasSingleton($class = null)`
+
+判断某个类是否已经完成单例实例化。
+
+| 参数 | 类型 | 说明 |
+|------|------|------|
+| `$class` | `string\|null` | 要查询的类名，为空时使用调用者类名 |
+
+返回值：`bool`
+
+```php
+$isReady = MyService::hasSingleton();
+```
+
+### `clearSingleton($class = null)`
+
+清空单例缓存，便于测试重置或释放常驻进程中的实例。
+
+| 参数 | 类型 | 说明 |
+|------|------|------|
+| `$class` | `string\|null` | 要清除的类名，为空时清空全部单例缓存 |
+
+返回值：`void`
+
+```php
+// 清除某个类的单例
+MyService::clearSingleton(MyService::class);
+
+// 清空全部单例
+BaseObject::clearSingleton();
 ```
 
 ## 使用方式
@@ -52,12 +99,12 @@ $instance2 = MyService::call();
 class DatabaseService extends BaseObject
 {
     private $connection;
-    
+
     public function __construct()
     {
         $this->connection = new PDO(...);
     }
-    
+
     public function query($sql)
     {
         return $this->connection->query($sql);
@@ -76,91 +123,7 @@ $db2 = DatabaseService::singleton();
 ### 每次新建实例
 
 ```php
-$validator1 = ValidatorService::call($data1);
-$validator2 = ValidatorService::call($data2);
+$validator1 = ValidatorService::make($data1);
+$validator2 = ValidatorService::make($data2);
 // 两个独立的实例
-```
-
----
-
-# DataObject — 数据对象
-
-DataObject 是不可变的数据对象，用于封装结构化数据。实例化后属性只读。
-
-- **命名空间**: `kernel\Foundation\Object`
-- **文件位置**: `kernel/Foundation/Object/DataObject.php`
-- **继承**: `stdClass`
-
-## 方法列表
-
-### `__construct($data)`
-
-构建数据对象。从数组或对象中读取属性。
-
-| 参数 | 类型 | 说明 |
-|------|------|------|
-| `$data` | `array\|object` | 数据源 |
-
-```php
-class UserData extends DataObject
-{
-    public $id;
-    public $username;
-    public $nickname;
-}
-
-$user = new UserData(["id" => 1, "username" => "admin", "nickname" => "管理员"]);
-echo $user->username;  // "admin"
-```
-
-### `toArray()`
-
-将对象属性转换为数组。
-
-返回值：`array`
-
-```php
-$array = $user->toArray();
-// ["id" => 1, "username" => "admin", "nickname" => "管理员"]
-```
-
-### `__get($name)`
-
-魔术 getter，访问不存在的属性时触发。
-
-### `__set($k, $v)`
-
-魔术 setter，实例化后不允许修改属性（会抛异常）。
-
-### `__toString()`
-
-转换为 JSON 字符串。
-
-```php
-echo $user;  // {"id":1,"username":"admin","nickname":"管理员"}
-```
-
-## 使用方式
-
-```php
-// 定义数据对象
-class LinkData extends DataObject
-{
-    public $id;
-    public $name;
-    public $url;
-    public $categoryId;
-    public $sort;
-}
-
-// 从数据库结果创建
-$row = $db->query("SELECT * FROM links WHERE id = 1")->fetch();
-$link = new LinkData($row);
-
-echo $link->name;   // 链接名称
-echo $link->url;    // 链接 URL
-echo $link;         // JSON 字符串
-
-// 转为数组
-$array = $link->toArray();
 ```

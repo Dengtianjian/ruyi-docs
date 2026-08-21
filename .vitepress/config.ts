@@ -209,10 +209,24 @@ export default defineConfig({
             {
               text: "Provisioner 生命周期编排器",
               link: "/php/framework/provisioner"
+            }
+          ]
+        },
+        {
+          text: "对象",
+          collapsed: false,
+          items: [
+            {
+              text: "BaseObject 基对象",
+              link: "/php/framework/base-object"
             },
             {
-              text: "BaseObject & DataObject",
-              link: "/php/framework/base-object"
+              text: "AbilityBaseObject 能力基对象",
+              link: "/php/framework/ability-base-object"
+            },
+            {
+              text: "DataObject 数据对象",
+              link: "/php/framework/data-object"
             }
           ]
         },
