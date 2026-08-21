@@ -39,6 +39,7 @@
 - [BaseObject 基对象](./framework/base-object.md) — 单例与工厂实例化
 - [AbilityBaseObject 能力基对象](./framework/ability-base-object.md) — 实例级错误机制
 - [DataObject 数据对象](./framework/data-object.md) — 不可变值对象
+- [Output 输出工具](./framework/output.md) — 调试输出、堆栈打印与数据格式化
 
 ### 数据处理
 
