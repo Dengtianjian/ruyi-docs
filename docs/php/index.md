@@ -19,8 +19,12 @@
 
 - [Request 请求](./framework/request.md) — HTTP 请求信息封装
 - [Response 响应](./framework/response.md) — HTTP 响应构建和输出
-- [Result 返回结果](./framework/result.md) — 标准化方法返回值
 - [Config 配置](./framework/config.md) — 多环境配置管理
+- [Curl HTTP 客户端](./framework/http.md) — 基于 cURL 的外部 HTTP 请求封装
+
+## 结果与缓存
+
+- [Result 返回结果](./framework/result.md) — 标准化方法返回值
 - [Cache 缓存](./framework/cache.md) — 文件缓存读写
 
 ## 校验 Validation

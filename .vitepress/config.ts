@@ -102,12 +102,22 @@ export default defineConfig({
               link: "/php/framework/response"
             },
             {
-              text: "Result 返回结果",
-              link: "/php/framework/result"
-            },
-            {
               text: "Config 配置",
               link: "/php/framework/config"
+            },
+            {
+              text: "Curl HTTP 客户端",
+              link: "/php/framework/http"
+            }
+          ]
+        },
+        {
+          text: "结果与缓存",
+          collapsed: false,
+          items: [
+            {
+              text: "Result 返回结果",
+              link: "/php/framework/result"
             },
             {
               text: "Cache 缓存",

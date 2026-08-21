@@ -33,7 +33,6 @@ kernel/
 │   ├── FileSystem/        → 文件系统/路径/压缩/存储
 │   ├── HTTP/              → HTTP 请求响应
 │   ├── Middleware/        → 中间件
-│   ├── Network/           → 网络请求
 │   ├── Object/            → 对象基类
 │   └── Validation/        → 数据校验
 ├── Service/               → 应用服务类（框架提供）
@@ -71,7 +70,6 @@ kernel/
 - [FileSystem 文件系统](./foundation/filesystem/file-system.md)（[FileHelper](./foundation/filesystem/file-helper.md) · [Path](./foundation/filesystem/path.md) · [Zip](./foundation/filesystem/zip.md) · [Storage](./foundation/filesystem/storage/abstract-storage.md)）
 - [HTTP 请求与响应](./foundation/http/request.md)（[Response](./foundation/http/response.md) · [URL](./foundation/http/url.md) · [Curl](./foundation/http/curl.md)）
 - [Middleware 中间件](./foundation/middleware/middleware.md)（[MiddlewareBase](./foundation/middleware/middleware-base.md)）
-- [Network 网络](./foundation/network/http.md)（[Curl](./foundation/network/curl.md)）
 - [Object 对象基类](./foundation/object/base-object.md)（[AbilityBaseObject](./foundation/object/ability-base-object.md) · [DataObject](./foundation/object/data-object.md)）
 - [Validation 校验](./foundation/validation/validator.md)（[Rules](./foundation/validation/rules.md) · [Rule](./foundation/validation/rule.md) · [RuleBuilder](./foundation/validation/rule-builder.md) · [RuleInterface](./foundation/validation/rule-interface.md)）
 

@@ -66,24 +66,54 @@ $response->output();
 - **文件位置**: `kernel/Foundation/HTTP/Curl.php`
 - **命名空间**: `kernel\Foundation\HTTP`
 
-cURL 请求封装（HTTP 层）。`Network\Curl` 为通用网络层封装。
+cURL 请求封装（HTTP 层）。采用**链式实例 API**，通过 `Curl::init()` 创建实例后配置并发送。
 
 ```php
-$result = Curl::get($url);
-$result = Curl::post($url, $payload, $headers);
+use kernel\Foundation\HTTP\Curl;
+
+$result = Curl::init()
+    ->url($url)
+    ->data($payload)
+    ->headers($headers)
+    ->post()
+    ->getData();
 ```
 
-### 常用静态方法
+### 请求方法
+
+| 方法 | HTTP 动词 | 说明 |
+|------|-----------|------|
+| `get($query)` | GET | 查询参数自动拼接 URL |
+| `post($body)` | POST | 表单或 JSON 请求体 |
+| `put($body)` | PUT | 整体更新资源 |
+| `patch($body)` | PATCH | 部分更新资源 |
+| `delete($body)` | DELETE | 删除资源 |
+| `head()` | HEAD | 仅响应头，无响应体 |
+| `connect()` | CONNECT | 代理隧道建连 |
+| `file()` / `upload()` | POST/multipart | 文件上传 |
+
+### 常用配置与读取
 
 | 方法 | 说明 |
 |------|------|
-| `Curl::get($url, $query, $headers)` | GET 请求 |
-| `Curl::post($url, $body, $headers)` | POST 请求 |
-| `Curl::put($url, $body, $headers)` | PUT 请求 |
-| `Curl::delete($url, $headers)` | DELETE 请求 |
-| `Curl::request($method, $url, $options)` | 通用请求 |
+| `Curl::init()` | 创建实例（静态工厂） |
+| `url($url, $query)` | 设置 URL 与 query |
+| `data($body)` | 设置请求体 |
+| `headers($headers)` | 设置请求头 |
+| `basicAuth($u, $p)` | HTTP Basic 认证 |
+| `cookie($cookies)` | 设置 Cookie |
+| `json($yes)` | 切换 JSON / 表单模式 |
+| `timeout($sec)` / `connectTimeout($sec)` | 超时 |
+| `sslCert()/sslKey()` | 客户端 SSL 证书 |
+| `proxy($options)` | 代理 |
+| `options($options)` | 额外 cURL 选项 |
+| `reset()` | 重置配置、复用句柄 |
+| `responseData()` / `getData()` | 响应体 |
+| `responseHeaders()` | 响应头 |
+| `statusCode()` | HTTP 状态码 |
+| `error()` / `errorNo()` | 请求失败信息/码 |
 
-HTTP SDK 调用抛出的错误会被包装为 `Error`。
+每种请求方法的完整说明、参数与示例见 [HTTP/Curl](./foundation/http/curl.md)。HTTP SDK 调用抛出的错误会被包装为 `Error`。
 
 ## URL — URL 工具
 
