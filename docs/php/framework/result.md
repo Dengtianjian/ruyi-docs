@@ -262,7 +262,7 @@ $json = $result->toJson();
 
 #### `throwError(): Result|void`
 
-将错误作为异常抛出（`kernel\Foundation\Error`），并终止程序。**当前为成功态时直接返回实例本身**，避免误抛假异常。
+将错误作为异常抛出（`kernel\Foundation\Exception\Error`），并终止程序。**当前为成功态时直接返回实例本身**，避免误抛假异常。
 
 ```php
 $result = someService();

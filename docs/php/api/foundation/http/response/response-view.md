@@ -60,7 +60,7 @@
 
 **异常**
 
-- `\kernel\Foundation\Error`：模板文件不存在时抛出（500）。
+- `\kernel\Foundation\Exception\Error`：模板文件不存在时抛出（500）。
 
 ### `layout($layout = null, $viewData = [], $fileBaseDir = "Views/Layout", $templateId = "layout")` — 布局渲染
 
@@ -118,7 +118,7 @@
 
 **异常**
 
-- `\kernel\Foundation\Error`：模板文件不存在时抛出。
+- `\kernel\Foundation\Exception\Error`：模板文件不存在时抛出。
 
 ### `renderAppPage($viewFiles, $viewFileBaseDir = "", $viewData = [], $templateId = "page")` — 渲染应用内模板
 

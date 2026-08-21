@@ -90,7 +90,7 @@ $info->size;   // 0（缺键保留默认值）
 
 **异常**
 
-- `\kernel\Foundation\Error`：写入未声明属性时抛出。
+- `\kernel\Foundation\Exception\Error`：写入未声明属性时抛出。
 
 ### `properties()` — 获取全部属性名
 

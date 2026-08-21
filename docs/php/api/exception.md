@@ -1,66 +1,85 @@
 # Exception 异常体系
 
-- **目录位置**: `kernel/Foundation/Exception/`（保留） · `kernel/Foundation/Error.php`（业务异常基类，独立于目录外）
-- **命名空间**: `kernel\Foundation\Error` / `kernel\Foundation\Exception\*`
+- **目录位置**: `kernel/Foundation/Exception/`
+- **命名空间**: `kernel\Foundation\Exception\*`
 
-框架统一异常体系。业务异常基类 `Error` 构造签名**消息在前**：`__construct($message, $statusCode, $errorCode, $errorDetails)`。
+框架统一异常体系，包含 **3 个类**：
 
-## Error — 框架业务异常
+| 类 | 角色 |
+|------|------|
+| [`Error`](./foundation/exception/error.md) | 业务异常基类（extends `\Exception`，3 字段 `statusCode/errorCode/errorDetails`） |
+| [`ErrorCode`](./foundation/exception/error-code.md) | 错误码静态注册器（真类 + 静态门面） |
+| [`ExceptionHandler`](./foundation/exception/exception-handler.md) | 全局异常 / 错误处理器（纯静态门面，给 PHP 钩子用） |
 
-- **文件位置**: `kernel/Foundation/Error.php`
-- **命名空间**: `kernel\Foundation`
-- **继承**: `\Exception`
+业务异常基类 `Error` 构造签名**消息在前**：`__construct($message, $statusCode, $errorCode, $errorDetails)`。
 
-框架业务异常基类（替代了原 `kernel\Foundation\Exception\Exception`，与原 `RuyiException` 合并）。**注意构造签名**：
+## 全链路示意
 
-```php
-new Error($message, $statusCode, $errorCode, $errorDetails)
+```
+业务 throw new Error(...)
+        ↓
+PHP 异常机制触发 set_exception_handler 回调
+        ↓
+ExceptionHandler::receive($exception)
+        ↓
+透传 Error 字段 statusCode/errorCode/errorDetails 到 handle()
+        ↓
+ExceptionHandler::handle(..., directlyThrow = true)
+        ↓
+判级致命：Log::error()
+        ↓
+isAjax() ?
+   ├─ true  → Response::error() → exit(1)
+   └─ false → Views/error.php 或纯文本 → exit(1)
 ```
 
-| 参数 | 类型 | 说明 |
-|------|------|------|
-| `$message` | `string` | 异常消息（**第一位**） |
-| `$statusCode` | `int` | HTTP 状态码 |
-| `$errorCode` | `int\|string` | 业务错误码 |
-| `$errorDetails` | `mixed` | 错误详情（可选） |
+## 三类协作关系
+
+### Error（业务异常基类）
+
+直接构造：
 
 ```php
-use kernel\Foundation\Error;
+use kernel\Foundation\Exception\Error;
 
-throw new Error("导入文件错误", 500, 500);
-throw new Error("无权访问", 403, "403:Forbidden", $details);
+throw new Error("用户不存在", 404, "404:UserNotFound", ["uid" => 1]);
 ```
 
-> 历史：旧版名为 `kernel\Foundation\Exception\Exception`（之后试图拆分为 `RuyiException` 业务语义），现已统一为 `kernel\Foundation\Error`，避免与 PHP 全局 `\Exception` 命名冲突。
+按错误码 name 快捷抛（推荐，需先 `ErrorCode::load()`）：
 
-## ErrorCode — 错误码常量
+```php
+Error::raise("USER_NOT_FOUND", ["uid" => $uid]);
+```
 
-- **文件位置**: `kernel/Foundation/Exception/ErrorCode.php`
-- **命名空间**: `kernel\Foundation\Exception`
+详见 [Error 文档](./foundation/exception/error.md)。
 
-集中定义业务错误码常量，通过静态池自增 / `load(file)` 注入 / `match(key)` 读取。
+### ErrorCode（错误码注册器）
 
 ```php
 use kernel\Foundation\Exception\ErrorCode;
 
-ErrorCode::load($appConfigPath . "/errorCodes.php");
-throw new Error("用户不存在", 404, ErrorCode::match("USER_NOT_FOUND")->code, ErrorCode::match("USER_NOT_FOUND"));
+ErrorCode::load($appConfigPath . "/Configs/errorCodes.php");
+$c = ErrorCode::find("USER_NOT_FOUND");          // ← find (不是 match)
+throw new Error($c->message, $c->statusCode, $c->errorCode);  // ← errorCode (不是 code)
 ```
 
-错误码常量集中在配置文件中维护，业务代码通过 `ErrorCode::match($key)` 引用，避免魔法数字。
+详见 [ErrorCode 文档](./foundation/exception/error-code.md)。
 
-## ExceptionHandler — 异常处理器
-
-- **文件位置**: `kernel/Foundation/Exception/ExceptionHandler.php`
-- **命名空间**: `kernel\Foundation\Exception`
-
-全局异常处理器，由 App 注册。捕获未处理异常、转换为响应、触发生命周期 `onError`。
+### ExceptionHandler（全局处理器）
 
 ```php
-$handler = new ExceptionHandler($app);
-$handler->register();    // 注册 set_exception_handler / set_error_handler
+// 直接给 PHP 钩子用，整类静态化
+set_exception_handler('kernel\Foundation\Exception\ExceptionHandler::receive');
+set_error_handler('kernel\Foundation\Exception\ExceptionHandler::handle', E_ALL);
 ```
 
-### 处理流程
+详见 [ExceptionHandler 文档](./foundation/exception/exception-handler.md)。
 
-接收任意 `Throwable` → 若 `instanceof Error` 提取 `statusCode` / `errorCode` / `errorDetails` → 判定 PHP 错误级别 → 致命级别 Log + AJAX / 页面分流输出 → exit；非致命级别仅记录日志。
+## 关键约定
+
+1. **消息在前**：`new Error($message, $statusCode, $errorCode, $errorDetails)` —— 仿 Laravel/Lumen 风格
+2. **`code = E_USER_ERROR`** 强制：构造时硬置，确保被 PHP 异常处理器识别
+3. **camelCase 命名**：ErrorCode 已统一 `register / find / create / name / errorCode / statusCode`
+4. **同一目录**：三个类统一在 `kernel/Foundation/Exception/`，通过命名空间 `kernel\Foundation\Exception\*` 引用
+5. **静态门面是合理设计**：ExceptionHandler 不存实例状态，因为要直接喂给 `set_error_handler` 这种字符串 callable
+6. **快捷抛错 `Error::raise($name, $details)`**：在 `ErrorCode::load()` 之后，业务代码用一行抛错替代手动构造 4 字段；详见 Error 类文档

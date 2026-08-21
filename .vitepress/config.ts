@@ -82,6 +82,10 @@ export default defineConfig({
             {
               text: "Middleware 中间件",
               link: "/php/framework/middleware"
+            },
+            {
+              text: "异常体系 Exception",
+              link: "/php/framework/exception"
             }
           ]
         },
@@ -520,12 +524,8 @@ export default defineConfig({
         collapsed: true,
         items: [
           {
-            text: "Exception",
-            link: "/php/api/foundation/exception/exception",
-          },
-          {
-            text: "RuyiException",
-            link: "/php/api/foundation/exception/ruyi-exception",
+            text: "Error",
+            link: "/php/api/foundation/exception/error",
           },
           {
             text: "ErrorCode",

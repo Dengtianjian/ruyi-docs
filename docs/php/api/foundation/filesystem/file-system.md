@@ -65,7 +65,7 @@
 
 **异常**
 
-- `\kernel\Foundation\Error`：上传失败（错误码前缀 `FileUpload` / `FileSave`）。
+- `\kernel\Foundation\Exception\Error`：上传失败（错误码前缀 `FileUpload` / `FileSave`）。
 
 **示例**
 

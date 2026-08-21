@@ -236,7 +236,7 @@ withMessage($message): Result
 
 ### `throwError()`
 
-> 错误态时抛出 `kernel\Foundation\Error` 并终止；非错误态直接返回实例，避免误抛假异常。
+> 错误态时抛出 `kernel\Foundation\Exception\Error` 并终止；非错误态直接返回实例，避免误抛假异常。
 
 **签名**
 

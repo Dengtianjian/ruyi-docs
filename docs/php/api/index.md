@@ -27,8 +27,7 @@ kernel/
 │   ├── Controller/        → 控制器体系
 │   ├── Data/              → 数据/字符串工具类
 │   ├── Database/          → 数据库（PDO/MongoDB/SQLite）
-│   ├── Error.php          → 业务异常基类
-│   ├── Exception/         → 异常体系（ErrorCode / ExceptionHandler）
+│   ├── Exception/         → 异常体系（Error / ErrorCode / ExceptionHandler）
 │   ├── Extension/         → 扩展机制
 │   ├── FileSystem/        → 文件系统/路径/压缩/存储
 │   ├── HTTP/              → HTTP 请求响应
@@ -65,7 +64,7 @@ kernel/
 - [Console 控制台](./foundation/console/console.md)（[Command](./foundation/console/command.md)）
 - [Controller 控制器](./foundation/controller/controller.md)（[AuthController](./foundation/controller/auth-controller.md) · [ControllerQuery](./foundation/controller/controller-query.md) · [ControllerBody](./foundation/controller/controller-body.md) · [ControllerResponse](./foundation/controller/controller-response.md)）
 - [Data 数据工具](./foundation/data/arr.md)（[Str](./foundation/data/str.md) · [Numeric](./foundation/data/numeric.md) · [Date](./foundation/data/date.md) · [Money](./foundation/data/money.md) · [Mutator](./foundation/data/mutator.md) · [Serializer](./foundation/data/serializer.md) · [Transform](./foundation/data/transform.md)）
-- [Error 业务异常](./foundation/error.md)（[ErrorCode](./foundation/exception/error-code.md) · [ExceptionHandler](./foundation/exception/exception-handler.md)）
+- [Error 业务异常](./foundation/exception/error.md)（[ErrorCode](./foundation/exception/error-code.md) · [ExceptionHandler](./foundation/exception/exception-handler.md)）
 - [Extension 扩展](./foundation/extension/extensions.md)（[ExtensionMain](./foundation/extension/extension-main.md) · [ExtensionProvisioner](./foundation/extension/extension-provisioner.md)）
 - [FileSystem 文件系统](./foundation/filesystem/file-system.md)（[FileHelper](./foundation/filesystem/file-helper.md) · [Path](./foundation/filesystem/path.md) · [Zip](./foundation/filesystem/zip.md) · [Storage](./foundation/filesystem/storage/abstract-storage.md)）
 - [HTTP 请求与响应](./foundation/http/request.md)（[Response](./foundation/http/response.md) · [URL](./foundation/http/url.md) · [Curl](./foundation/http/curl.md)）

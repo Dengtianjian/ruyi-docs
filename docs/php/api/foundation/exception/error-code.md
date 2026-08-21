@@ -1,105 +1,120 @@
-# ErrorCode — 错误码管理
+# ErrorCode — 错误码注册器
 
 - **文件位置**: `kernel/Foundation/Exception/ErrorCode.php`
 - **命名空间**: `kernel\Foundation\Exception`
-- **类型**: 纯静态类
-- **是否可继承**: 是
+- **类型**: 静态门面 + 真类（同一类同时提供静态 API 和可实例化对象）
 
-集中管理与复用错误码。通过 `make()` 创建错误码对象、`add()` 注册到库、`load()` 批量加载错误码文件、`match()` 按标识符匹配错误码。错误码对象结构为 `{key, statusCode, code, message}`。
+业务错误码的集中注册器。**对象类型从过去的 `(object)` 升级为 `kernel\Foundation\Exception\ErrorCode` 真类**，所有 API 都围绕该类展开。
 
-## 属性
+## 设计目标
 
-| 属性 | 类型 | 默认 | 可见性 | 说明 |
-|------|------|------|--------|------|
-| `$ErrorCodes` | `array` | `[]` | private static | 错误码库，键为错误码标识符（key），值为错误码对象 |
+- **统一错误码对象类型**：原本用 `stdClass` 强制转换，没有任何 IDE 提示；现在用真类
+- **统一注册表**：进程内 `self::$errorCodes` 按 name 索引，新增 `exists/remove/all/clear` 等维护 API
+- **集中加载**：配置文件 `return` 的内容可以是 `ErrorCode::create(...)` 对象、也可以是 `[statusCode, errorCode, message]` 三元组（向后兼容）
+- **可观测性**：重复注册触发 `E_USER_WARNING`，方便调试
+- **零误差防线**：`find($name)` 不存在即抛错，杜绝 NPE
 
-## 方法速查表
+## API 速查
 
 | 方法 | 作用 |
 |------|------|
-| `load($filePath)` | 加载错误码文件并注册库中全部错误码 |
-| `add($keyOrCodeObject, $statusCode, $code, $message)` | 添加一个错误码到库 |
-| `match($key)` | 按标识符匹配错误码对象 |
-| `make($key, $statusCode, $code, $message)` | 创建错误码对象 |
+| `load($filePath)` | 从 PHP 文件批量加载错误码 |
+| `register($name \| $obj, ...)` | 注册单个错误码，支持字段模式或对象模式 |
+| `find($name)` | 按 name 取错误码对象（不存在即抛错） |
+| `exists($name)` | 判断 name 是否已注册 |
+| `remove($name)` | 移除一条错误码 |
+| `all()` | 取全部已注册错误码（调试/文档生成用） |
+| `clear()` | 清空错误码池（主要给单元测试用） |
+| `create($name, $statusCode, $errorCode, $message)` | 工厂方法，创建 `ErrorCode` 实例 |
 
-## 方法
+## 属性
 
-### `load($filePath)` — 加载错误码文件
+每条错误码 `name/statusCode/errorCode/message` 4 字段，全部 camelCase：
 
-加载一个返回错误码对象数组的 PHP 文件，并将其全部错误码注册进错误码库。文件应 `return [ErrorCode::make(...), ErrorCode::make(...), ...]`。
+| 属性 | 类型 | 说明 |
+|------|------|------|
+| `$name` | `string` | 错误码名称（唯一标识） |
+| `$statusCode` | `int` | HTTP 状态码 |
+| `$errorCode` | `int\|string` | 业务错误码（与 `Error::$errorCode` 对齐） |
+| `$message` | `string` | 错误描述 |
 
-**参数**
+## 方法详情
 
-| 参数 | 类型 | 默认 | 说明 |
-|------|------|------|------|
-| `$filePath` | `string` | 无 | 错误码文件的地址 |
+### `load($filePath)` — 从 PHP 文件批量加载
 
-**返回值**
+文件必须 `return array`，元素可以是：
 
-- 无。
+- `ErrorCode::create(...)` 真对象
+- `'<NAME>' => [statusCode, errorCode, message]` 三元组（name 即错误的 name）
+
+```php
+return [
+  ErrorCode::create("USER_NOT_FOUND", 404, "404:UserNotFound", "用户不存在"),
+  "PERM_DENIED" => [403, "403:Forbidden", "禁止"],
+];
+```
 
 **异常**
 
-- `Exception`：文件不存在时抛出，错误信息 `"错误码文件不存在"`，HTTP 状态码 `500`，错误码 `500:ErrorCodeFileNotExist`。
+- `Error`：文件不存在 → `500:ErrorCodeFileNotExist`
+- `Error`：文件未 return 数组 → `500:ErrorCodeFileInvalid`
+- `Error`：注册项既非对象也非三元组 → `500:ErrorCodeItemInvalid`
 
-**示例**
+### `register(...)` — 注册错误码
+
+字段模式：
 
 ```php
-use kernel\Foundation\Exception\ErrorCode;
-
-ErrorCode::load(APP_PATH . '/ErrorCodes.php');
+ErrorCode::register("USER_NOT_FOUND", 404, "404:UserNotFound", "用户不存在");
 ```
 
-### `add($keyOrCodeObject, $statusCode, $code, $message)` — 添加错误码
+对象模式（更清晰、IDE 友好）：
 
-将一个错误码注册进库中。若第一个参数为对象（通过 `make()` 创建），则直接取对象的 `key`/`statusCode`/`code`/`message`；否则需分别传入各字段。
+```php
+ErrorCode::register(ErrorCode::create("USER_NOT_FOUND", 404, "404:UserNotFound", "用户不存在"));
+```
 
-**参数**
+**返回值**：`ErrorCode` 对象（已注册到池中）；重复 name 会触发 `E_USER_WARNING` 并覆盖。
 
-| 参数 | 类型 | 默认 | 说明 |
-|------|------|------|------|
-| `$keyOrCodeObject` | `string\|object` | 无 | 错误码标识符，或用 `make()` 创建的错误码对象。为对象时后续参数无需传 |
-| `$statusCode` | `int` | `null` | HTTP 状态码 |
-| `$code` | `string\|int` | `null` | 错误码 |
-| `$message` | `string` | `null` | 错误信息 |
+### `find($name)` — 取错误码
 
-**返回值**
+```php
+$c = ErrorCode::find("USER_NOT_FOUND");
+throw new Error($c->message, $c->statusCode, $c->errorCode);
+```
 
-- `true`：恒为 `true`。
+**异常**：name 不存在抛 `500:ErrorCodeNotExist`，details 为 name 本身。
 
-### `match($key)` — 匹配错误码
+### `exists/remove/all/clear` — 维护 API
 
-**参数**
+```php
+ErrorCode::exists("USER_NOT_FOUND");   // bool
+ErrorCode::remove("USER_NOT_FOUND");   // 移除单条
+$all = ErrorCode::all();               // 取全部
+ErrorCode::clear();                    // 清空（unit test 用）
+```
 
-| 参数 | 类型 | 默认 | 说明 |
-|------|------|------|------|
-| `$key` | `string` | 无 | 错误码标识符 |
+## 业务错误码配置文件示例
 
-**返回值**
+```php
+// app/Configs/errorCodes.php
+use kernel\Foundation\Exception\ErrorCode;
 
-- `object`：匹配到的错误码对象，结构为 `{statusCode, code, message}`。
+return [
+    "USER_NOT_FOUND"        => [404, "404:UserNotFound", "用户不存在"],
+    "USER_DISABLED"         => [403, "403:UserDisabled", "账号已停用"],
+    "PERMISSION_DENIED"     => [403, "403:Forbidden", "无权限"],
+    ErrorCode::create("INTERNAL_ERROR", 500, "500:ServerError", "服务器错误"),
+];
+```
 
-### `make($key, $statusCode, $code, $message)` — 创建错误码对象
-
-**参数**
-
-| 参数 | 类型 | 默认 | 说明 |
-|------|------|------|------|
-| `$key` | `string` | 无 | 错误码标识符，用于唯一标识该错误码 |
-| `$statusCode` | `int` | 无 | HTTP 状态码 |
-| `$code` | `string\|int` | 无 | 错误码 |
-| `$message` | `string` | 无 | 错误信息 |
-
-**返回值**
-
-- `object`：错误码对象，结构为 `{key, statusCode, code, message}`。
-
-**示例**
+加载并使用：
 
 ```php
 use kernel\Foundation\Exception\ErrorCode;
+use kernel\Foundation\Exception\Error;
 
-$codeObject = ErrorCode::make('user.not_found', 404, '404:UserNotFound', '用户不存在');
-ErrorCode::add($codeObject);
-$matched = ErrorCode::match('user.not_found');
+ErrorCode::load($app->path("dir") . "/Configs/errorCodes.php");
+$c = ErrorCode::find("USER_NOT_FOUND");
+throw new Error($c->message, $c->statusCode, $c->errorCode, ["uid" => $uid]);
 ```

@@ -246,7 +246,7 @@
 
 **异常**
 
-- `\kernel\Foundation\Error`：文件键为空时抛出。
+- `\kernel\Foundation\Exception\Error`：文件键为空时抛出。
 
 ### `verifyAuth($FileKey, $RawURLParams, $RawHeaders = [], $HTTPMethod = "get")` — 验证签名授权
 
