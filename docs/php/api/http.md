@@ -10,13 +10,13 @@ HTTP 请求、响应、URL 与 cURL 工具。`Request/` 与 `Response/` 子目�
 - **文件位置**: `kernel/Foundation/HTTP/Request.php`
 - **命名空间**: `kernel\Foundation\HTTP`
 
-HTTP 请求对象，由 App 装配，业务通过 `$request` 或 `getApp()->request()` 访问。**路由信息写入 `$request->Route`**。
+HTTP 请求对象，由 App 装配，业务通过 `$request` 或 `getApp()->request()` 访问。**路由信息经 `$request->route()` 读取**。
 
 ```php
 $request = getApp()->request();
-$uri = $request->URI;
-$method = $request->method();
-$route = $request->Route;             // 当前命中的路由
+$uri = $request->uri();               // 请求 URI
+$method = $request->method();         // 请求方法
+$route = $request->route();           // 当前命中的路由
 $params = $request->params;           // 路由参数
 ```
 
@@ -24,16 +24,15 @@ $params = $request->params;           // 路由参数
 
 | 成员 | 说明 |
 |------|------|
-| `$request->URI` | 请求 URI |
-| `$request->Route` | 当前命中的路由配置 |
+| `uri()` | 请求 URI |
+| `route()` | 当前命中的路由配置 |
 | `$request->params` | 路由参数集合 |
 | `$request->query` | 查询参数（`ControllerQuery`） |
 | `$request->body` | 请求体（`ControllerBody`） |
 | `method()` | HTTP 方法 |
-| `headers()` | 请求头 |
-| `get($key, $default)` | 取输入参数 |
+| `$request->route` | 匹配到的路由（框架内部写入） |
 
-CLI 命令命中后写 `$request->URI = $name`。
+CLI 命令命中后写 `$request->uri(命令名)`。
 
 ## Response — 响应
 

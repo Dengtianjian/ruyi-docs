@@ -299,9 +299,9 @@ class RequestLogMiddleware extends MiddlewareBase
         $start = microtime(true);
 
         Log::info("收到请求", [
-            "method" => $this->request->method,
-            "uri" => $this->request->URI,
-            "ip" => \kernel\Foundation\HTTP\Request::realClientIp()
+            "method" => $this->request->method(),
+            "uri" => $this->request->uri(),
+            "ip" => \kernel\Foundation\HTTP\Request::ip()
         ]);
 
         $response = $next();

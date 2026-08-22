@@ -53,7 +53,7 @@
 
 ### `output()` — 输出分页响应
 
-包装响应数据为 `{ list: $data, pagination: { total, limit, page, skip, items } }` 后交父类输出。分页参数取自 `$request->pagination`。
+包装响应数据为 `{ list: $data, pagination: { total, limit, page, skip, items } }` 后交父类输出。分页参数直接取自 `$request->query`（`limit` → `perPage` → 默认 10；`page` → 默认 1；`skip` 有则取）。
 
 **参数**
 

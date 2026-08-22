@@ -73,7 +73,7 @@ class RateLimitMiddleware extends MiddlewareBase
 {
     public function handle(\Closure $next)
     {
-        $ip = \kernel\Foundation\HTTP\Request::realClientIp();
+        $ip = \kernel\Foundation\HTTP\Request::ip();
         $key = "rate_limit:" . $ip;
         
         // 原子自增计数（基于文件锁，并发安全）

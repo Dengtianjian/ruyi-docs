@@ -144,7 +144,7 @@ $app->set([
 2. OPTIONS 预检：`fireShutdown()` 后 `return`
 3. `fireBootUp()` 启动钩子
 4. `Router::match()` 路由匹配；未命中抛 404
-5. 写入 `$request->Route` 与 `$request->params`
+5. 写入 `$request->route` 与 `$request->params`
 6. 控制器实例化 + `before()` + 目标方法（默认 `data`）
 7. `middleware->execute()` 中间件链（全局 + 路由级）
 8. `after()` + 输出响应 + `fireShutdown()`

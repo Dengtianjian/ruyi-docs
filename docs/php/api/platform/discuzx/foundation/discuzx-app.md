@@ -24,7 +24,7 @@ public function __construct($appId)
 1. 若未定义 `CHARSET` 常量，则定义 `CHARSET = "utf-8"`。
 2. 调用父类构造 `parent::__construct($appId, "gstudio_kernel")`，内核 ID 固定为 `gstudio_kernel`。
 3. 调用 `ensureInstances()` 兜底实例化组件。
-4. 根据 `$_GET['uri']` 写入 `$this->request->URI`（`addslashes(trim())`）；不存在则设为 `/`。
+4. 根据 `$_GET['uri']` 调用 `$this->request->uri(...)`（`addslashes(trim())`）；不存在则 `uri("/")`。
 5. 注册 `DiscuzXExceptionHandler::receive` 为异常处理器。
 6. 注册 `DiscuzXExceptionHandler::handle` 为错误处理器（`E_ALL`）。
 
@@ -38,7 +38,7 @@ public function hook($uri)
 
 - `$uri`（string）：Discuz!X 钩子对应的 URI
 
-调用 `ensureInstances()` 后，将 `$uri` 写入 `$this->request->URI`。用于 Discuz!X 插件钩子（hook）场景下指定业务路由。
+调用 `ensureInstances()` 后，通过 `$this->request->uri($uri)` 写入。用于 Discuz!X 插件钩子（hook）场景下指定业务路由。
 
 ### `defineConstants` — 定义常量（protected）
 

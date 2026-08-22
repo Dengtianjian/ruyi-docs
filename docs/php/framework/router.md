@@ -239,7 +239,7 @@ $result = Router::dispatch("/notifications/send", [
 
 ### `match(Request $request)`
 
-匹配路由。框架内部调用，按运行模式分发：**http** 模式根据请求的 URI 和方法匹配 URI 路由；**command** 模式按 `request->URI`（即命中的命令名）匹配命令表，不解析 URI。
+匹配路由。框架内部调用，按运行模式分发：**http** 模式根据请求的 URI 和方法匹配 URI 路由；**command** 模式按 `request->uri()`（即命中的命令名）匹配命令表，不解析 URI。
 
 | 参数 | 类型 | 说明 |
 |------|------|------|
@@ -247,7 +247,7 @@ $result = Router::dispatch("/notifications/send", [
 
 返回值：`array|null` — 匹配到的路由/命令信息数组，未匹配到返回 `null`
 
-> **路由放在 Request 中**：匹配结果由 `App::run()` 写入 `$request->Route`，路由参数写入 `$request->params`。业务代码获取当前路由统一从请求读取：控制器内 `$this->request->Route`，其它位置 `getApp()->request()->Route`。
+> **路由放在 Request 中**：匹配结果由 `App::run()` 直接写入 `$request->route`，路由参数写入 `$request->params`。业务代码获取当前路由统一从请求读取：控制器内 `$this->request->route()`，其它位置 `getApp()->request()->route()`。
 
 ### `command($name, $controller, $description = "")`
 
@@ -271,7 +271,7 @@ Router::command("ping", function ($console, $args, $options) { ... });
 
 返回值：`array` — `[$name => ["controller" => ..., "handleMethodName" => ..., "description" => ...]]`
 
-> 命令分发时序：CLI 下 `Console::handle()` 按命令名命中后写入 `$request->URI = $name`，随后装配 Bootup。
+> 命令分发时序：CLI 下 `Console::handle()` 按命令名命中后写入 `$request->uri(命令名)`，随后装配 Bootup。
 
 ## 路由参数
 
@@ -348,7 +348,7 @@ Router::group("admin", function () {
 
 | 类 | 关系 | 说明 |
 |------|------|------|
-| [App](./app.md) | 构造时 `new Router`（构造内加载路由），run() 调用 match() | 匹配结果写入 request->Route |
+| [App](./app.md) | 构造时 `new Router`（构造内加载路由），run() 调用 match() | 匹配结果写入 request->route |
 | [Controller](./controller.md) | 路由映射目标 | 匹配后实例化控制器 |
 | [Request](./request.md) | 匹配依据 | 根据 URL 和 Method 匹配 |
 | [Middleware](./middleware.md) | 路由中间件 | 路由级别的中间件 |

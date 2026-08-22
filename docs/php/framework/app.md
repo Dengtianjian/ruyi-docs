@@ -127,7 +127,7 @@ $request     = $App->request();       // Request 实例
 1. 设置 CORS 响应头（预检请求 OPTIONS 也会执行 `shutdown` 钩子后返回）
 2. 加载扩展
 3. 调用 `bootup` 钩子（实例化引导装配类 `Setup\Bootup`，构造即装配）
-4. 路由匹配（`Router::match()`）→ 结果写入 `request->Route`、参数写入 `request->params` → 找到对应控制器
+4. 路由匹配（`Router::match()`）→ 结果写入 `request->route`、参数写入 `request->params` → 找到对应控制器
 5. 合并全局中间件和路由中间件
 6. 执行中间件链
 7. 执行控制器（`before()` → `data()` → `after()`）
@@ -149,8 +149,8 @@ $App->run();  // 启动应用
 
 ```php
 $request = $App->request();
-echo $request->method;  // "get"
-echo $request->URI;     // "/links"
+echo $request->method();  // "get"
+echo $request->uri();     // "/links"
 ```
 
 ### `executeController($callTarget, $callParams, &$Controller)`
@@ -322,7 +322,7 @@ run()              ← 启动应用
     │
     ├─ 1. 设置 CORS 头（OPTIONS 预检在此执行 shutdown 钩子后返回）
     ├─ 2. 实例化引导装配类 Setup\Bootup（构造即装配，收到 $request）
-    ├─ 3. [Router::match()] 路由匹配 → 结果写入 request->Route
+    ├─ 3. [Router::match()] 路由匹配 → 结果写入 request->route
     ├─ 4. 实例化控制器 → __construct() → boot()
     ├─ 5. 执行中间件链
     ├─ 6. before()
@@ -342,7 +342,7 @@ run()              ← 启动应用
 
 | 类 | 关系 | 说明 |
 |------|------|------|
-| [Router](./router.md) | App 构造 `new Router`（构造内加载路由），run() 调用 `Router::match()` | 匹配结果写入 `request->Route` |
+| [Router](./router.md) | App 构造 `new Router`（构造内加载路由），run() 调用 `Router::match()` | 匹配结果写入 `request->route` |
 | [Controller](./controller.md) | App 实例化控制器并执行 | 业务逻辑处理 |
 | [Middleware](./middleware.md) | App 管理全局中间件并执行中间件链 | 请求拦截 |
 | [Config](./config.md) | Setup 里手动 `new Config` | 配置管理 |

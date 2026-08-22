@@ -1,6 +1,6 @@
 # Request — HTTP 请求
 
-Request 封装了 HTTP 请求的所有信息，包括请求方法、URI、查询参数、请求体、请求头、分页信息等。
+Request 封装了 HTTP 请求的所有信息，包括请求方法、URI、查询参数、请求体、请求头等。
 
 - **命名空间**: `kernel\Foundation\HTTP`
 - **文件位置**: `kernel/Foundation/HTTP/Request.php`
@@ -9,15 +9,12 @@ Request 封装了 HTTP 请求的所有信息，包括请求方法、URI、查询
 
 | 属性 | 类型 | 说明 |
 |------|------|------|
-| `$method` | `string` | 请求方法（get/post/put/patch/delete） |
-| `$URI` | `string` | 请求 URI |
-| `$Route` | `array` | 当前匹配到的路由（`App::run()` 路由匹配后写入；业务代码从 `$request->Route` 获取） |
 | `$query` | `RequestQuery` | 查询参数（URL ? 后的参数） |
 | `$body` | `RequestBody` | 请求体数据（POST/PUT/PATCH 的数据） |
 | `$header` | `RequestHeader` | 请求头 |
-| `$pagination` | `RequestPagination` | 分页信息（page、perPage） |
 | `$params` | `RequestParams` | URI 参数（路由中的 `{param}`） |
-| `$modelParams` | `RequestModelParams` | 模型查询参数 |
+
+> 请求方法、URI、匹配到的路由不再暴露为属性，改为通过 `method()`、`uri()`、`route()` 方法获取（见下方「请求方法」与「URI / 路由」）。
 
 ## 方法列表
 
@@ -33,27 +30,31 @@ $request = getApp()->request();
 // 在控制器中通过 $this->request 获取
 ```
 
-### `realClientIp()`
+### `ip()`
 
 静态方法，获取客户端真实 IP 地址。
 
-返回值：`string`
+返回值：`string|null`
 
 ```php
-$ip = Request::realClientIp();
+$ip = Request::ip();
 echo $ip;  // "192.168.1.100"
 ```
 
-### `ajax()`
+### `preferredOutputType()`
 
-判断是否是 AJAX 请求。检查 `X-Requested-With`、`X-Ajax` 请求头或 `isAjax` 查询参数。
+根据请求头推断客户端期望的输出内容格式。**完全基于请求头 `Content-Type` 与 `Accept` 判断，不依赖任何 `ajax()` 标志**。框架的响应输出格式据此做兜底判断。
 
-返回值：`bool`
+推断顺序：
+
+1. 请求体 `Content-Type`：`application/json`（含 `+json`）→ `json`；`application/xml`、`text/xml`（含 `+xml`）→ `xml`；`text/html` → `html`；`text/plain` → `text`
+2. `Accept` 请求头（逗号分隔逐项判定）：匹配规则同上；通配 MIME（`*/*`）跳过
+3. 均无法推断 → 返回 `null`
+
+返回值：`string|null` — `"json"`、`"xml"`、`"html"`、`"text"`、`null`
 
 ```php
-if ($request->ajax()) {
-    // 是 AJAX 请求
-}
+$type = $request->preferredOutputType();  // "json" / "xml" / "html" / "text" / null
 ```
 
 ### `async()`
@@ -125,19 +126,15 @@ $linkId = $request->params->get("linkId");  // "123"
 $request->params->has("linkId");  // true
 ```
 
-### 分页参数
-
-```php
-// URL: /links?page=2&perPage=20
-
-$page = $request->pagination->page();      // 2
-$perPage = $request->pagination->perPage(); // 20
-```
-
 ## 请求方法
 
 ```php
-$method = $request->method;  // "get", "post", "put", "patch", "delete"
+$method = $request->method();  // "get", "post", "put", "patch", "delete"
+
+// 语义化判断
+$request->isMethod("post");  // bool
+$request->isPost();          // bool
+$request->isGet(); / isPut(); / isDelete(); / isPatch();
 ```
 
 在开发模式下，可以通过 `_method` 参数覆盖 HTTP 方法：
@@ -145,12 +142,54 @@ $method = $request->method;  // "get", "post", "put", "patch", "delete"
 POST /links?_method=put  → 实际被识别为 PUT 请求
 ```
 
+## 便捷输入读取
+
+统一读取输入（路由参数优先，其次 query、body）：
+
+```php
+$id = $request->input("id", 0);   // 按 params → query → body 取第一个
+$has = $request->hasInput("name"); // bool
+$all = $request->all();            // 合并后的全部输入
+```
+
+## 路径工具
+
+```php
+$request->path();         // "links/123"（去 query、去首尾斜杠）
+$request->segments();     // ["links", "123"]
+$request->segment(0);     // "links"
+$request->isPath("links/{id}");        // bool，匹配时把 id 写入 params
+$request->isPath("posts/{pid:[0-9]+}"); // 支持正则占位符
+```
+
+## 客户端信息
+
+```php
+$request->userAgent();   // User-Agent 头
+$request->referrer();    // Referer 头
+$request->scheme();      // "http" | "https"
+$request->isSecure();    // bool
+$request->host();        // 主机名
+$request->fullUrl();     // scheme://host/path
+$request->cookie("token"); // Cookie 值
+$request->isCli();       // bool
+```
+
+## URI / 路由
+
+```php
+$uri = $request->uri();      // 请求 URI，如 "/links/123"
+$route = $request->route();  // 当前匹配到的路由数组（App::run() 匹配后写入）
+```
+
+CLI 命令模式下，`uri()` 返回命中的命令名（如 `"make:app"`）。
+
 ## 与其他类的协作
 
 | 类 | 关系 | 说明 |
 |------|------|------|
 | [App](./app.md) | 创建者 | App 初始化时创建 Request |
 | [Controller](./controller.md) | 依赖 | 控制器通过 `$this->request` 获取 |
-| [Router](./router.md) | 匹配结果写入方 | 匹配后的路由写入 `$Route`，参数写入 `$params` |
+| [Router](./router.md) | 匹配结果写入方 | 匹配后的路由写入 `$route`，参数写入 `$params` |
 | [Middleware](./middleware.md) | 读取参数 | 中间件读取 Token、IP 等 |
 | [Response](./response.md) | 配对 | 请求-响应对 |

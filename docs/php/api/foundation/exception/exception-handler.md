@@ -110,9 +110,9 @@ set_error_handler([ExceptionHandler::class, 'handle'], E_ALL);
 
 优先 `Config::get("mode", "development")`；Config 未装配或抛错时降级到 `"development"`。用于 `respondJson()` 的生产 / 调试分支判断。
 
-### `isAjax(): bool` — 检测 AJAX 请求
+### 期望 JSON 判定（内联于 `handle()`）
 
-经过 `App::getInstance()` → `$app->request()` → `$request->ajax()`；任一阶段抛错时降级 `false`。CLI 模式下（无 App 实例）自然返回 `false`。
+致命分支判断是否输出 JSON：经 `App::getInstance()` → `$app->request()` → `$request->preferredOutputType() === "json"`；任一阶段抛错时降级 `false`。CLI 模式下（无 App 实例）自然返回 `false`，走 `renderView()`。
 
 ### `writeLog(...)` — 写日志
 

@@ -307,7 +307,7 @@ Router::get("links/{linkId:\w+}", GetLinkController::class);
 
 ### `match(Request $request)` — 匹配路由
 
-command 模式：按命令名匹配（`$commands[$request->URI]`）。http 模式：URI 去掉前导斜杠（根 `/` 除外）后按优先级匹配。动态路由匹配成功后填充 `params`（命名参数）。
+command 模式：按命令名匹配（`$commands[$request->uri()]`）。http 模式：URI 去掉前导斜杠（根 `/` 除外）后按优先级匹配。动态路由匹配成功后填充 `params`（命名参数）。
 
 **参数**
 
