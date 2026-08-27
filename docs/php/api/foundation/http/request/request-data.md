@@ -30,6 +30,8 @@
 | `get($key)` | 获取某个键的值 |
 | `some($keys, $completion)` | 批量获取某些键的值 |
 | `handle()` | 执行校验并转换数据 |
+| `fill($data)` | 注入数据并合并（`RequestParams` 路由匹配后经此注入参数） |
+| `remove($key)` | 移除指定键（支持点号路径） |
 
 ## 方法
 
@@ -106,3 +108,43 @@ $request->body->some(["a"], true);                 // 缺失键补 null
 **异常**
 
 - 校验器字段既非 `Validator` 实例也非 `Rule` 实例时，`$validatedResult` 会记录 500 错误（不抛异常）。
+
+### `fill($data)` — 注入数据并合并
+
+将传入数据与既有数据合并，用于在构造之后补充数据。`RequestParams` 由 `App::run()`/`Console` 路由匹配完成后经此注入路由参数。
+
+**参数**
+
+| 参数 | 类型 | 默认 | 说明 |
+|------|------|------|------|
+| `$data` | `array` | 无 | 待合并的数据映射 |
+
+**返回值**
+
+- 无（`void`）。
+
+**示例**
+
+```php
+$request->params->fill(["id" => "42"]); // 注入路由参数
+```
+
+### `remove($key)` — 移除指定键
+
+与 `fill()` 对应的移除操作，支持点号路径（如 `user.profile.name`）。键不存在时静默忽略，不报错。
+
+**参数**
+
+| 参数 | 类型 | 默认 | 说明 |
+|------|------|------|------|
+| `$key` | `string` | 无 | 键名，支持点号语法 |
+
+**返回值**
+
+- 无（`void`）。
+
+**示例**
+
+```php
+$request->params->remove("user.profile.name"); // 移除该键
+```

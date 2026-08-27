@@ -46,18 +46,37 @@ $middleware->set(GlobalCorsMiddleware::class);
 $App->set(["middleware" => $middleware]);
 ```
 
+#### 中间件别名
+
+`set()` 支持第三参数作为别名，方便路由引用：
+
+```php
+$middleware = new Middleware;
+$middleware->set(GlobalAuthMiddleware::class, null, "auth");  // 注册别名 "auth"
+$middleware->set(GlobalCorsMiddleware::class, null, "cors");
+$App->set(["middleware" => $middleware]);
+```
+
+路由中使用别名：
+
+```php
+Route::get("users", UserController::class)->middleware("auth");
+Route::get("api/data", ApiController::class)->middleware(["auth", "cors"]);
+```
+
+**键名规则**：`$middlewares` 为关联数组，键名优先级：别名 > 类路径 > 闭包对象 id（`spl_object_id`）。
+
 ### 2. 创建路由级中间件
 
 路由级中间件只对特定路由执行，在路由注册时指定：
 
 ```php
-Router::post("notifications/send", SendNoticeController::class, [
-    GlobalDingTalkMiddleware::class
-]);
+Router::post("notifications/send", SendNoticeController::class)
+    ->middleware([GlobalDingTalkMiddleware::class]);
 
-Router::group("admin", function () {
+Router::prefix("admin")->middleware([AdminMiddleware::class])->group(function () {
     // ...
-}, [AdminMiddleware::class]);
+});
 ```
 
 ### 3. 自定义中间件示例

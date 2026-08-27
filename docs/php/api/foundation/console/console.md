@@ -5,17 +5,16 @@
 - **继承自**: `App`
 - **是否可继承**: 是
 
-控制台应用入口，继承自 `App`。Router 构造按模式加载 Routes（command 模式注册命令、http 模式注册 URI 路由），Request 始终实例化（CLI 下其 URI 即命中的命令名）。提供命令分发、参数解析、彩色输出与交互输入能力。
+控制台应用入口，继承自 `App`。命令完全由本类实例管理，不再依赖 Router（Router 只负责 HTTP 路由）。Request 始终实例化（CLI 下其 URI 即命中的命令名）。提供命令注册、分发、参数解析、彩色输出与交互输入能力。
 
 ## 命令注册方式
 
-1. `Routes` 中 `Router::command("name", ControllerClass::class, "说明")` 注册（推荐，与 HTTP 路由统一）。
-2. 本实例 `register()` / `discover()` 补充注册（存入实例级命令表，同名覆盖 Router 命令）。
+命令通过本实例 `register()` / `discover()` 注册（存入实例级命令表 `$commands`）。业务方在各自 console 入口手动注册，内核命令在内核 `kernel/console` 入口注册。
 
 命令处理器支持三种形式：
 
 1. 命令控制器类：实现 `handle(Console $console, array $args, array $options): int`，类放 `Controller/` 目录。
-2. `[类名, 方法名]`：指定命令控制器中的处理方法（`Router::command` 第二参传数组）。
+2. `[类名, 方法名]`：指定命令控制器中的处理方法（`register` 第二参传数组）。
 3. 闭包：`function (Console $console, array $args, array $options): int`。
 
 命令名支持冒号命名空间（如 `make:controller`）；输入空参数、`help`、`-h` 或 `--help` 时自动列出全部已注册命令。
@@ -37,7 +36,7 @@
 | `__construct($AppId, $KernelId)` | 构建控制台应用并注册 CLI 异常/错误处理器 |
 | `register($name, $handler, $description)` | 注册命令 |
 | `discover($directory, $namespace)` | 从目录自动发现并注册命令类 |
-| `commands()` | 获取已注册的全部命令（合并 Router 命令） |
+| `commands()` | 获取已注册的全部命令（本实例命令表） |
 | `command()` | 获取当前命令名 |
 | `argument($index, $default)` | 获取位置参数 |
 | `option($name, $default)` | 获取选项值 |
@@ -106,7 +105,7 @@
 
 ### `commands()` — 获取已注册的全部命令
 
-合并 `Router` 命令表与本实例 `register()`/`discover()` 补充注册的命令，实例级同名命令覆盖 Router 命令。
+返回本实例 `register()`/`discover()` 注册的全部命令（`$this->commands`）。
 
 **参数**
 
@@ -114,7 +113,7 @@
 
 **返回值**
 
-- `array<string, array>`：命令名 => 命令定义。
+- `array<string, array>`：命令名 => 命令定义（`{handler, description}`）。
 
 ### `command()` — 获取当前命令名
 
@@ -213,7 +212,7 @@
 
 ### `execute($command)` — 执行命令处理器
 
-> protected。兼容两种命令定义：`Router::command()` 注册的（键 `controller`/`handleMethodName`）与本实例 `register()`/`discover()` 注册的（键 `handler`）。
+> protected。命令定义统一为 `handler` 键：命令类名（调用 `handle()`）、`[类名, 方法名]` 或闭包。
 
 **参数**
 

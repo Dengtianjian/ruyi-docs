@@ -21,6 +21,7 @@
 | `filterNullUnique` | 过滤 null 并去重 |
 | `has` | 判断数组是否含指定键（支持点号/通配符） |
 | `get` | 按点号/通配符路径读取值 |
+| `forget` | 按点号路径移除键 |
 
 ## 方法
 
@@ -303,6 +304,29 @@ Arr::get($user, "profile.age", 18);        // 18
 
 $list = [["name" => "a"], ["name" => "b"]];
 Arr::get($list, "*.name");                 // ["a", "b"]
+```
+
+### `forget(&$array, $key)` — 点号路径移除键
+
+通过点号语法移除多维数组中的键（如 `user.profile.name`）。键不存在时静默忽略，不报错。`$array` 以引用方式修改，数组入参时返回值可直接用作新数组。
+
+**参数**
+
+| 参数 | 类型 | 说明 |
+|------|------|------|
+| `$array` | `array`（引用） | 目标数组 |
+| `$key` | `string` | 键名，支持点号语法 |
+
+**返回值**
+
+- `array`：移除后的数组。
+
+**示例**
+
+```php
+$data = ["id" => 42, "user" => ["name" => "张三", "age" => 30]];
+Arr::forget($data, "id");            // 移除顶层 id
+Arr::forget($data, "user.age");      // 移除点号路径 user.age
 ```
 
 ## 私有辅助方法

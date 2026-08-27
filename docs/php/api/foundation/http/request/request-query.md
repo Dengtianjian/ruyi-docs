@@ -18,7 +18,10 @@
 | 方法 | 作用 |
 |------|------|
 | `__construct($mutator, $validator)` | 构造：从 `$_GET` 填充数据 |
-| `get($key)` | 获取某个 query 参数的值 |
+| `get($key, $default)` | 获取某个 query 参数的值（支持点号/通配符） |
+| `has($key)` | 是否存在某参数（支持点号路径） |
+
+> 注：仅保留 **字符串值**，数组型 query 参数（如 `?tag[]=a`）会被丢弃，这是有意的设计约束。
 
 ## 方法
 
@@ -37,25 +40,28 @@
 
 - 无。
 
-### `get($key)` — 获取查询参数值
+### `get($key, $default = null)` — 获取查询参数值
 
-委托父类 `get()`。
+委托父类 `get()`，支持点号路径（如 `user.profile.name`）与 `*` 通配符（命中时返回平铺数组）。
 
 **参数**
 
 | 参数 | 类型 | 默认 | 说明 |
 |------|------|------|------|
-| `$key` | `string` | 无 | 参数名 |
+| `$key` | `string` | 无 | 参数名，支持点号/通配符 |
+| `$default` | `mixed` | `null` | 参数不存在时的默认值 |
 
 **返回值**
 
-- `string\|null`：参数值；不存在返回 `null`。
+- `mixed`：参数值；不存在返回 `$default`。
 
 **示例**
 
 ```php
-$request->query->get("page");   // 例如 "2"
-$request->query->has("sort");   // 是否传了 sort
+$request->query->get("page");          // 例如 "2"
+$request->query->get("nope", 10);      // 不存在返回 10
+$request->query->get("user.name");     // 点号取嵌套值
+$request->query->has("sort");          // 是否传了 sort
 ```
 
 ---

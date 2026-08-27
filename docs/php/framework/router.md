@@ -1,354 +1,282 @@
-# Router — 路由器
+# 路由
 
-Router 负责 URL 和控制器之间的映射，同时承担 CLI 命令注册。提供静态路由、参数路由、路由组、异步路由与命令注册能力。
+## 概述
 
-- **命名空间**: `kernel\Foundation`
-- **文件位置**: `kernel/Foundation/Router.php`
-- **特点**: 构造时自动加载路由文件（内核 + 应用 Routes）；支持 http/command 双运行模式；路由匹配结果写入 `Request::$Route`
+- **命名空间**: `kernel\Foundation\Router`
+- **文件位置**: `kernel/Foundation/Router/`
+  - `Route.php` — 静态门面（唯一注册入口）
+  - `RouteRegister.php` — 单路由载体
+  - `RouteGroup.php` — 路由组（extends RouteRegister）
+  - `RouteSame.php` — 同 URI 注册器（extends RouteRegister）
+  - `RouteDomain.php` — 域名组（extends RouteRegister）
+  - `Routes.php` — 静态容器（存储/匹配/URL 生成）
+  - `Router.php` — 薄实例（App 持有，加载路由文件 + 匹配）
+- **特点**:
+  - 路由文件自动加载（`kernel/Routes/` + `{App}/Routes/`）
+  - 只负责 HTTP 路由（CLI 命令由 `Console::register()` 独立管理）
+  - 匹配在 `App::run()` 内通过 `Router::route()` → `Routes::match()` 完成
+  - 命中参数经 `$request->params->fill()` 注入
 
-## 控制器指定方式
+## 类关系
 
-### 类名（默认调用 `data()` 方法）
+```
+Route（静态门面，唯一入口）
+  ├── RouteRegister（单路由载体，读写一体 setter）
+  │     ├── RouteGroup（路由组，DSL 收 uri + controller）
+  │     ├── RouteSame（同 URI 注册器，DSL 只收 controller）
+  │     └── RouteDomain（域名组，DSL 收 uri + controller）
+  └── Routes（静态容器，存储/匹配/URL 生成）
 
-```php
-Router::get("links", ListLinksController::class);
-// → 内部调用 ListLinksController::data()
+Router（薄实例，App 持有）
+  └── 构造加载路由文件 → route() 委托 Routes::match()
 ```
 
-### 数组（指定方法名）
+## 基本用法
+
+路由文件放在 `{App}/Routes/` 目录下，通过 `Route` 门面注册：
 
 ```php
-Router::get("categories", [
-    ResourceCategoriesController::class,
-    "get"
-]);
-// → ResourceCategoriesController::get()
+// {App}/Routes/index.php
+use kernel\Foundation\Router\Route;
+
+Route::get("users", UserController::class);
+Route::post("users", StoreUserController::class);
+Route::get("users/{id}", ShowUserController::class)->whereNumber("id");
 ```
 
-### same() 闭包内指定方法
+### HTTP 方法
+
+| 方法 | 说明 |
+|------|------|
+| `Route::get($uri, $controller)` | GET 请求 |
+| `Route::post($uri, $controller)` | POST 请求 |
+| `Route::put($uri, $controller)` | PUT 请求 |
+| `Route::patch($uri, $controller)` | PATCH 请求 |
+| `Route::delete($uri, $controller)` | DELETE 请求 |
+| `Route::head($uri, $controller)` | HEAD 请求 |
+| `Route::options($uri, $controller)` | OPTIONS 请求 |
+| `Route::any($uri, $controller)` | 任意方法（兜底） |
+
+`$controller` 支持三种形式：
+- 类名字符串：`UserController::class`（默认调用 `data()` 方法）
+- `[类名, 方法名]` 数组：`[UserController::class, "index"]`
+- 闭包：`function () { return "hello"; }`
+
+### 动态参数
+
+URI 中用 `{param}` 定义动态参数，支持内联正则和可选参数：
 
 ```php
-Router::same("link/categories/{?categoryId:\\w+}", function () {
-    Router::get([ResourceCategoriesController::class, "get"]);
-    Router::post([ResourceCategoriesController::class, "post"]);
-});
-// → ResourceCategoriesController::get()
-// → ResourceCategoriesController::post()
+Route::get("users/{id}", ShowUserController::class);           // {id} 匹配 [^/]+
+Route::get("users/{id:\d+}", ShowUserController::class);       // 内联正则
+Route::get("posts/{?page}", ListController::class);            // 可选参数
 ```
 
-> **解析规则**：Router 内部通过 `resolveControllerTarget()` 统一处理类名和 `[类名, 方法名]` 数组两种格式。数组格式中第二个元素默认为 `"data"`。
-
-### 闭包函数
+### 参数约束（where）
 
 ```php
-Router::get("health", function ($request) {
-    return ["status" => "ok"];
-});
+// 单参数
+Route::get("users/{id}", UserController::class)->where("id", "[0-9]+");
+
+// 多参数
+Route::get("users/{id}/posts/{slug}", PostController::class)
+    ->where(["id" => "[0-9]+", "slug" => "[a-z-]+"]);
+
+// where 助手方法
+Route::get("users/{id}", UserController::class)->whereNumber("id");
+Route::get("tags/{name}", TagController::class)->whereAlpha("name");
+Route::get("items/{code}", ItemController::class)->whereAlphaNumeric("code");
+Route::get("status/{s}", StatusController::class)->whereIn("s", ["active", "pending", "closed"]);
+Route::get("items/{uuid}", ItemController::class)->whereUuid("uuid");
 ```
 
-## 运行模式
+| 助手方法 | 正则 | 说明 |
+|----------|------|------|
+| `whereNumber(...$names)` | `[0-9]+` | 数字 |
+| `whereAlpha(...$names)` | `[a-zA-Z]+` | 字母 |
+| `whereAlphaNumeric(...$names)` | `[a-zA-Z0-9]+` | 字母数字 |
+| `whereIn($name, $values)` | `val1\|val2\|...` | 枚举值 |
+| `whereUuid(...$names)` | UUID v4 正则 | UUID 格式 |
 
-Router 按运行模式分发：**http** 模式按 URI 匹配路由，**command** 模式按命令名匹配（均由 `match()` 内部分发到对应表，command 模式不解析 URI）。`new Router()` 时自动判断（`PHP_SAPI !== "cli"` 为 http，CLI 为 command），也可用 `setMode()` 显式覆盖。
+### 全局参数约束（pattern）
 
-| 模式 | 值 | 用途 |
-|------|-----|------|
-| http | `"http"` | HTTP 请求，按 URI 匹配路由 |
-| command | `"command"` | CLI 请求，按命令名分发 |
-
-## 方法列表
-
-### `__construct($mode = null)`
-
-构造函数。设置运行模式并自动加载路由文件（先内核 `kernel/Routes`，再应用 `{AppId}/Routes`，`include_once` 去重）。
-
-| 参数 | 类型 | 说明 |
-|------|------|------|
-| `$mode` | `string\|bool\|null` | 运行模式；`null`（默认）自动判断（`PHP_SAPI !== "cli"` 为 http，CLI 为 command），`true` 强制 http、`false` 强制 command，字符串传 `"http"`/`"command"` |
+一次定义，对所有路由生效（路由自身 where 优先覆盖）：
 
 ```php
-$router = new Router();       // 自动判断模式
-$router = new Router(true);   // 强制 http
-$router = new Router(false);  // 强制 command
+Route::pattern("id", "[0-9]+");
+Route::pattern(["id" => "[0-9]+", "slug" => "[a-z-]+"]);
+
+// 后续路由 id 自动约束为数字
+Route::get("users/{id}", UserController::class);
 ```
 
-### `setMode($mode)`
+## 路由组
 
-设置运行模式，返回 `$this` 支持链式调用。
-
-```php
-Router::setMode("http");   // 显式切换为 http（如 CLI 冒烟测试模拟 HTTP）
-```
-
-### `mode()`
-
-获取当前运行模式。
-
-返回值：`"http"` 或 `"command"`。
+### 前缀组
 
 ```php
-$mode = Router::mode();  // "http" | "command"
-```
+Route::group("api", function ($g) {
+    $g->get("users", UserController::class);     // /api/users
+    $g->get("posts", PostController::class);      // /api/posts
 
-### `prefix($prefix, $append = false)`
-
-设置路由前缀。后续注册的路由都会自动添加此前缀。
-
-| 参数 | 类型 | 说明 |
-|------|------|------|
-| `$prefix` | `string\|array\|null` | 前缀，传入 `null` 清除前缀 |
-| `$append` | `bool` | `true` 时追加到现有前缀后面 |
-
-返回值：`Router`
-
-```php
-Router::prefix("api");          // 设置前缀 /api
-Router::get("users", ...);      // 实际匹配 /api/users
-Router::prefix(null);           // 清除前缀
-Router::get("users", ...);      // 实际匹配 /users
-
-Router::prefix("v1")->prefix("admin", true);
-// 前缀为 v1/admin
-```
-
-### `group($prefix, \Closure $callback, $middlewares = [])`
-
-路由组。将一组路由共享相同的前缀和中间件。
-
-| 参数 | 类型 | 说明 |
-|------|------|------|
-| `$prefix` | `string\|string[]` | 组前缀 |
-| `$callback` | `\Closure` | 注册路由的回调函数 |
-| `$middlewares` | `array` | 组内路由共享的中间件 |
-
-返回值：`Router`
-
-```php
-Router::group("admin", function () {
-    Router::get("dashboard", DashboardController::class);
-    Router::get("users", UserListController::class);
-    Router::post("users", CreateUserController::class);
-}, [AdminMiddleware::class]);
-
-// 生成的路由：
-// GET  /admin/dashboard  → DashboardController
-// GET  /admin/users      → UserListController
-// POST /admin/users      → CreateUserController
-```
-
-### `same($uri, \Closure $callback)`
-
-为同一 URI 注册不同 HTTP 方法的路由。
-
-| 参数 | 类型 | 说明 |
-|------|------|------|
-| `$uri` | `string` | 共享的 URI |
-| `$callback` | `\Closure` | 注册不同方法路由的回调 |
-
-返回值：`Router`
-
-```php
-Router::same("links/{?linkId:\\w+}", function () {
-    Router::get(GetLinkController::class);     // GET    获取
-    Router::post(PostLinkController::class);   // POST   创建
-    Router::put(PutLinkController::class);     // PUT    更新
-    Router::patch(PatchLinkController::class); // PATCH  删除
+    // 嵌套组
+    $g->group("v1", function ($g2) {
+        $g2->get("users", V1UserController::class); // /api/v1/users
+    });
 });
 ```
 
-### `get($uri, $controller = null, $middlewares = [], $controllerInstantiateParams = [])`
+### 同 URI 注册器
 
-注册 GET 方法路由。
+同一 URI 下不同 HTTP 方法对应不同控制器：
 
 ```php
-Router::get("links", ListLinksController::class);
-Router::get("links/{linkId:\\w+}", GetLinkController::class);
-Router::get("admin/users", UserListController::class, [AdminMiddleware::class]);
+Route::same("links/{id}", function ($rs) {
+    $rs->get(ShowLinkController::class);      // GET    /links/{id}
+    $rs->put(UpdateLinkController::class);    // PUT    /links/{id}
+    $rs->delete(RemoveLinkController::class); // DELETE /links/{id}
+});
 ```
 
-### `post($uri, $controller = null, $middlewares = [], $controllerInstantiateParams = [])`
+### 域名组
 
-注册 POST 方法路由。
-
-```php
-Router::post("users/register", RegisterController::class);
-Router::post("notifications/send", SendNoticeController::class, [GlobalDingTalkMiddleware::class]);
-```
-
-### `put($uri, $controller = null, $middlewares = [], $controllerInstantiateParams = [])`
-
-注册 PUT 方法路由。
+按生效域名声明路由：
 
 ```php
-Router::put("links/{linkId:\\w+}", PutLinkController::class);
-```
-
-### `patch($uri, $controller = null, $middlewares = [], $controllerInstantiateParams = [])`
-
-注册 PATCH 方法路由。
-
-```php
-Router::patch("users/{userId:\\w+}", UpdateUserController::class);
-```
-
-### `delete($uri, $controller = null, $middlewares = [], $controllerInstantiateParams = [])`
-
-注册 DELETE 方法路由。
-
-```php
-Router::delete("links/{linkId:\\w+}", DeleteLinkController::class);
-```
-
-### `options($uri, $controller = null, $middlewares = [], $controllerInstantiateParams = [])`
-
-注册 OPTIONS 方法路由。
-
-### `any($uri, $controller = null, $middlewares = [], $controllerInstantiateParams = [])`
-
-注册匹配任意 HTTP 方法的路由。
-
-```php
-Router::any("webhook", WebhookController::class);
-```
-
-### `async($uri, $controller = null, $middlewares = [], $controllerInstantiateParams = [])`
-
-注册异步路由。只能通过服务器内部 CURL 调用（需要 `X-Async` 和 `X-Ajax` 请求头）。
-
-```php
-Router::async("tasks/cleanup", CleanupController::class);
-```
-
-### `dispatch($uri, $data = [], $headers = [], $timeout = 1)`
-
-调用内部异步路由。通过 CURL 向自己发起 HTTP 请求。
-
-| 参数 | 类型 | 说明 |
-|------|------|------|
-| `$uri` | `string` | 请求的 URI |
-| `$data` | `array` | 发送的数据 |
-| `$headers` | `array` | 请求头 |
-| `$timeout` | `int` | 超时秒数 |
-
-```php
-// 在控制器中异步调用另一个路由
-$result = Router::dispatch("/notifications/send", [
-    "title" => "新通知",
-    "content" => "内容..."
-]);
-```
-
-### `match(Request $request)`
-
-匹配路由。框架内部调用，按运行模式分发：**http** 模式根据请求的 URI 和方法匹配 URI 路由；**command** 模式按 `request->uri()`（即命中的命令名）匹配命令表，不解析 URI。
-
-| 参数 | 类型 | 说明 |
-|------|------|------|
-| `$request` | `Request` | 请求实例 |
-
-返回值：`array|null` — 匹配到的路由/命令信息数组，未匹配到返回 `null`
-
-> **路由放在 Request 中**：匹配结果由 `App::run()` 直接写入 `$request->route`，路由参数写入 `$request->params`。业务代码获取当前路由统一从请求读取：控制器内 `$this->request->route()`，其它位置 `getApp()->request()->route()`。
-
-### `command($name, $controller, $description = "")`
-
-注册 CLI 命令（命令与 HTTP 路由统一在 Routes 文件中注册，CLI 按命令名分发）。
-
-| 参数 | 类型 | 说明 |
-|------|------|------|
-| `$name` | `string` | 命令名，如 `"make:app"` |
-| `$controller` | `string\|array\|Closure` | 命令控制器类名（实现 `handle()`）、`[类名, 方法名]` 或闭包 |
-| `$description` | `string` | 命令说明（`--help` 展示） |
-
-```php
-Router::command("hello", HelloController::class, "Say hello");
-Router::command("hi", [HelloController::class, "run"]);
-Router::command("ping", function ($console, $args, $options) { ... });
-```
-
-### `commands()`
-
-获取全部已注册命令表。
-
-返回值：`array` — `[$name => ["controller" => ..., "handleMethodName" => ..., "description" => ...]]`
-
-> 命令分发时序：CLI 下 `Console::handle()` 按命令名命中后写入 `$request->uri(命令名)`，随后装配 Bootup。
-
-## 路由参数
-
-### 静态路由
-
-不包含动态参数，精确匹配：
-
-```php
-Router::get("links", ListLinksController::class);
-// 匹配: GET /links
-// 不匹配: GET /links/123
-```
-
-### 动态参数路由
-
-使用 `{参数名:正则}` 定义动态参数：
-
-```php
-Router::get("links/{linkId:\\w+}", GetLinkController::class);
-// 匹配: GET /links/123, GET /links/abc
-// 不匹配: GET /links/
-
-// 通过 $this->request->params->get("linkId") 获取参数值
-```
-
-### 可选参数
-
-参数名以 `?` 开头表示可选：
-
-```php
-Router::get("articles/{?categoryId:\\w+}", ArticleController::class);
-// 匹配: GET /articles, GET /articles/tech
-```
-
-### 多参数
-
-```php
-Router::get("articles/{categoryId:\\w+}/{articleId:\\d+}", ArticleDetailController::class);
-// 匹配: GET /articles/tech/123
-```
-
-## 完整路由文件示例
-
-```php
-<?php
-// Routes/index.php
-use kernel\Foundation\Router;
-
-// 首页
-Router::get("/", IndexController::class);
-
-// 用户相关
-Router::post("users/register", RegisterController::class);
-Router::post("users/login", LoginController::class);
-Router::post("users/logout", LogoutController::class);
-
-// 链接 CRUD
-Router::get("links", ListLinksController::class);
-Router::same("links/{?linkId:\\w+}", function () {
-    Router::get(GetLinkController::class);
-    Router::post(PostLinkController::class);
-    Router::put(PutLinkController::class);
-    Router::patch(PatchLinkController::class);
+Route::domain("api.example.com", function ($d) {
+    $d->get("users", ApiUserController::class);  // 仅 api.example.com
 });
 
-// 管理员路由组
-Router::group("admin", function () {
-    Router::get("dashboard", DashboardController::class);
-    Router::get("users", AdminUserListController::class);
-}, [AdminMiddleware::class]);
+Route::get("users", WebUserController::class);   // 其他域名
 ```
 
-## 与其他类的协作
+### 交叉嵌套
 
-| 类 | 关系 | 说明 |
-|------|------|------|
-| [App](./app.md) | 构造时 `new Router`（构造内加载路由），run() 调用 match() | 匹配结果写入 request->route |
-| [Controller](./controller.md) | 路由映射目标 | 匹配后实例化控制器 |
-| [Request](./request.md) | 匹配依据 | 根据 URL 和 Method 匹配 |
-| [Middleware](./middleware.md) | 路由中间件 | 路由级别的中间件 |
+组/same/域名可自由嵌套：
+
+```php
+Route::group("api", function ($g) {
+    $g->same("users", function ($rs) {
+        $rs->get(ShowUserController::class);  // /api/users (GET)
+        $rs->put(UpdateUserController::class); // /api/users (PUT)
+    });
+});
+```
+
+## 中间件
+
+### 路由中间件
+
+```php
+Route::get("users", UserController::class)
+    ->middleware(AuthMiddleware::class);
+
+// 多个中间件
+Route::get("admin", AdminController::class)
+    ->middleware([AuthMiddleware::class, AdminMiddleware::class]);
+
+// 或使用别名
+Route::get("api/data", ApiController::class)->middleware("auth");
+```
+
+### 中间件别名
+
+在 `Middleware::set()` 时注册别名，路由中直接引用：
+
+```php
+// 注册
+$middleware = new Middleware;
+$middleware->set(AuthMiddleware::class, null, "auth");
+$middleware->set(CorsMiddleware::class, null, "cors");
+$App->set(["middleware" => $middleware]);
+
+// 路由使用
+Route::get("api/data", ApiController::class)->middleware("auth");
+Route::get("api/users", UserController::class)->middleware(["auth", "cors"]);
+```
+
+## 命名路由
+
+```php
+Route::get("users/{id}/posts", PostController::class)->name("user.posts");
+
+// 反向生成 URL
+Route::url("user.posts", ["id" => 42]);
+// "users/42/posts"
+
+Route::url("user.posts", ["id" => 42, "page" => 2]);
+// "users/42/posts?page=2"
+
+// 绝对 URL
+Route::url("user.posts", ["id" => 42], "example.com");
+// "http://example.com/users/42/posts"
+
+Route::url("user.posts", ["id" => 42], "example.com", true);
+// "https://example.com/users/42/posts"
+```
+
+## 重定向
+
+```php
+Route::get("login", LoginController::class)->name("login");
+
+// 在控制器中
+return Route::redirect("login");                    // 302 到 /login
+return Route::redirect("user.posts", ["id" => 42]); // 302 到 /users/42/posts
+```
+
+## 兜底路由
+
+所有正常路由未命中时触发：
+
+```php
+// 全局兜底
+Route::fallback(NotFoundController::class);
+
+// 指定域名兜底
+Route::fallback(ApiNotFoundController::class, "api.example.com");
+
+// 域名组内兜底
+Route::domain("api.example.com", function ($d) {
+    $d->fallback(ApiNotFoundController::class);
+});
+```
+
+## 额外参数（append）
+
+隐式传值，不在 URL 中，匹配后合并进请求参数：
+
+```php
+Route::get("blog/{id}", BlogController::class)
+    ->append(["status" => 1, "app_id" => 5]);
+```
+
+## 继承规则
+
+路由属性沿祖先链（group → same → domain）继承：
+
+| 属性 | 继承规则 |
+|------|----------|
+| `uri` | 外层在前拼接（`group("api")` + `same("users")` → `/api/users`） |
+| `name` | 外层前缀 + 自身名拼接 |
+| `middleware` | 父在前、自身在后合并 |
+| `parameters` | 父在前、自身在后合并 |
+| `where` | 父在前、自身在后合并（同名键后者覆盖） |
+| `append` | 父在前、自身在后合并 |
+| `controller` | 自身优先，否则沿祖先取第一个非 null |
+| `method` | 自身优先，否则沿祖先取第一个非空 |
+| `domain` | 自身优先，否则沿祖先取第一个非 `"*"` |
+
+## 匹配规则
+
+1. **域名查找序**：指定域名优先 → 全局（`"*"`）回退
+2. **静态路由**：精确匹配 URI，方法优先 → `any` 兜底
+3. **动态路由**：按段数从多到少 + 同段 URI 长度排序（最具体优先），逐条 `preg_match`
+4. **HEAD 语义**：未注册 `head` 路由时回退 `get` 路由
+5. **兜底路由**：所有正常路由未命中时，按域名序查 fallback
+
+## 性能优化
+
+- **脏标记缓存**：`distribute()` 使用 `$dirty` 标记，仅在有变更时重建路由表
+- **编译缓存**：动态路由正则预编译并固化进 `compiledPattern`，避免每次匹配重复编译
+- **重复注册检测**：重复注册同名/同路径路由触发 `E_USER_WARNING`

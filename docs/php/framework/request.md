@@ -14,7 +14,7 @@ Request 封装了 HTTP 请求的所有信息，包括请求方法、URI、查询
 | `$header` | `RequestHeader` | 请求头 |
 | `$params` | `RequestParams` | URI 参数（路由中的 `{param}`） |
 
-> 请求方法、URI、匹配到的路由不再暴露为属性，改为通过 `method()`、`uri()`、`route()` 方法获取（见下方「请求方法」与「URI / 路由」）。
+> 请求方法、URI 不再暴露为属性，改为通过 `method()`、`uri()` 方法获取（见下方「请求方法」与「URI / 路由」）。**路由不再由 Request 持有**：匹配在 `App::run()` 内直接调用 App 持有的 Router，命中参数经 `$request->params->fill()` 注入。
 
 ## 方法列表
 
@@ -158,8 +158,8 @@ $all = $request->all();            // 合并后的全部输入
 $request->path();         // "links/123"（去 query、去首尾斜杠）
 $request->segments();     // ["links", "123"]
 $request->segment(0);     // "links"
-$request->isPath("links/{id}");        // bool，匹配时把 id 写入 params
-$request->isPath("posts/{pid:[0-9]+}"); // 支持正则占位符
+$request->isPath("links/{id}", $params);         // bool，纯判断；提取的参数经 $params 接收
+$request->isPath("posts/{pid:[0-9]+}");          // 支持正则占位符
 ```
 
 ## 客户端信息
@@ -179,7 +179,7 @@ $request->isCli();       // bool
 
 ```php
 $uri = $request->uri();      // 请求 URI，如 "/links/123"
-$route = $request->route();  // 当前匹配到的路由数组（App::run() 匹配后写入）
+$params = $request->params;  // 路由参数（App::run() 匹配后经 params->fill() 注入）
 ```
 
 CLI 命令模式下，`uri()` 返回命中的命令名（如 `"make:app"`）。
@@ -190,6 +190,6 @@ CLI 命令模式下，`uri()` 返回命中的命令名（如 `"make:app"`）。
 |------|------|------|
 | [App](./app.md) | 创建者 | App 初始化时创建 Request |
 | [Controller](./controller.md) | 依赖 | 控制器通过 `$this->request` 获取 |
-| [Router](./router.md) | 匹配结果写入方 | 匹配后的路由写入 `$route`，参数写入 `$params` |
+| [Router](./router.md) | 参数注入方 | App::run() 直接调 Router 匹配，命中参数经 `$request->params->fill()` 注入 |
 | [Middleware](./middleware.md) | 读取参数 | 中间件读取 Token、IP 等 |
 | [Response](./response.md) | 配对 | 请求-响应对 |

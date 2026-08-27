@@ -44,5 +44,5 @@ public function data()
 
 ```php
 // 路由 GET settings?name=appName&name=appId
-Router::get("settings", DiscuzXGetSettingsController::class, [], [$settingBase]);
+Router::get("settings", DiscuzXGetSettingsController::class)->parameters([$settingBase]);
 ```

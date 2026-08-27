@@ -1,7 +1,7 @@
 # MakeCommand — 生成类命令基类
 
-- **文件位置**: `kernel/Controller/Commands/MakeCommand.php`
-- **命名空间**: `kernel\Controller\Commands`
+- **文件位置**: `kernel/Commands/MakeCommand.php`
+- **命名空间**: `kernel\Commands`
 - **是否可继承**: 是（抽象基类）
 
 为 `make:model` / `make:controller` / `make:middleware` 提供公共能力：子目录解析、命名空间拼接、骨架文件写入。**不定义 `$name`，不会被注册为命令。**
@@ -18,7 +18,7 @@
 ## 使用
 
 ```php
-use kernel\Controller\Commands\MakeCommand;
+use kernel\Commands\MakeCommand;
 
 class MakeSomethingCommand extends MakeCommand
 {

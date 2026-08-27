@@ -128,5 +128,5 @@ class AdminController extends AuthController
   - `IndexController.php`：默认首页控制器
   - `Files/`：文件相关控制器（上传/下载/预览/删除/更新/获取授权等）
   - `Extensions/`：扩展管理控制器（安装/卸载/升级/启停/列表）
-- `Commands/`：命令行命令控制器
-  - `MakeAppCommand.php`、`MakeCommand.php`、`MakeControllerCommand.php`、`MakeMiddlewareCommand.php`、`MakeModelCommand.php`、`ScheduleRunCommand.php`
+
+命令行命令控制器位于 `kernel/Commands/`，详见 [Commands 命令体系](commands.md)。

@@ -54,7 +54,7 @@ getApp();                  // 返回 isdtj 实例
 - 初始化配置（按优先级读取 Configs/ 下的文件）
 - 注册异常/错误处理
 - 加载错误码
-- 实例化 Router（构造内自动加载路由：先内核 Routes，再应用 Routes；CLI 下同样加载以便注册命令）
+- 实例化 Router（构造内自动加载路由：先内核 Routes，再应用 Routes）
 - 创建 Request 实例（HTTP 与 CLI 均实例化；CLI 下 URI 为命中的命令名）
 
 入口随后调用 `$App->setup(\{App}\Setup\Bootstrap::class)` 装配应用（`Setup/Bootstrap.php` 构造内手动 `new Lifecycle` 并通过 `$lifeCycle->onBootUp(Setup\Bootup::class)` / `$lifeCycle->onShutdown(Setup\Shutdown::class)` 注册引导/关闭装配类，再 `$app->set(["lifeCycle" => $lifeCycle])` 注入），由 `run()` 在对应时机实例化装配类（构造即装配），最后 `$App->run()` 启动应用。参见 [Lifecycle 应用装配](./lifecycle.md)。
@@ -127,7 +127,7 @@ $request     = $App->request();       // Request 实例
 1. 设置 CORS 响应头（预检请求 OPTIONS 也会执行 `shutdown` 钩子后返回）
 2. 加载扩展
 3. 调用 `bootup` 钩子（实例化引导装配类 `Setup\Bootup`，构造即装配）
-4. 路由匹配（`Router::match()`）→ 结果写入 `request->route`、参数写入 `request->params` → 找到对应控制器
+4. 路由匹配（直接调 App 持有的 `Router::route()`）→ 命中参数经 `$request->params->fill()` 注入 → 找到对应控制器
 5. 合并全局中间件和路由中间件
 6. 执行中间件链
 7. 执行控制器（`before()` → `data()` → `after()`）
@@ -322,7 +322,7 @@ run()              ← 启动应用
     │
     ├─ 1. 设置 CORS 头（OPTIONS 预检在此执行 shutdown 钩子后返回）
     ├─ 2. 实例化引导装配类 Setup\Bootup（构造即装配，收到 $request）
-    ├─ 3. [Router::match()] 路由匹配 → 结果写入 request->route
+    ├─ 3. [Router::route()] 路由匹配（App::run() 直接调用）→ 参数经 $request->params->fill() 注入
     ├─ 4. 实例化控制器 → __construct() → boot()
     ├─ 5. 执行中间件链
     ├─ 6. before()
@@ -342,7 +342,7 @@ run()              ← 启动应用
 
 | 类 | 关系 | 说明 |
 |------|------|------|
-| [Router](./router.md) | App 构造 `new Router`（构造内加载路由），run() 调用 `Router::match()` | 匹配结果写入 `request->route` |
+| [Router](./router.md) | App 持有并实例化 `new Router`（加载路由、只做 HTTP 路由），`App::run()` 直接调其 `route()`，Router 经 `getApp()->request()` 获取当前请求 | 命中参数经 `$request->params->fill()` 注入 |
 | [Controller](./controller.md) | App 实例化控制器并执行 | 业务逻辑处理 |
 | [Middleware](./middleware.md) | App 管理全局中间件并执行中间件链 | 请求拦截 |
 | [Config](./config.md) | Setup 里手动 `new Config` | 配置管理 |

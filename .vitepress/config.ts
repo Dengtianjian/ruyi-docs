@@ -259,32 +259,6 @@ export default defineConfig({
             {
               text: "Console 控制台与命令执行",
               link: "/php/framework/console"
-            },
-            {
-              text: "内置命令",
-              collapsed: false,
-              items: [
-                {
-                  text: "make:app 创建应用",
-                  link: "/php/framework/commands/make-app"
-                },
-                {
-                  text: "make:model 生成模型",
-                  link: "/php/framework/commands/make-model"
-                },
-                {
-                  text: "make:controller 生成控制器",
-                  link: "/php/framework/commands/make-controller"
-                },
-                {
-                  text: "make:middleware 生成中间件",
-                  link: "/php/framework/commands/make-middleware"
-                },
-                {
-                  text: "schedule:run 定时任务",
-                  link: "/php/framework/commands/schedule-run"
-                }
-              ]
             }
           ]
         },
@@ -441,7 +415,37 @@ export default defineConfig({
       },
       {
         text: "Router 路由",
-        link: "/php/api/foundation/router",
+        collapsed: true,
+        items: [
+          {
+            text: "Route 门面",
+            link: "/php/api/foundation/router/route",
+          },
+          {
+            text: "RouteRegister 载体",
+            link: "/php/api/foundation/router/route-register",
+          },
+          {
+            text: "RouteGroup 路由组",
+            link: "/php/api/foundation/router/route-group",
+          },
+          {
+            text: "RouteSame 同 URI",
+            link: "/php/api/foundation/router/route-same",
+          },
+          {
+            text: "RouteDomain 域名组",
+            link: "/php/api/foundation/router/route-domain",
+          },
+          {
+            text: "Routes 容器",
+            link: "/php/api/foundation/router/routes",
+          },
+          {
+            text: "Router 实例",
+            link: "/php/api/foundation/router/router",
+          },
+        ],
       },
       {
         text: "Service 服务基类",
@@ -990,39 +994,43 @@ export default defineConfig({
     ],
   },
   {
-    text: "Controller",
+    text: "Commands 命令",
     collapsed: true,
     items: [
       {
-        text: "commands",
-        collapsed: true,
-        items: [
-          {
-            text: "MakeCommand",
-            link: "/php/api/controller/commands/make-command",
-          },
-          {
-            text: "MakeAppCommand",
-            link: "/php/api/controller/commands/make-app-command",
-          },
-          {
-            text: "MakeModelCommand",
-            link: "/php/api/controller/commands/make-model-command",
-          },
-          {
-            text: "MakeControllerCommand",
-            link: "/php/api/controller/commands/make-controller-command",
-          },
-          {
-            text: "MakeMiddlewareCommand",
-            link: "/php/api/controller/commands/make-middleware-command",
-          },
-          {
-            text: "ScheduleRunCommand",
-            link: "/php/api/controller/commands/schedule-run-command",
-          },
-        ],
+        text: "命令体系",
+        link: "/php/api/commands",
       },
+      {
+        text: "MakeCommand 基类",
+        link: "/php/api/commands/make-command",
+      },
+      {
+        text: "MakeAppCommand",
+        link: "/php/api/commands/make-app-command",
+      },
+      {
+        text: "MakeModelCommand",
+        link: "/php/api/commands/make-model-command",
+      },
+      {
+        text: "MakeControllerCommand",
+        link: "/php/api/commands/make-controller-command",
+      },
+      {
+        text: "MakeMiddlewareCommand",
+        link: "/php/api/commands/make-middleware-command",
+      },
+      {
+        text: "ScheduleRunCommand",
+        link: "/php/api/commands/schedule-run-command",
+      },
+    ],
+  },
+  {
+    text: "Controller",
+    collapsed: true,
+    items: [
       {
         text: "main",
         collapsed: true,

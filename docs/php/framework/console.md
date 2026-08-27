@@ -2,14 +2,14 @@
 
 Console 子系统为框架提供 CLI 能力，由两个类组成：
 
-- **Console**：控制台应用，继承 App，负责命令注册、参数解析、彩色输出与交互输入
+- **Console**：控制台应用，继承 App，负责命令注册与分发、参数解析、彩色输出与交互输入（命令完全由本类实例管理，不依赖 Router）
 - **Command**：系统命令执行器，基于 proc_open，负责执行 shell 命令（支持会话复用、异步执行、超时与输出限制）
 
 - **命名空间**: `kernel\Foundation\Console`
 - **文件位置**:
   - `kernel/Foundation/Console/Console.php`
   - `kernel/Foundation/Console/Command.php`
-- **入口脚本**: 内核自带 `kernel/console`（内核自身调试用）；每个应用在应用根目录维护自己的 console 入口（文件名自定，如 `app/console`）
+- **入口脚本**: 内核自带 `kernel/console`（内核自身调试用，内置命令在此注册）；每个应用在应用根目录维护自己的 console 入口（文件名自定，如 `app/console`），业务命令在此入口用 `register()` 注册
 
 ## 快速开始
 
@@ -40,8 +40,8 @@ use kernel\Foundation\Console\Console;
 use app\Lifecycle\Bootup;
 use app\Lifecycle\Shutdown;
 
-// 命令统一在 Routes/index.php 中注册（Router::command），CLI 按命令名分发，不解析 URI
-$console = new Console("app");
+// 命令在入口手动注册（Console::register），CLI 按命令名分发，不解析 URI
+$console->register("hello", HelloController::class, "Say hello");
 
 // 加载应用引导装配类与关闭装配类（CLI 同样生效）
 $console->onBootUp(Bootup::class);
@@ -59,23 +59,23 @@ php app/console --help
 
 ### 2. 注册命令
 
-命令与 HTTP 路由统一在应用 `Routes/index.php` 中注册：
+命令通过 `Console::register()` 在应用 console 入口手动注册（不再经 Router，Router 只负责 HTTP 路由）：
 
 ```php
-use kernel\Foundation\Router;
-use app\Controller\HelloController;
+use kernel\Foundation\Console\Console;
+use app\Controller\Commands\HelloController;
 
-Router::command("hello", HelloController::class, "Say hello");
+$console->register("hello", HelloController::class, "Say hello");
 ```
 
-命令控制器迁移到 `Controller/` 目录（内核内置命令放 `Controller/Commands/`），实现 `handle($console, $args, $options): int`：
+命令控制器放在 `Commands/` 目录（与 `Controller/` 同级），实现 `handle($console, $args, $options): int`：
 
 ```php
-namespace app\Controller\Commands;
+namespace app\Commands;
 
 use kernel\Foundation\Console\Console;
 
-class HelloController
+class HelloCommand
 {
   public function handle(Console $console, $args, $options): int
   {
@@ -85,7 +85,7 @@ class HelloController
 }
 ```
 
-也可在 console 入口用 `register()` 补充实例级命令（同名覆盖 Router 命令）：
+命令处理器也可直接传闭包或 `[类名, 方法名]`：
 
 ```php
 $console->register("hello", function ($console, $args, $options) {
@@ -109,24 +109,23 @@ php app/console hello Tianjian --name=john
 
 | 形式 | 签名 | 说明 |
 |------|------|------|
-| 命令控制器类 | `handle(Console $console, array $args, array $options): int` | `Router::command()` 传入类名，由框架实例化并调用 |
-| 类名 + 方法名 | `[类名, 方法名]`（方法签名同 `handle`） | `Router::command("name", [Class::class, "run"])` 指定处理方法 |
-| 闭包 | `function (Console $console, array $args, array $options): int` | 注册时直接传入闭包（`Router::command` 或 `register()` 均可） |
+| 命令控制器类 | `handle(Console $console, array $args, array $options): int` | `register()` 传入类名，由框架实例化并调用 |
+| 类名 + 方法名 | `[类名, 方法名]`（方法签名同 `handle`） | `register("name", [Class::class, "run"])` 指定处理方法 |
+| 闭包 | `function (Console $console, array $args, array $options): int` | 注册时直接传入闭包（`register()`） |
 
 处理器返回整数作为命令退出码；返回非整数时按 0 处理。
 
-### 命令注册与分发（Routes 统一注册）
+### 命令注册与分发（Console 实例注册）
 
-**命令与 HTTP 路由统一在 Routes 文件中注册**，不再有独立的 Commands/ 目录自动发现机制：
+**命令通过 `Console::register()` 在 console 入口注册**，命令表由 `Console` 实例自身持有，与 Router（HTTP 路由）完全分离：
 
 | 场景 | 匹配依据 | 说明 |
 |------|----------|------|
-| CLI（Console） | **命令名**（Router 命令表） | `Router::match()`（command 模式）按命令名匹配，不解析 URI |
-| HTTP | **URI**（路由表） | `Router::match()` 只匹配 URI 路由，不匹配命令 |
+| CLI（Console） | **命令名**（Console 实例命令表） | `Console::handle()` 按命令名查实例命令表，不解析 URI |
+| HTTP | **URI**（路由表） | `Router::route()` 只匹配 URI 路由，不匹配命令 |
 
-- 内核命令在 `kernel/Routes/index.php` 注册；应用命令在应用 `Routes/index.php` 注册
-- CLI 下实例化 `Console`（继承 App）同样加载 Routes，命令表因此就绪
-- `register()`/`discover()` 为实例级补充注册（可选）：同名命令覆盖 Router 命令
+- 内核命令在 `kernel/console` 入口注册；应用命令在应用 console 入口注册
+- `register()` 为命令注册入口（链式可叠加）；`discover()` 为实例级补充注册（可选）
 - `discover($directory, $namespace)` 仍可用于手动扫描其他目录中的命令控制器类（约定：类名取文件名，静态 `$name` 声明命令名，`$description` 声明说明）：
 
 ```php
@@ -135,7 +134,7 @@ $console->discover(Path::root() . "/VendorCommands", "App\\VendorCommands");
 
 ## 内置命令
 
-内核自带一组命令，命令控制器放 `kernel/Controller/Commands/`，在 `kernel/Routes/index.php` 中通过 `Router::command()` 注册，用于生成应用骨架文件与定时任务调度。每个命令的详细用法见对应文档：
+内核自带一组命令，命令控制器放 `kernel/Commands/`，通过 `kernel/Setup/Console/Bootstrap.php` 装配类注册，在 `kernel/console` 入口调用 `$console->setup(Bootstrap::class)` 完成装配。用于生成应用骨架文件与定时任务调度。每个命令的详细用法见对应文档：
 
 | 命令 | 用途 | 文档 |
 |------|------|------|

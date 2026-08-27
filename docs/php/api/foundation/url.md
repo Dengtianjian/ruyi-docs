@@ -92,7 +92,7 @@ url("users");   // → URL::url("users")
 - `kernel/Platform/DiscuzX/Foundation/DiscuzXApp.php` —— Discuz!X 平台从 `$_G['siteurl']` 推导
 - `kernel/Middleware/GlobalAuthMiddleware.php` —— 保留 `F_BASE_URL` 直接读取（向后兼容）
 - `kernel/Foundation/FileSystem/Storage/AbstractStorage.php` —— 构造默认值保留 `F_BASE_URL`（向后兼容）
-- `kernel/Foundation/Router.php` —— 拼 URL 时保留 `F_BASE_URL`（向后兼容）
+- `kernel/Foundation/Router/Router.php` —— 拼 URL 时保留 `F_BASE_URL`（向后兼容）
 
 > 新代码统一走 `URL::getBaseUrl()` / `URL::url()`；老代码无须改。
 

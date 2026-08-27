@@ -153,11 +153,11 @@ Router::same("links/{?linkId:\\w+}", function () {
     Router::patch(PatchLinkController::class); // PATCH 删除
 });
 
-// 路由组
-Router::group("admin", function () {
+// 路由组（Laravel 链式：前缀 + 中间件）
+Router::prefix("admin")->middleware([AdminMiddleware::class])->group(function () {
     Router::get("dashboard", DashboardController::class);
     Router::get("users", UserListController::class);
-}, [AdminMiddleware::class]);
+});
 ```
 
 ### 3. Controller — 控制器
@@ -411,7 +411,7 @@ return [
 <?php
 // myapp/Routes/index.php
 use myapp\Controller\IndexController;
-use kernel\Foundation\Router;
+use kernel\Foundation\Router\Router;
 
 Router::get("/", IndexController::class);
 ```

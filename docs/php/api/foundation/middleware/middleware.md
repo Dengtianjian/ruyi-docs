@@ -10,7 +10,7 @@
 
 | 属性 | 类型 | 默认 | 可见性 | 说明 |
 |------|------|------|--------|------|
-| `$middlewares` | `array` | `[]` | protected | 全局中间件列表，元素为 `["target" => 中间件, "params" => 执行参数]` |
+| `$middlewares` | `array` | `[]` | protected | 全局中间件关联数组，键名 => `["target" => 中间件, "params" => 执行参数]`。键名规则：别名 > 类路径 > 闭包对象 id |
 
 ## 方法
 
@@ -24,7 +24,7 @@
 
 - 无。
 
-### `set($classOrFun, $executeParams = null)` — 注册全局中间件
+### `set($classOrFun, $executeParams = null, $alias = null)` — 注册全局中间件
 
 **参数**
 
@@ -32,10 +32,18 @@
 |------|------|------|------|
 | `$classOrFun` | `\Closure\|object\|string` | 无 | 中间件。类名（构造接收 `Request` 与控制器，调 `handle` 方法）或闭包（首参为 `Request`） |
 | `$executeParams` | `array` | `null` | 执行中间件时传入的参数，会追加到调用链中 |
+| `$alias` | `string` | `null` | 中间件别名，供路由 `->middleware("alias")` 引用。未指定时键名为类路径或闭包对象 id |
 
 **返回值**
 
 - 无。
+
+**键名规则**
+
+`$middlewares` 为关联数组，键名优先级：
+1. 别名（`$alias` 非 null 时使用）
+2. 类路径（字符串类名）
+3. 闭包对象 id（`closure_{spl_object_id}`）
 
 ### `execute($routeMiddlewares, Controller $controller, \Closure $callback)` — 执行中间件链
 

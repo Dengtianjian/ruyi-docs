@@ -21,7 +21,7 @@
 | `$id` | `string` | 应用唯一 ID，**必须与应用目录名一致** |
 | `$kernelId` | `string` | 内核目录名称，默认 `"kernel"` |
 
-实例化即注册为**当前实例**。构造时载入 `Common.php` 全局函数、初始化配置、注册异常/错误处理、加载错误码、实例化 Router 与 Request。
+实例化即注册为**当前实例**。构造时载入 `Common.php` 全局函数、初始化配置、注册异常/错误处理、加载错误码。Router 与 Request 由 App 延迟实例化并持有（`App::router()` / `App::request()`）。
 
 ```php
 $App = new App("isdtj");
@@ -186,20 +186,31 @@ if ($result->isError()) {
 
 ## Router — 路由
 
-- **文件位置**: `kernel/Foundation/Router.php`
+- **文件位置**: `kernel/Foundation/Router/`（`Router.php`、`Route.php`、`RouteRegistrar.php`、`RouteGroup.php`、`RouteSame.php`、`RouteCollection.php`）
 
-路由分发。延迟加载：`__construct($mode = null)` 按 `PHP_SAPI !== "cli"` 判断 http/command 并 `loadRoutes()`。详见 [Router 路由](../framework/router.md)。
+路由分发门面。`__construct()` 构造时 `loadRoutes()`（只注册 HTTP 路由，命令已剥离给 Console）。**事件委托**：`Router::get/post/...` 实际会 `new Route()`（`Route` 提供 `name()` / `middleware()` / `controller()` / `where()` 流式方法）。**链式路由组（Laravel 风格）**：`prefix()` / `middleware()` / `name()` / `as()` / `where()` 返回 `RouteRegistrar`，`group($callback)` **只接受一个回调**，组属性经回调首参 `RouteGroup` 实例链式设置（中间件/前缀/名称等）；`same($uri, $callback)` 回调首参为 **`RouteSame`** 实例，可在同一 URI 下叠加属性并转发 DSL 注册不同方法。**路由状态、匹配与 URL 生成沉淀在 `RouteCollection`**（由 Router 持有共享实例），`Router` 退化为纯门面。详见 [Router 路由](../framework/router.md)。
 
 | 方法 | 说明 |
 |------|------|
-| `Router::register($URI, $Controller, $method, $middlewares, $params, $options)` | 注册 HTTP 路由（http 模式） |
-| `Router::command($name, $Class, $description)` | 注册命令（command 模式） |
-| `Router::setMode($mode)` / `Router::mode()` | 设置/读取模式（静态可覆盖） |
-| `match($URI)` | 统一分发：command 返回命令，http 走 URI 匹配 |
+| `Router::get/post/put/patch/delete/options/head/any/async($uri, $controller)` | 注册 HTTP 路由，返回 `Route`，经 `->name()`/`->middleware()`/`->where()` 补充配置 |
+| `Router::prefix($prefix)` | 前缀链式构建器，返回 `RouteRegistrar`（可叠加后 `->group()` 或转发 DSL） |
+| `Router::middleware($m)` | 中间件链式构建器，返回 `RouteRegistrar` |
+| `Router::name($name)` / `Router::as($name)` | 名称前缀链式构建器，返回 `RouteRegistrar` |
+| `Router::where($name, $regex)` | 参数约束链式构建器，返回 `RouteRegistrar` |
+| `Router::group($callback)` | 路由组（只接受回调，组属性经 RouteGroup 链式设置） |
+| `Router::same($uri, $callback)` | 同一 URI 注册不同方法（回调首参为 RouteSame 实例，可叠加属性/转发 DSL） |
+| `Router::url($name, $params)` | 按路由名称生成 URL（参考 Laravel `route()`） |
+| `Router::redirect($from, $to, $status)` | 注册重定向路由，`$to` 可为 URI 或命名路由 |
+| `route()`（实例） | 匹配当前请求的路由（`App::run()` 调用，核心逻辑在 private `match()`）。只做 URI 匹配；CLI 命令由 Console 单独管理 |
 
 ```php
-Router::register("user/detail", UserController::class, "GET");
-Router::command("cache:clear", CacheClearCommand::class, "清理缓存");
+Router::get("user/detail", UserController::class)->name("user.detail");
+Router::prefix("admin")->middleware([AdminMiddleware::class])->group(function () {
+    Router::get("users", UserListController::class)->name("users"); // → admin.users
+});
+Router::url("admin.users");                    // "/admin/users"
+Router::url("user.detail");                    // "/user/detail"
+Router::redirect("old", "user.detail");        // 302 → /user/detail
 ```
 
 ## Service — 服务基类

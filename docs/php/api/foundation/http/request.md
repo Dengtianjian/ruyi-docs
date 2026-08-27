@@ -17,10 +17,9 @@
 | `$query` | `RequestQuery` | `null` | public | 请求 query 参数 |
 | `$body` | `RequestBody` | `null` | public | 请求体 |
 | `$header` | `RequestHeader` | `null` | public | 请求头 |
-| `$params` | `RequestParams` | `null` | public | URI 参数（路由动态参数） |
-| `$route` | `array\|null` | `null` | public | 匹配到的路由（`App::run()` 写入，业务经 `route()` 读取） |
+| `$params` | `RequestParams` | `null` | public | URI 参数（路由动态参数，App::run() 匹配后经 fill() 注入） |
 
-> `$method` / `$uri` 为私有属性，经 `method()` / `uri()` 读写。
+> `$method` / `$uri` 为私有属性，经 `method()` / `uri()` 读写。**Request 不持有路由**（无 `$route`/`match()`/`route()`），路由匹配在 `App::run()` 内直接调用 App 持有的 Router。
 
 ## 方法速查表
 
@@ -30,7 +29,6 @@
 | `Request::ip()` | 获取真实客户端 IP |
 | `method()` | 获取/设置请求方法（传参写入，无参延迟解析，dev 支持 `_method` 覆盖） |
 | `uri()` | 获取/设置请求 URI（传参写入，无参延迟解析） |
-| `route()` | 获取当前匹配到的路由 |
 | `input()` | 统一读取输入（params → query → body） |
 | `hasInput()` | 是否存在指定输入 |
 | `all()` | 合并全部输入参数 |
@@ -102,18 +100,6 @@
 **返回值**
 
 - `string`：请求 URI。
-
-### `route()` — 获取当前匹配到的路由
-
-返回 `App::run()` 路由匹配后写入 `$route` 的路由数组。业务代码统一从 `route()` 读取。
-
-**参数**
-
-- 无。
-
-**返回值**
-
-- `array|null`：匹配到的路由；未匹配时返回 `null`。
 
 ### `input()` — 统一读取输入参数
 
@@ -243,15 +229,22 @@
 
 ### `isPath()` — 判断路径是否匹配模式
 
-模式支持 `{param}` 与 `{param:regex}` 占位符；匹配成功会把提取出的参数合并进 `params`。
+模式支持 `{param}` 与 `{param:regex}` 占位符；纯判断、无副作用，不写入 `params`。
 
 **参数**
 
 - `string $pattern`：路径模式，如 `links/{id}`、`posts/{pid:[0-9]+}/{page}`。
+- `array &$params`（引用，可选）：匹配成功后用于接收提取到的参数映射。
 
 **返回值**
 
-- `bool`：匹配返回 `true`（并把参数写入 `params`），否则 `false`。
+- `bool`：匹配返回 `true`，否则 `false`。需读取提取的参数时经 `$params` 引用接收。
+
+```php
+if ($request->isPath("links/{id:\d+}", $params)) {
+  $id = $params["id"]; // "42"
+}
+```
 
 ### `userAgent()` — 获取 User-Agent 头
 

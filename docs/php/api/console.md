@@ -3,7 +3,7 @@
 - **目录位置**: `kernel/Foundation/Console/`
 - **命名空间**: `kernel\Foundation\Console`
 
-控制台命令的基础设施。命令控制器实际放置于 `kernel/Controller/Commands/`（namespace `kernel\Controller\Commands`），由 Routes 通过 `Router::command()` 注册。
+控制台命令的基础设施。命令控制器放置于 `kernel/Commands/`（namespace `kernel\Commands`），通过 `kernel/Setup/Console/Bootstrap.php` 装配类注册到 Console。
 
 ## Command — 命令基类
 
@@ -23,7 +23,7 @@
 返回 `int` 作为命令退出码。
 
 ```php
-namespace kernel\Controller\Commands;
+namespace app\Commands;
 
 use kernel\Foundation\Console\Command;
 
@@ -61,14 +61,48 @@ $console->line("普通消息");
 
 ### 执行命令
 
-命令由 `Router::command("name", Class::class, "说明")` 注册，经 `Router::match()` 在 command 模式命中后，`Console::handle()` 首行兜底装配并执行。
+命令由 `Console::register("name", Class::class, "说明")` 注册（命令完全由 Console 管理，不再依赖 Router）。`Console::handle()` 按命令名从实例命令表分发并执行。
 
 ```php
-Router::command("cache:clear", CacheClearCommand::class, "清理缓存");
+$console->register("cache:clear", CacheClearCommand::class, "清理缓存");
+```
+
+### 装配类
+
+框架命令通过 `kernel/Setup/Console/Bootstrap.php` 装配类注册：
+
+```php
+namespace kernel\Setup\Console;
+
+use kernel\Foundation\Console\Console;
+use kernel\Commands\MakeAppCommand;
+// ...
+
+class Bootstrap
+{
+  public function __construct(Console $console)
+  {
+    $console
+      ->register("make:app", MakeAppCommand::class, "Create a new application skeleton")
+      // ...
+  }
+}
+```
+
+入口文件调用：
+
+```php
+$console = new Console("kernel");
+$console->setup(Bootstrap::class);
+$console->run();
 ```
 
 命令行执行：
 
 ```bash
-php index.php cache:clear
+php kernel/console cache:clear
 ```
+
+## 框架自带命令
+
+详见 [Commands 命令体系](commands.md)。

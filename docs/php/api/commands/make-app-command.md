@@ -1,7 +1,7 @@
 # MakeAppCommand — 创建应用命令
 
-- **文件位置**: `kernel/Controller/Commands/MakeAppCommand.php`
-- **命名空间**: `kernel\Controller\Commands`
+- **文件位置**: `kernel/Commands/MakeAppCommand.php`
+- **命名空间**: `kernel\Commands`
 - **命令名**: `make:app`
 
 创建新应用骨架的命令。
@@ -21,7 +21,7 @@ php kernel/console make:app hello
 |------|------|
 | `Setup/Bootstrap.php` | 应用装配类（手动 new Config/FileSystem/Cache + 生命周期注入） |
 | `Setup/Bootup.php` / `Setup/Shutdown.php` | 生命周期装配类 |
-| `Routes/index.php` | HTTP 路由 + 命令注册 |
+| `Routes/index.php` | HTTP 路由 |
 | `Controller/IndexController.php` | 默认控制器 |
 | `index.php` | HTTP 入口 |
 | `console` | CLI 入口（Console 子类） |

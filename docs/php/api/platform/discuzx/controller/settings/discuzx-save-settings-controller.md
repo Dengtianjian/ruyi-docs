@@ -41,5 +41,5 @@ public function data()
 
 ```php
 // 路由 PATCH settings，请求体为 { "appName": "value", ... }
-Router::patch("settings", DiscuzXSaveSettingsController::class, [], [$settingBase]);
+Router::patch("settings", DiscuzXSaveSettingsController::class)->parameters([$settingBase]);
 ```
