@@ -1,78 +1,61 @@
-# 如意 PHP 框架文档
+# 如意 PHP 框架
 
-欢迎来到如意（Ruyi）PHP 框架文档。以下是完整的文档导航：
+如意（Ruyi）PHP 框架是一个轻量级 PHP 框架，采用 **内核 + 应用** 的分层架构。
 
-## 快速开始
+| 部分 | 目录 | 说明 |
+|------|------|------|
+| **内核** | `kernel/` | 框架核心，提供路由、控制器、中间件、ORM 等基础能力 |
+| **应用** | `<app-id>/` | 业务应用代码，目录名 = `new App("app-id")` 传入的 AppId |
 
-- [入门指南](./getting-started.md) — 新手从这里开始，了解框架的整体架构和基本用法
+> **核心理念**：框架代码不干涉应用代码。`kernel/` 只提供通用能力，应用按自己的目录组织路由、控制器、模型、服务等。一个内核可以支撑多个应用。
 
-## 框架核心
+## 多应用架构
 
-- [App 应用入口](./framework/app.md) — 应用启动器，管理生命周期、中间件和控制器
-- [Lifecycle 应用装配](./framework/lifecycle.md) — 入口中 `$app->onBootUp(Bootup::class)` / `$app->onShutdown(Shutdown::class)` 加载的应用装配类
-- [Router 路由](./framework/router.md) — URL 与控制器的映射，支持静态/动态/分组路由
-- [Controller 控制器](./framework/controller.md) — 基础控制器，参数校验和数据序列化
-- [AuthController 认证控制器](./framework/auth-controller.md) — 带用户认证的控制器
-- [Middleware 中间件](./framework/middleware.md) — 请求拦截处理（认证、CORS 等）
+```
+项目根目录/
+├── kernel/          # 内核（所有应用共享）
+├── app1/            # 应用 1  →  new App("app1")
+│   └── index.php    #     入口文件
+├── app2/            # 应用 2  →  new App("app2")
+│   └── index.php    #     入口文件
+└── ...
+```
 
-## 请求与响应
+## 快速导航
 
-- [Request 请求](./framework/request.md) — HTTP 请求信息封装
-- [Response 响应](./framework/response.md) — HTTP 响应构建和输出
-- [Config 配置](./framework/config.md) — 多环境配置管理
-- [Curl HTTP 客户端](./framework/http.md) — 基于 cURL 的外部 HTTP 请求封装
+### 开始
 
-## 结果与缓存
+- [快速上手](./getting-started) — 新手指南，从安装到第一个应用
 
-- [Result 返回结果](./framework/result.md) — 标准化方法返回值
-- [Cache 缓存](./framework/cache.md) — 文件缓存读写
+### 基础
 
-## 校验 Validation
+框架核心能力，涵盖应用入口、路由、控制器、中间件、请求响应、校验、缓存、事件日志、工具类、文件系统、控制台等。
 
-- [Validator 校验器](./framework/validator.md) — 单字段/关联数组/条件规则校验
-- [校验规则详解](./framework/validation/rules.md) — 30+ 规则签名、示例与错误码
-- [关联数组校验](./framework/validation/array-rules.md) — Rules 字段映射、点号/通配符、条件规则
-- [使用场景示例](./framework/validation/examples.md) — 控制器/手动/自定义等完整示例
+- [App 应用入口](./framework/app) — 应用启动与生命周期
+- [Router 路由](./framework/router) — URL 与控制器映射
+- [Controller 控制器](./framework/controller) — 业务逻辑处理
+- [Middleware 中间件](./framework/middleware) — 请求拦截处理
+- [Request 请求](./framework/request) — HTTP 请求封装
+- [Response 响应](./framework/response) — HTTP 响应构建
+- [Config 配置](./framework/config) — 多环境配置管理
+- [Result 返回结果](./framework/result) — 标准化返回值
+- [Cache 缓存](./framework/cache) — 文件缓存
+- [Validator 校验器](./framework/validator) — 数据校验
+- [Event 事件](./framework/event) — 事件注册与分发
+- [Log 日志](./framework/log) — 文件日志
+- [Console 控制台](./framework/console) — CLI 命令
+- [应用概览](./application/overview) — 控制器/模型/服务协作
 
-## 工具类
+### 数据库
 
-- [Event 事件](./framework/event.md) — 事件注册和分发
-- [Log 日志](./framework/log.md) — 文件日志记录
-- [File 文件操作](./framework/file.md) — 文件和目录操作
-- [Zip 压缩解压](./framework/zip.md) — 目录打包与安全解压（zip slip / zip bomb 防护）
-- [BaseObject 基对象](./framework/base-object.md) — 单例与工厂实例化
-- [AbilityBaseObject 能力基对象](./framework/ability-base-object.md) — 实例级错误机制
-- [DataObject 数据对象](./framework/data-object.md) — 不可变值对象
-- [Output 输出工具](./framework/output.md) — 调试输出、堆栈打印与数据格式化
-- [Common 全局函数](./framework/common.md) — getApp/import/config 等全局便捷函数
+PDO（MySQL）、MongoDB、SQLite 三种数据库支持。
 
-### 数据处理
-
-- [Str 字符串工具](./framework/str.md) — 字符串处理
-- [Numeric 数值工具](./framework/numeric.md) — 数值转换与格式化
-- [Money 货币工具](./framework/money.md) — 金额处理
-- [Date 时间工具](./framework/date.md) — 高精度时间戳、单位转换与耗时计算
-- [Arr 数组工具](./framework/arr.md) — 数组判断、合并、分组与树形分级
-- [Transform 数据转换器](./framework/transform.md) — _transform 参数解析与转换器链执行
-- [Mutator 数据突变器](./framework/mutator.md) — 数据类型安全转换
-- [Serializer 序列化](./framework/serializer.md) — 响应数据过滤和转换
-
-## 依赖管理
-
-- [依赖按需安装](./framework/dependencies.md) — 内核零依赖，云存储 SDK 按需安装
-
-## 控制台
-
-- [Console 控制台与命令执行](./framework/console.md) — CLI 命令注册、参数解析、系统命令执行器
-
-## 数据库
-
-- [DB 门面](./database/db.md) — 数据库操作入口
-- [Query Builder](./database/query.md) — 链式查询构建器
-- [Model 模型](./database/model.md) — 数据模型 CRUD
-- [Table](./database/table.md) — DDL 建表与表管理
-- [Schema](./database/schema.md) — 字段定义
-
-## 应用层
-
-- [应用概览](./application/overview.md) — 控制器/模型/服务协作指南
+- [使用指南](./database/usage) — 连接配置、CRUD、事务
+- [DB 门面](./database/db) — 数据库操作入口
+- [Query Builder](./database/query) — 链式查询构建器
+- [Model 模型](./database/model) — ActiveRecord ORM
+- [Relation 关联查询](./database/relation) — hasOne / hasMany / belongsTo
+- [Table](./database/table) — DDL 建表
+- [Schema](./database/schema) — 字段定义
+- [MongoDB](./database/mongodb) — MongoDB 驱动
+- [SQLite](./database/sqlite) — SQLite 支持
