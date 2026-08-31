@@ -36,9 +36,6 @@
 | `execute($query, $params)` | 预处理+绑定+执行 |
 | `quote($string, $type)` | 转义字符串 |
 | `insertId()` | 最后插入的自增 ID |
-| `first($sql, $params)` | 便捷查询单行 |
-| `all($sql, $params)` | 便捷查询全部 |
-| `value($sql, $params, $column)` | 便捷查询单个值 |
 | `error()` | 最近一次操作错误信息 |
 | `errno()` | 最近一次操作 SQLSTATE 错误码 |
 | `begin()` | 开始事务 |
@@ -346,46 +343,6 @@ SELECT 返回 `PDOStatement`，其余返回受影响行数。
 **返回值**
 
 - `string`：自增 ID。
-
-### `first($sql, $params = [])` — 便捷查询单行
-
-**参数**
-
-| 参数 | 类型 | 默认 | 说明 |
-|------|------|------|------|
-| `$sql` | `string` | 无 | SQL 语句 |
-| `$params` | `array` | `[]` | 绑定参数 |
-
-**返回值**
-
-- `array\|false`：单行结果。
-
-### `all($sql, $params = [])` — 便捷查询全部
-
-**参数**
-
-| 参数 | 类型 | 默认 | 说明 |
-|------|------|------|------|
-| `$sql` | `string` | 无 | SQL 语句 |
-| `$params` | `array` | `[]` | 绑定参数 |
-
-**返回值**
-
-- `array`：全部结果。
-
-### `value($sql, $params = [], $column = 0)` — 便捷查询单个值
-
-**参数**
-
-| 参数 | 类型 | 默认 | 说明 |
-|------|------|------|------|
-| `$sql` | `string` | 无 | SQL 语句 |
-| `$params` | `array` | `[]` | 绑定参数 |
-| `$column` | `int` | `0` | 列索引 |
-
-**返回值**
-
-- `mixed`：单个值。
 
 ### `error()` — 最近一次操作错误信息
 

@@ -102,40 +102,54 @@ $affected = $driver->execute('UPDATE users SET name = :name WHERE id = :id', [
 
 所有便捷方法均支持两种模式：传参数时走预处理路径，不传参数时走直查路径。
 
-### first() — 查询单行
+方法名与 PDO 的 fetch 家族一一对应（`fetchAll` / `fetch` / `fetchColumn` /
+`fetchObject` / `fetchFunc`），因此熟悉 PDO 即可直接使用：
+
+| 方法 | 对应 PDO |
+|------|---------|
+| `fetch($sql)` | `$stmt->fetch()` |
+| `fetchAll($sql)` | `$stmt->fetchAll()` |
+| `fetchColumn($sql)` | `$stmt->fetchColumn()` |
+| `fetchObject($sql)` | `$stmt->fetchObject()` |
+| `fetchFunc($sql, $cb)` | `$stmt->fetchAll(PDO::FETCH_FUNC, $cb)` |
+
+> 早期版本叫 `first()` / `all()` / `value()` / `object()` / `map()`，
+> 与 Query 构建器的同名方法容易混淆，现已对齐 PDO 命名。
+
+### fetch() — 查询单行
 
 ```php
-$user = $driver->first('SELECT * FROM users WHERE id = ?', [1]);
-$user = $driver->first('SELECT * FROM users WHERE id = 1');  // 无参数，直查
+$user = $driver->fetch('SELECT * FROM users WHERE id = ?', [1]);
+$user = $driver->fetch('SELECT * FROM users WHERE id = 1');  // 无参数，直查
 ```
 
-### all() — 查询全部
+### fetchAll() — 查询全部
 
 ```php
-$users = $driver->all('SELECT * FROM users WHERE status = ?', [1]);
+$users = $driver->fetchAll('SELECT * FROM users WHERE status = ?', [1]);
 ```
 
-### value() — 查询单个标量值
+### fetchColumn() — 查询单个标量值
 
 ```php
-$count = $driver->value('SELECT COUNT(*) FROM users');
-$name  = $driver->value('SELECT name FROM users WHERE id = ?', [1]);
+$count = $driver->fetchColumn('SELECT COUNT(*) FROM users');
+$name  = $driver->fetchColumn('SELECT name FROM users WHERE id = ?', [1]);
 ```
 
-### object() — 查询返回对象
+### fetchObject() — 查询返回对象
 
 ```php
-$user = $driver->object('SELECT * FROM users WHERE id = ?', [1], 'stdClass');
+$user = $driver->fetchObject('SELECT * FROM users WHERE id = ?', [1], 'stdClass');
 echo $user->name;
 
 // 传入自定义类
-$user = $driver->object('SELECT * FROM users WHERE id = ?', [1], UserDTO::class);
+$user = $driver->fetchObject('SELECT * FROM users WHERE id = ?', [1], UserDTO::class);
 ```
 
-### map() — 通过回调处理结果
+### fetchFunc() — 通过回调处理结果
 
 ```php
-$names = $driver->map(
+$names = $driver->fetchFunc(
     'SELECT id, name FROM users',
     function ($id, $name) {
         return "$id: $name";

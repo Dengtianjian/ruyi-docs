@@ -13,7 +13,7 @@ PDO 驱动封装，数据库操作的底层引擎。直接包裹 PHP 原生 `PDO
 - **连接管理**：构造时建立 PDO 连接，通过 `getPDO()` 暴露原生实例
 - **SQL 执行**：`query()` 自动区分 SELECT（返回 `PDOStatement`）和写操作（返回受影响行数），写操作内部使用 `PDO::exec()`
 - **预处理**：`prepare()` + `bindValues()` + `execute()` 完整参数绑定流程，`bindValues()` 自动根据 PHP 值类型推断 PDO 参数类型
-- **便捷查询**：`first()` / `all()` / `value()` / `object()` / `map()` 统一支持传参预处理和直查两种模式
+- **便捷查询**：`fetch()` / `fetchAll()` / `fetchColumn()` / `fetchObject()` / `fetchFunc()` 对齐 PDO 原生 fetch 家族，统一支持传参预处理和直查两种模式
 - **事务**：`beginTransaction()` / `commit()` / `rollBack()` / `inTransaction()`
 
 ## 属性
@@ -45,11 +45,11 @@ PDO 驱动封装，数据库操作的底层引擎。直接包裹 PHP 原生 `PDO
 | `getParamType($value)` | 获取参数对应 PDO 类型常量（private） |
 | `bindValues($statement, $params)` | 绑定参数数组到预处理语句 |
 | `execute($query, $params)` | 执行预处理 SQL |
-| `first($querySQL, $params, $mode, ...)` | 查询单行数据 |
-| `all($querySQL, $params, $mode)` | 查询全部数据 |
-| `value($querySQL, $params, $column)` | 查询单个列的值 |
-| `object($querySQL, $params, $class, $constructorArgs)` | 查询并返回对象 |
-| `map($querySQL, $callback, $params)` | 通过回调函数处理查询结果 |
+| `fetch($querySQL, $params, $mode, ...)` | 查询单行数据 |
+| `fetchAll($querySQL, $params, $mode)` | 查询全部数据 |
+| `fetchColumn($querySQL, $params, $column)` | 查询单个列的值 |
+| `fetchObject($querySQL, $params, $class, $constructorArgs)` | 查询并返回对象 |
+| `fetchFunc($querySQL, $callback, $params)` | 通过回调函数处理查询结果 |
 
 ## 方法
 
@@ -321,7 +321,7 @@ PDO 驱动封装，数据库操作的底层引擎。直接包裹 PHP 原生 `PDO
 
 - `\PDOStatement\|int`。
 
-### `first($querySQL, $params, $mode, $cursorOrientation, $cursorOffset)` — 查询单行数据
+### `fetch($querySQL, $params, $mode, $cursorOrientation, $cursorOffset)` — 查询单行数据
 
 传入 `$params` 时走预处理路径，否则走直查路径。
 
@@ -339,7 +339,7 @@ PDO 驱动封装，数据库操作的底层引擎。直接包裹 PHP 原生 `PDO
 
 - `array\|false`。
 
-### `all($querySQL, $params, $mode)` — 查询全部数据
+### `fetchAll($querySQL, $params, $mode)` — 查询全部数据
 
 **参数**
 
@@ -353,7 +353,7 @@ PDO 驱动封装，数据库操作的底层引擎。直接包裹 PHP 原生 `PDO
 
 - `array`。
 
-### `value($querySQL, $params, $column)` — 查询单个列的值
+### `fetchColumn($querySQL, $params, $column)` — 查询单个列的值
 
 **参数**
 
@@ -367,7 +367,7 @@ PDO 驱动封装，数据库操作的底层引擎。直接包裹 PHP 原生 `PDO
 
 - `mixed`。
 
-### `object($querySQL, $params, $class, $constructorArgs)` — 查询并返回对象
+### `fetchObject($querySQL, $params, $class, $constructorArgs)` — 查询并返回对象
 
 **参数**
 
@@ -382,7 +382,7 @@ PDO 驱动封装，数据库操作的底层引擎。直接包裹 PHP 原生 `PDO
 
 - `object\|false`。
 
-### `map($querySQL, $callback, $params)` — 通过回调函数处理查询结果
+### `fetchFunc($querySQL, $callback, $params)` — 通过回调函数处理查询结果
 
 **参数**
 
@@ -402,7 +402,7 @@ PDO 驱动封装，数据库操作的底层引擎。直接包裹 PHP 原生 `PDO
 use kernel\Foundation\Database\PDO\Driver;
 
 $driver = new Driver('127.0.0.1', 'root', 'pass', 'my_db', 3306);
-$rows   = $driver->all('SELECT * FROM users WHERE status = ?', [1]);
-$count  = $driver->value('SELECT COUNT(*) FROM users');
+$rows   = $driver->fetchAll('SELECT * FROM users WHERE status = ?', [1]);
+$count  = $driver->fetchColumn('SELECT COUNT(*) FROM users');
 $id     = $driver->execute('INSERT INTO users (name) VALUES (?)', ['Tom']);
 ```

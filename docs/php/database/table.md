@@ -19,7 +19,7 @@ use kernel\Foundation\Database\PDO\Table;
 $table = new Table('users');
 
 // 表是否存在
-if ($table->exists()) { ... }
+if ($table->tableExists()) { ... }
 
 // 获取建表 DDL
 $ddl = $table->getCreateSQL();
@@ -38,8 +38,12 @@ $indexes = $table->getIndexes();
 $status = $table->getStatus();
 
 // 优化表（整理碎片）
-$table->optimize();
+$table->optimize();   // 返回 bool：MySQL 会返回结果集，内部按 Msg_type 判定成败
 ```
+
+> 上述信息查询方法（`tableExists` / `getCreateSQL` / `getColumns` / `getIndexes` /
+> `getStatus` / `optimize`）内部走 `select()`，因为 `SHOW` / `OPTIMIZE TABLE`
+> 返回的是**结果集**；而 `exec()` 走 `PDO::exec`，不产生结果集，只返回受影响行数。
 
 ---
 
@@ -68,6 +72,11 @@ class UsersTable extends Table
 ```php
 $table->drop();  // DROP TABLE IF EXISTS `prefix_users`
 ```
+
+DDL 方法（`create` / `drop` / `truncate` / `rename` / `copy`）统一**返回 bool**。
+
+> `PDO::exec` 对 DDL 成功时返回 `0`，而 PHP 中 `0` 是 falsy。
+> 框架内部已统一用 `!== false` 转换为 bool，因此可以直接用 `if ($table->drop())` 判定。
 
 ### truncate — 清空表
 

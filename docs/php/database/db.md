@@ -47,6 +47,15 @@ $user = DB::selectOne('SELECT * FROM users WHERE id = ?', [1]);
 $count = DB::scalar('SELECT COUNT(*) FROM users WHERE status = ?', [1]);
 ```
 
+> 早期还提供过 `DB::all()` / `DB::first()` / `DB::value()`，与上面三个方法
+> 功能完全重复，已移除。迁移对照：
+>
+> | 旧 | 新 |
+> |----|----|
+> | `DB::all($sql)` | `DB::select($sql)` |
+> | `DB::first($sql)` | `DB::selectOne($sql)` |
+> | `DB::value($sql)` | `DB::scalar($sql)` |
+
 ### 写入类
 
 ```php
@@ -119,9 +128,9 @@ DB::prepare('SELECT * FROM users WHERE id = :id');  // Driver::prepare()
 DB::execute('SELECT * FROM users WHERE id = :id', ['id' => 1]);  // Driver::execute()
 
 // 便捷方法（带日志记录）
-DB::first('SELECT * FROM users WHERE id = ?', [1]);   // 单行
-DB::all('SELECT * FROM users WHERE status = ?', [1]); // 全部
-DB::value('SELECT name FROM users WHERE id = ?', [1]); // 标量值
+DB::selectOne('SELECT * FROM users WHERE id = ?', [1]);    // 单行
+DB::select('SELECT * FROM users WHERE status = ?', [1]);   // 全部
+DB::scalar('SELECT name FROM users WHERE id = ?', [1]);    // 标量值
 
 // 其他
 DB::quote("O'Reilly");    // 转义字符串

@@ -25,7 +25,7 @@ Query::table('users')->where('status', 'active')->get();
 | `$options` | `array` | `[]` | private | 查询选项数组，存储构建 SQL 所需的全部参数（from/select/conditions/orders/pagination/joins/groupBy/having/data 等） |
 | `$filterNullConditions` | `array` | `[]` | private | 可空过滤条件集合，`filterNullWhere()` 添加，生成 WHERE 前自动过滤空值 |
 | `$sql` | `string` | `""` | protected | 当前构建的 SQL 语句 |
-| `$executeReset` | `bool` | `true` | protected | 执行后是否自动重置查询参数；设 `false`（`notReset()`）可保持查询状态 |
+| `$executeReset` | `bool` | `true` | protected | 执行后是否自动重置查询参数；写操作执行后清空 conditions/orders/select 等构建选项，保留 from 与 databaseDriver |
 | `$databaseDriver` | `Driver` | `null` | protected | 数据库驱动实例 |
 | `$clause` | `bool` | `false` | protected | 是否子查询子句模式（不拼接执行关键字） |
 | `$bindings` | `array` | `[]` | protected | 参数绑定数组，键为占位符名、值为绑定值 |
@@ -35,7 +35,7 @@ Query::table('users')->where('status', 'active')->get();
 
 | 类别 | 方法 |
 |------|------|
-| 基础 | `__construct`、`setDatabaseDriver`、`getDatabaseDriver`、`getTableName`、`table`、`fill`、`reset`、`notReset`、`bind`、`addBindings`、`getBindings`、`raw`、`getSQL` |
+| 基础 | `__construct`、`setDatabaseDriver`、`getDatabaseDriver`、`getTableName`、`table`、`fill`、`reset`、`bind`、`addBindings`、`getBindings`、`raw`、`getSQL` |
 | 数据源 | `from`、`fromSub` |
 | 联结 | `join`、`leftJoin`、`rightJoin`、`innerJoin` |
 | 字段 | `select`、`selectRaw`、`selectSub`、`addSelect`、`distinct` |
@@ -127,19 +127,7 @@ Query::table('users')->where('status', 'active')->get();
 
 ### `reset()` — 重置查询参数
 
-将所有查询选项恢复初始状态，但保留 `from` 和 `databaseDriver`。受 `$executeReset` 控制。
-
-**参数**
-
-- 无。
-
-**返回值**
-
-- `$this`。
-
-### `notReset()` — 禁止执行后自动重置查询参数
-
-设置后 INSERT/UPDATE/DELETE 执行完毕不清空 options，适用于多次执行保持查询状态（如 chunk、分页）。
+将所有构建选项恢复为初始状态，但保留 `from`（表名）与 `databaseDriver`。写操作（INSERT/UPDATE/DELETE）执行后会自动调用，下一次链式调用从干净状态开始。
 
 **参数**
 

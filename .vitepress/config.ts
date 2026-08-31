@@ -281,6 +281,10 @@ export default defineConfig({
                   link: "/php/database/model"
                 },
                 {
+                  text: "ModelBuilder 查询构建器",
+                  link: "/php/database/model-builder"
+                },
+                {
                   text: "Relation 关联查询",
                   link: "/php/database/relation"
                 }

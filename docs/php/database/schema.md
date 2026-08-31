@@ -48,13 +48,37 @@ new Schema('created_at')->datetime()->default('CURRENT_TIMESTAMP');
 
 ## 日期/时间类型
 
-| 方法 | SQL 类型 |
-|------|---------|
-| `datetime()` | DATETIME |
-| `timestamp()` | TIMESTAMP |
-| `date()` | DATE |
-| `time()` | TIME |
-| `timestamp_ms($length)` | VARCHAR（存储含毫秒的格式化时间） |
+| 方法 | SQL 类型 | 库中实际存储 |
+|------|---------|------------|
+| `datetime()` | DATETIME | `2026-08-24 12:00:00` |
+| `timestamp()` | TIMESTAMP | `2026-08-24 12:00:00` |
+| `date()` | DATE | `2026-08-24` |
+| `time()` | TIME | `12:00:00` |
+| `timestamp_ms($length)` | VARCHAR | `2026-08-24 12:00:00.123` |
+| `unixtime()` | INT UNSIGNED | `1787563200`（整数秒） |
+| `unixtime_ms()` | BIGINT UNSIGNED | `1787563200123`（整数毫秒） |
+
+### timestamp 系列 vs unixtime 系列
+
+两组都表示时间，区别在于**库里存什么**：
+
+| | `timestamp()` / `timestamp_ms()` | `unixtime()` / `unixtime_ms()` |
+|---|---|---|
+| 库中存储 | 格式化字符串 | 整数时间戳 |
+| PHP 侧读写 | 赋值时解析、读取时格式化 | 全程 int，不做日期解析 |
+| 可读性 | 直接看表即懂 | 需 `FROM_UNIXTIME()` 或代码转换 |
+| 排序/比较 | 依赖字典序 | 数值比较，索引效率更好 |
+| 默认值 | `->default('CURRENT_TIMESTAMP')` | `->default(0)` |
+
+需要频繁按时间范围查询、或前端直接消费时间戳时，用 `unixtime` 系列；需要人工查表、或直接用作日期列时，用 `timestamp` 系列。
+
+```php
+new Schema('created_at')->unixtime()->nullable(false)->default(0)->comment('创建时间（秒级时间戳）');
+new Schema('paid_at')->unixtime_ms()->nullable(false)->default(0)->comment('支付时间（毫秒级时间戳）');
+```
+
+> 两个方法自动带 `UNSIGNED`（时间戳非负），无需再调 `->unsigned()`；
+> 也不生成整数显示宽度（如 `INT(10)`），避免 MySQL 8 的弃用告警。
 
 ---
 
@@ -115,6 +139,8 @@ new Schema('status')->tinyint()->index('idx_custom');
 | TINYINT(1) | `bool` |
 | INT / BIGINT / SMALLINT / MEDIUMINT | `int` |
 | FLOAT / DOUBLE / DECIMAL | `float` |
+| UNIXTIME（由 `unixtime()` 生成） | `unixtime` |
+| UNIXTIME_MS（由 `unixtime_ms()` 生成） | `unixtime_ms` |
 | DATETIME / TIMESTAMP (precision ≥ 3) | `timestamp_ms` |
 | DATETIME / TIMESTAMP | `timestamp` |
 | DATE | `date` |

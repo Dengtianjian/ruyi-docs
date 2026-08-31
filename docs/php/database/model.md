@@ -46,7 +46,12 @@ class UserModel extends Model
 | `array` | `json_encode` | `array` | `[]` |
 | `timestamp` | 格式化字符串 | Unix 秒级时间戳 int | `null` |
 | `timestamp_ms` | 含毫秒格式化字符串 | Unix 毫秒级时间戳 int | `null` |
+| `unixtime` | 秒级时间戳 int | 秒级时间戳 int | `0` |
+| `unixtime_ms` | 毫秒级时间戳 int | 毫秒级时间戳 int | `0` |
 | `date` | `'Y-m-d'` 格式 | 格式化日期字符串 | `null` |
+
+> `timestamp` 系列库中存格式化字符串，`unixtime` 系列库中存整数，PHP 侧都是 int。
+> 由 Schema 的 `unixtime()` / `unixtime_ms()` 字段自动推导，无需手写 `$casts`。
 
 ### 数据转换流向
 
@@ -76,7 +81,7 @@ protected $casts = [
 
 ### 时间戳输入兼容
 
-`timestamp` / `timestamp_ms` / `date` 类型在赋值时支持多种输入格式：
+`timestamp` / `timestamp_ms` / `unixtime` / `unixtime_ms` / `date` 类型在赋值时支持多种输入格式：
 
 ```php
 $model->created_at = time();              // Unix 秒级时间戳
@@ -85,6 +90,16 @@ $model->created_at = '2025-07-16';       // 日期字符串
 $model->created_at = '2025-07-16 10:30:00.123';  // 含亚秒
 $model->created_at = new DateTime();     // DateTime 对象
 $model->created_at = null;               // null → 不报错
+```
+
+赋值时按目标精度自动换算，两种时间戳类型可互喂：
+
+```php
+// 字段是 unixtime（秒级），赋毫秒值会自动降精度
+$model->paid_at = 1782397771000;         // 入库 1782397771（int）
+
+// 字段是 unixtime_ms（毫秒级），赋秒值会自动补零
+$model->expire_at = 1782397771;          // 入库 1782397771000（int）
 ```
 
 ---
@@ -227,15 +242,81 @@ $user->isTrashed();                 // 已软删返回 true
 // 查询范围
 UserModel::withTrashed()->get();    // 包含已删
 UserModel::onlyTrashed()->get();    // 仅查已删
+UserModel::withoutTrashed()->get(); // 仅查未删（默认行为）
 ```
 
-> `withTrashed()` 和 `onlyTrashed()` 会**重置当前的查询条件**。
+> `withTrashed()` / `onlyTrashed()` / `withoutTrashed()` 返回查询构建器，
+> 在链中**任意位置**声明都有效，且不会丢弃已构建的条件。
 
 ---
 
-## Query 方法代理
+## 查询构建器与状态隔离
 
-Model 内部持有 `Query` 实例，所有未定义的方法通过 `__call` / `__callStatic` 自动转发。
+Model 的查询职责由 `ModelBuilder` 承担。核心规则：
+
+**每次从 Model 发起查询，都会创建一个全新的 `ModelBuilder`（内部持有全新 `Query`），链式方法由 Builder 承接，链结束后 Builder 即被丢弃。**
+
+因此任意两次查询之间不共享 where / orderBy / select / limit 等任何状态：
+
+```php
+UserModel::where('status', 1)->count();   // 带条件
+UserModel::count();                        // 全表，不受上一行影响 ✅
+
+$model->where('key', $k)->exists();
+$model->where('key', $k)->delete();        // 不会变成 AND key=? AND key=? ✅
+```
+
+### 链式作用域终点
+
+链式方法返回的是 `ModelBuilder` 而非 Model，所以**链式之后只能调查询方法**：
+
+```php
+UserModel::where('status', 1)->count();        // ✅ Query 方法
+UserModel::where('status', 1)->forceDelete();  // ✅ Builder 提供
+UserModel::where('status', 1)->save();         // ❌ save() 是 Model 实例方法
+```
+
+需要 ActiveRecord 方法时，先取到实例再操作：
+
+```php
+$user = UserModel::find(1);   // find() 特殊：填充当前实例并返回 Model
+$user->name = 'Ann';
+$user->save();
+```
+
+> 中断链再重新从 Model 发起，会开启新的 Builder，此前未终结的链会被丢弃：
+> ```php
+> $model->where('a', 1);   // 条件被丢弃（既未接续链式，也未执行）
+> $model->get();           // 查全表
+> ```
+
+### 可用入口
+
+四个入口构成 2×2 矩阵：
+
+| 方法 | 返回 | 全局作用域 |
+|------|------|-----------|
+| `scopedBuilder()` | `ModelBuilder` | 应用 ✅ |
+| `builder()` | `ModelBuilder` | 不应用 ❌ |
+| `query()` | `Query` | 不应用 ❌ |
+| `scopedQuery()` | `Query` | 应用 ✅ |
+
+命名规则：**带 `scoped` 前缀 = 应用全局作用域，无前缀 = 纯净不含作用域**。
+
+```php
+UserModel::scopedBuilder()->where('status', 1)->get();   // 排除已软删除
+UserModel::builder()->get();                               // 含已软删除
+UserModel::query()->get();                                 // 裸 Query，无作用域
+UserModel::scopedQuery()->get();                           // 裸 Query，已应用作用域
+```
+
+`builder()`（不含作用域）主要用于框架内部的 save / delete / restore，
+避免软删除条件干扰对已删除记录的写入。日常用 `withTrashed()` 更直观。
+
+> `Model` 上未定义的方法默认转发到 **`scopedBuilder()`**，
+> 所以 `UserModel::where(...)` 等价于 `UserModel::scopedBuilder()->where(...)`，自动过滤软删除。
+
+### Query 方法代理
 
 ```php
 // 链式方法
@@ -251,6 +332,9 @@ UserModel::where('status', 1)->count();
 UserModel::insert(['name' => 'Test']);
 UserModel::where('status', 0)->update(['status' => 1]);
 ```
+
+> `update()` / `delete()` / `insert()` 是终结方法，返回影响行数（int），
+> **不能再接链式调用**。
 
 ---
 

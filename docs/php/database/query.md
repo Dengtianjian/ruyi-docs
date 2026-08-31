@@ -226,16 +226,56 @@ Query::table('users')
 
 ---
 
-## 不自动重置 — notReset
+## 实例状态与重置 — reset
 
-连续执行时如果不希望查询状态被清空：
+`Query` 实例会保留已构建的查询状态。执行**写操作**（insert / update / delete）后会自动 `reset()`，
+但**读操作**（get / first / count / exists 等）执行后**不会**自动重置：
+
+```php
+$query = Query::table('users');
+
+$query->where('status', 1)->get();
+$query->where('age', 18)->get();
+// 第二次实际是 WHERE status = 1 AND age = 18  ⚠️
+
+$query->reset();   // 手动清空
+```
+
+需要基于同一批条件做多次查询时，显式 `reset()` 或每次新建实例：
+
+```php
+Query::table('users')->where('status', 1)->count();
+Query::table('users')->where('status', 1)->limit(10)->get();
+```
+
+> **推荐**：涉及 Model 的查询一律走 [ModelBuilder](/php/database/model-builder)，
+> 它每次都会创建全新的 `Query`，天然无状态残留。
+
+`first()` 会自动追加 `LIMIT 1`，执行后自动恢复原值，因此不会污染后续查询：
+
+```php
+$query = Query::table('users');
+$query->first();   // LIMIT 1
+$query->get();     // 全表，不受影响 ✅
+```
+
+---
+
+## 复用查询条件
+
+需要基于同一批条件（如 `where`）做多次查询（统计总数 + 取列表），不要依赖关闭自动重置：
+写操作执行后会自动 `reset()`，仅清空 `conditions`/`orders`/`select` 等构建选项，并保留 `from` 与驱动。
+
+要在**不污染原实例**的前提下复用条件，使用克隆：
 
 ```php
 $query = Query::table('users')->where('status', 1);
-$total = $query->notReset()->count();           // 保留 where 条件
-$users = $query->notReset()->limit(10)->get();  // 继续复用
-$query->reset();                                 // 手动重置
+$total = (clone $query)->count();            // 克隆副本统计，原实例条件不变
+$users = (clone $query)->limit(10)->get();   // 继续复用同一批 where
 ```
+
+`paginate()` / `chunk()` 内部已自动通过克隆执行辅助查询（如 COUNT），不会污染原查询。
+若确需从干净状态重新开始，可调用 `$query->reset()` 手动清空。
 
 ---
 

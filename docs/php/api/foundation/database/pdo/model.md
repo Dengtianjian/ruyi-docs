@@ -35,7 +35,10 @@ $users = UserModel::singleton()->where("age", ">=", 18)->get();
 | 方法 | 说明 |
 |------|------|
 | `singleton()` / `make()` | 继承自 BaseObject |
-| `getQuery()` | 底层 Query 构建器 |
+| `scopedBuilder()` | 获取带全局作用域的 ModelBuilder（默认查询入口，`__call` 转发至此） |
+| `builder()` | 获取不带作用域的 ModelBuilder |
+| `query()` | 获取不带作用域的原始 Query |
+| `scopedQuery()` | 获取带全局作用域的原始 Query |
 | `getPrimaryKey()` / `getTableBaseName()` / `getCasts()` | 元信息 |
 
 ## 魔法静态查询
