@@ -4,7 +4,9 @@
 - **命名空间**: `kernel\Foundation\HTTP\Request`
 - **是否可继承**: 是（抽象基类）
 
-请求数据容器基类。`Request` 下的各个数据子对象（`RequestQuery` / `RequestBody` / `RequestHeader` / `RequestParams` / `RequestPagination` / `RequestModelParams`）均继承本类，获得统一的**取值（get/some/has）、转换（mutator）与校验（validator）**能力。
+请求数据容器基类。`Request` 下的各个数据子对象（`RequestQuery` / `RequestBody` / `RequestHeader` / `RequestParams`）均继承本类，获得统一的**取值（get/some/has）、转换（mutator）与校验（validator）**能力。
+
+> 注：`Request` 下的参数提取类 `RequestPagination` / `RequestSorting` / `RequestFiltering` 位于 `Request/Extract/` 子目录，继承自 `DataObject`（而非本类），用于从 query 中提取分页/排序/筛选参数。
 
 **核心流程** `handle()`：先执行校验器（validator）校验，再用数据转换器（mutator）转换数据，转换结果回写 `$data`，校验结果存入 `$validatedResult`。
 
