@@ -1,13 +1,13 @@
-# DataObject — 数据对象基类
+# DataObject — 数据对象（可写）
 
 - **文件位置**: `kernel/Foundation/Object/DataObject.php`
 - **命名空间**: `kernel\Foundation\Object`
 - **继承**: 继承 `stdClass`
 - **是否可继承**: 是
 
-一种「实例化时一次性赋值、之后只读」的数据容器。子类通过声明 **protected 属性**定义数据结构，构造时从传入数组/对象中取对应键填充；**缺失的键保留属性默认值**，不覆盖。
+一种数据容器，实例化时一次性填充已声明属性，之后仍可通过 `set()` 或 `->prop = $v` 继续写入（含动态属性）。子类通过声明 **protected 属性**定义数据结构，构造时从传入数组/对象中取对应键填充；**缺失的键保留属性默认值**，不覆盖。
 
-典型子类：`kernel\Foundation\FileSystem\Storage\StorageFileInfoData`。
+只读变体：`kernel\Foundation\Object\ReadonlyDataObject`（继承本类并拦截 `__set`）。
 
 ## 属性
 

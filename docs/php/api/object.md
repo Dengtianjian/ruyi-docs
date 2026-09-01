@@ -3,7 +3,7 @@
 - **目录位置**: `kernel/Foundation/Object/`
 - **命名空间**: `kernel\Foundation\Object`
 
-对象层基类体系。继承链：**`BaseObject` → `AbilityBaseObject`**。另有 `DataObject`（只读数据对象，继承 `\stdClass`）。
+对象层基类体系。继承链：**`BaseObject` → `AbilityBaseObject`**。另有 `DataObject`（可写数据对象，继承 `\stdClass`）与 `ReadonlyDataObject`（只读变体，继承 `DataObject`）。
 
 ## BaseObject — 对象基类
 
@@ -99,16 +99,32 @@ if ($platform->isError()) {
 }
 ```
 
-## DataObject — 数据对象
+## DataObject — 数据对象（可写）
 
 - **文件位置**: `kernel/Foundation/Object/DataObject.php`
 - **命名空间**: `kernel\Foundation\Object`
 - **继承**: `\stdClass`
 
-只读数据对象。实例化一次性赋值，之后只读。唯一子类为 `StorageFileInfoData`（18 个 protected 属性）。
+可写数据对象。实例化一次性赋值，之后仍可通过 `set()` 或 `->prop = $v` 继续写入（含动态属性）。需只读语义请使用 {@see ReadonlyDataObject}。
 
 ```php
 $data = new DataObject(["name" => "张三", "age" => 18]);
+$name = $data->name;      // 张三
+$data->name = "李四";      // 允许写入
+```
+
+> 只读变体见 {@see ReadonlyDataObject}（在 `__set` 上叠加写入拦截）。
+
+## ReadonlyDataObject — 只读数据对象
+
+- **文件位置**: `kernel/Foundation/Object/ReadonlyDataObject.php`
+- **命名空间**: `kernel\Foundation\Object`
+- **继承**: `DataObject`
+
+`DataObject` 的只读变体：继承全部读写与序列化能力，但重写 `__set` 禁止实例化后的任何写入。子类包括 `StorageFile`、`StorageFileInfoData` 等。
+
+```php
+$data = new ReadonlyDataObject(["name" => "张三", "age" => 18]);
 $name = $data->name;      // 张三
 $data->name = "李四";      // 抛异常（__set 只读）
 ```

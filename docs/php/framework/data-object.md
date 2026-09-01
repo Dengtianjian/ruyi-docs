@@ -1,11 +1,12 @@
-# DataObject — 数据对象
+# DataObject — 数据对象（可写）
 
-DataObject 是数据容器：**实例化时一次性赋值，之后只读**。用于封装结构化数据。继承自 `stdClass`。
+DataObject 是数据容器：**实例化时一次性赋值，之后仍可通过 `set()` 或 `->prop = $v` 继续写入**。用于封装结构化数据。继承自 `stdClass`。
 
 - **命名空间**: `kernel\Foundation\Object`
 - **文件位置**: `kernel/Foundation/Object/DataObject.php`
 - **继承**: `stdClass`
-- **子类**: `StorageFileInfoData`（文件信息对象）
+- **只读变体**: `ReadonlyDataObject`（继承 DataObject 并在 `__set` 上叠加写入拦截）
+- **子类（只读）**: `StorageFile`、`StorageFileInfoData`（文件信息对象）等继承 `ReadonlyDataObject`
 
 ## 设计约定
 

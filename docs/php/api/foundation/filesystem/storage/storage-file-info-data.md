@@ -2,10 +2,10 @@
 
 - **文件位置**: `kernel/Foundation/FileSystem/Storage/StorageFileInfoData.php`
 - **命名空间**: `kernel\Foundation\FileSystem\Storage`
-- **继承**: 继承 `kernel\Foundation\Object\DataObject`
+- **继承**: 继承 `kernel\Foundation\Object\ReadonlyDataObject`
 - **是否可继承**: 是
 
-描述单个文件信息的只读数据对象，`DataObject` 的唯一子类。实例化时一次性赋值，之后只读。构造时会自动用 `path` + `name` 拼接 `filePath`（除非显式传入 `filePath`）。
+描述单个文件信息的只读数据对象，继承 `ReadonlyDataObject`。实例化时一次性赋值，之后只读。构造时会自动用 `path` + `name` 拼接 `filePath`（除非显式传入 `filePath`）。
 
 ## 属性
 
@@ -40,7 +40,7 @@
 
 ### `__construct($data)` — 构造
 
-自动拼接 `filePath`：当传入数据**未显式提供** `filePath`（或其为空）、且同时提供 `path` 与 `name` 时，用 `FileHelper::combinedFilePath($path, $name)` 拼接。随后交给父类 `DataObject` 填充属性（缺键保留默认值）。
+自动拼接 `filePath`：当传入数据**未显式提供** `filePath`（或其为空）、且同时提供 `path` 与 `name` 时，用 `FileHelper::combinedFilePath($path, $name)` 拼接。随后交给父类 `ReadonlyDataObject` 填充属性（缺键保留默认值）。
 
 **参数**
 
@@ -65,4 +65,4 @@ $info->filePath;   // "avatars/a.png"（自动拼接）
 
 ---
 
-> **继承自 `DataObject`**：`toArray()` / `toJson()` / `has()` / `get()` / `keys()` 等只读容器方法可用，见《Object/DataObject》页。
+> **继承自 `ReadonlyDataObject`**：`toArray()` / `toJson()` / `has()` / `get()` / `keys()` 等只读容器方法可用，见《Object/DataObject》页。
