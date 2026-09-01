@@ -5,7 +5,7 @@
 - **继承**: 继承 `kernel\Foundation\HTTP\Response`
 - **是否可继承**: 是
 
-页面视图响应。渲染指定模板文件（PHP 模板）并输出。支持**页面 + 布局**组合渲染：先渲染页面，再渲染布局，布局内用 `inject()` 注入页面内容。模板文件以 `include` 方式执行，可访问通过 `$viewData` 注入的变量。
+页面视图响应。渲染指定模板文件（PHP 模板）并输出。支持**页面 + 布局**组合渲染：先渲染页面，再渲染布局，布局内用 `inject()` 注入页面内容。模板文件以 `include` 方式执行，通过 `extract($viewData)` 将 `$viewData` 的键暴露为模板内可直接访问的局部变量（如 `$name`、`$age`）。
 
 **模板约定**：
 - 默认视图根目录：应用根目录 `Path::root()`
@@ -19,6 +19,7 @@
 | `$viewFilePath` | `string` | `""` | protected | 视图文件绝对路径 |
 | `$viewFileBaseDir` | `string` | `""` | protected | 视图文件所在基目录 |
 | `$templateId` | `string` | `""` | protected | 模板 ID（用于缓存模板） |
+| `$layoutContext` | `array\|null` | `null` | protected static | 布局渲染上下文（页面文件与数据），用于 `inject()` 取回，替代全局变量传递 |
 
 ## 方法速查表
 
@@ -91,7 +92,7 @@
 
 ### `output()` — 输出页面
 
-输出响应头与状态码后，调用 `render($viewFilePath, $responseData, $templateId)` 渲染并返回。
+输出响应头与状态码后，调用 `render($viewFilePath, $responseData, $templateId)` 渲染模板，并 `echo` 捕获到的 HTML 内容到响应体。
 
 **参数**
 
@@ -99,11 +100,11 @@
 
 **返回值**
 
-- `mixed`：渲染结果。
+- `void`：直接输出到响应体。
 
 ### `render($viewFiles, $viewData = [])` — 渲染模板文件
 
-> 静态。文件必须存在（否则 500 异常）。`$viewData` 非关联数组则置空；将数据键声明为模板局部变量，通过 `include_once` 执行模板，返回执行结果。
+> 静态。文件必须存在（否则 500 异常）。`$viewData` 非关联数组则置空；通过 `extract($viewData, EXTR_SKIP)` 将数据键抽取为模板局部变量，再用 `ob_start()` 捕获 `include` 的模板输出，最终 `ob_get_clean()` 返回渲染后的 HTML 字符串。内部不再使用 `eval`，亦不依赖全局变量。
 
 **参数**
 
@@ -114,7 +115,7 @@
 
 **返回值**
 
-- `bool`：渲染成功返回 `true`；无模板文件返回 `false`。
+- `string\|false`：渲染成功返回捕获的 HTML 字符串；无模板文件返回 `false`。
 
 **异常**
 
@@ -139,7 +140,7 @@
 
 ### `inject()` — 布局内注入页面内容
 
-> 静态。在布局模板内调用，渲染之前 `layout()` 存储的页面文件与数据，实现"布局包裹页面"。
+> 静态。在布局模板内调用，渲染之前 `layout()` 存入 `$layoutContext` 的页面文件与数据，实现"布局包裹页面"。取回后自动清空上下文。不再使用全局变量传递。
 
 **参数**
 
@@ -147,7 +148,7 @@
 
 **返回值**
 
-- `bool`：渲染结果。
+- `string\|false`：渲染后的 HTML 字符串。
 
 ### `section($viewFiles, $viewData = [], $viewFileBaseDir = "Views", $templateId = "section")` — 渲染模板组件
 
