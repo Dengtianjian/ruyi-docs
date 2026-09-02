@@ -178,20 +178,25 @@ $this->response->text(true);  // 格式化输出
 $this->response->html();
 ```
 
-### `redirect($url, $statusCode = 301)`
+### 派生响应类
 
-重定向。
+`Response` 的跳转能力已抽离为独立的 `ResponseRedirect` 派生类（基类不再提供 `redirect()`）。框架另提供多个专用响应子类，覆盖文件下载、错误、视图渲染、分页、Server-Sent Event 等场景：
 
-| 参数 | 类型 | 说明 |
+| 子类 | 说明 | 文档 |
 |------|------|------|
-| `$url` | `string` | 重定向目标 URL |
-| `$statusCode` | `int` | HTTP 状态码 |
+| `ResponseRedirect` | 重定向响应，链式跳转、路由生成、数据携带 | [详情](./api/foundation/http/response/response-redirect.md) |
+| `ResponseDownload` | 文件下载 | [详情](./api/foundation/http/response/response-download.md) |
+| `ResponseError` | 错误响应 | [详情](./api/foundation/http/response/response-error.md) |
+| `ResponseFile` | 图片/文件响应与缩略图 | [详情](./api/foundation/http/response/response-file.md) |
+| `ResponsePagination` | 分页响应 | [详情](./api/foundation/http/response/response-pagination.md) |
+| `ResponseView` | 视图渲染响应 | [详情](./api/foundation/http/response/response-view.md) |
+| `ServerSentEvent` | Server-Sent Event 流式响应 | [详情](./api/foundation/http/response/server-sent-event.md) |
 
-返回值：`Response`
+控制器中通过 `$this->response->redirect()` 工厂获取 `ResponseRedirect` 实例：
 
 ```php
-return $this->response->redirect("https://example.com");
 return $this->response->redirect("/login", 302);
+return $this->response->redirect()->route("home");
 ```
 
 ### `getBody()`

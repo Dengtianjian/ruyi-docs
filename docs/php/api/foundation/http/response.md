@@ -388,6 +388,17 @@ $response->redirect("https://example.com", 302)->output();
 
 - `string|null`：当前设置的输出格式。
 
+## 派生响应类
+
+`Response` 的常用派生类：
+
+- [ResponseRedirect](response/response-redirect.md) — 重定向响应（Laravel 风格，`to`/`route`/`away`/`secure`/`back`/`with`）
+- [ResponseView](response/response-view.md) — 视图响应（PHP 模板渲染）
+- [ResponseDownload](response/response-download.md) — 文件下载响应（支持 Range 分片）
+- [ResponseFile](response/response-file.md) — 文件预览响应（含图片缩略图）
+- [ResponsePagination](response/response-pagination.md) — 分页列表响应
+- [ResponseError](response/response-error.md) — 错误响应
+
 ## 示例
 
 ```php

@@ -99,7 +99,16 @@ export default defineConfig({
             },
             {
               text: "Response 响应",
-              link: "/php/framework/response"
+              link: "/php/framework/response",
+              items: [
+                { text: "ResponseRedirect", link: "/php/api/foundation/http/response/response-redirect" },
+                { text: "ResponseDownload", link: "/php/api/foundation/http/response/response-download" },
+                { text: "ResponseError", link: "/php/api/foundation/http/response/response-error" },
+                { text: "ResponseFile", link: "/php/api/foundation/http/response/response-file" },
+                { text: "ResponsePagination", link: "/php/api/foundation/http/response/response-pagination" },
+                { text: "ResponseView", link: "/php/api/foundation/http/response/response-view" },
+                { text: "ServerSentEvent", link: "/php/api/foundation/http/response/server-sent-event" },
+              ],
             },
             {
               text: "Config 配置",
@@ -646,16 +655,16 @@ export default defineConfig({
                           text: "RequestPagination",
                           link: "/php/api/foundation/http/request/request-pagination",
                         },
-                        {
-                          text: "RequestModelParams",
-                          link: "/php/api/foundation/http/request/request-model-params",
-                        },
                       ],
                     },
                     {
                       text: "Response 子类",
                       collapsed: true,
                       items: [
+                        {
+                          text: "ResponseRedirect",
+                          link: "/php/api/foundation/http/response/response-redirect",
+                        },
                         {
                           text: "ResponseError",
                           link: "/php/api/foundation/http/response/response-error",
@@ -695,20 +704,6 @@ export default defineConfig({
                     {
                       text: "MiddlewareBase",
                       link: "/php/api/foundation/middleware/middleware-base",
-                    },
-                  ],
-                },
-                {
-                  text: "network",
-                  collapsed: true,
-                  items: [
-                    {
-                      text: "Curl",
-                      link: "/php/api/foundation/network/curl",
-                    },
-                    {
-                      text: "Http",
-                      link: "/php/api/foundation/network/http",
                     },
                   ],
                 },

@@ -5,14 +5,14 @@
 - **继承自**: `Controller`
 - **是否可继承**: 是
 
-带认证能力的控制器基类，继承 `Controller`。`$Admin` / `$Auth` 属性启用认证，由中间件执行 Token 校验及 `verifyAdmin`/`verifyAuth` 分发。子类可覆盖 `verifyAdmin()`/`verifyAuth()` 添加额外校验。
+带认证能力的控制器基类，继承 `Controller`。`$admin` / `$auth` 属性为认证开关，设为非 `false` 即启用对应认证；由中间件读取开关执行 Token 校验，并将校验结果分发到 `verifyAdmin()`/`verifyAuth()` 钩子。子类可覆盖 `verifyAdmin()`/`verifyAuth()` 添加额外校验。
 
 ## 属性
 
 | 属性 | 类型 | 默认 | 可见性 | 说明 |
 |------|------|------|--------|------|
-| `$Admin` | `bool\|int\|string\|array` | `false` | public | 管理员认证状态：由中间件校验 Token 后的最终结果，`true` 表示已通过管理员认证；非 `false` 时控制器视作仅管理员可访问 |
-| `$Auth` | `bool\|int\|string\|array` | `false` | public | 普通用户认证状态：中间件 Token 校验结果，`true` 表示已通过认证；非 `false` 时控制器视作需登录 |
+| `$admin` | `bool\|int\|string\|array` | `false` | public | 管理员认证开关：非 `false` 时启用管理员（Admin）认证，由中间件读取并触发 `verifyAdmin()` 分发 |
+| `$auth` | `bool\|int\|string\|array` | `false` | public | 普通用户认证开关：非 `false` 时启用用户（Auth）认证，由中间件读取并触发 `verifyAuth()` 分发 |
 
 ## 方法速查表
 
@@ -40,10 +40,10 @@
 ```php
 protected function verifyAdmin(): Result
 {
-    if (!$this->Admin) {
+    if (!$this->admin) {
         return Result::failed("未登录", 401);
     }
-    if (!$this->isSuperAdmin($this->Admin)) {
+    if (!$this->isSuperAdmin($this->admin)) {
         return Result::failed("无权限", 403);
     }
     return new Result(null);
@@ -67,10 +67,10 @@ protected function verifyAdmin(): Result
 ```php
 protected function verifyAuth(): Result
 {
-    if (!$this->Auth) {
+    if (!$this->auth) {
         return Result::failed("未登录", 401);
     }
-    if ($this->Auth["status"] !== "active") {
+    if ($this->auth["status"] !== "active") {
         return Result::failed("账号已停用", 403);
     }
     return new Result(null);

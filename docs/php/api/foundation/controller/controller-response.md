@@ -13,7 +13,7 @@
 |------|------|
 | `file($filePath, $downloadFileName, $imageQuality, $cacheControl, $httpExpires)` | 文件类型响应（预览） |
 | `download($filePath, $downloadFileName, $rateLimit)` | 下载文件响应 |
-| `list($total, $data)` | 分页列表响应 |
+| `pagination($total, $data)` | 分页列表响应 |
 | `view($viewFile, $viewData, $viewFileBaseDir, $templateId, $viewFileDir)` | 视图响应 |
 
 ## 方法
@@ -64,7 +64,7 @@ return $this->response->file(APP_PATH . "/public/image.png");
 return $this->response->download(APP_PATH . "/public/file.zip", "report.zip", 1024);
 ```
 
-### `list($total, $data = null)` — 分页列表响应
+### `pagination($total, $data = null)` — 分页列表响应
 
 返回 `ResponsePagination`，供模型分页结果输出（详见 [response-pagination.md](../http/response/response-pagination.md)）。`$total` 与 `$data` 一起构成分页结果。
 
@@ -84,7 +84,7 @@ return $this->response->download(APP_PATH . "/public/file.zip", "report.zip", 10
 ```php
 // Model 层返回：new ResponsePagination(getApp()->request(), $total, $data)
 // Controller 层使用：
-return $this->response->list($total, $data);
+return $this->response->pagination($total, $data);
 ```
 
 ### `view($viewFile, $viewData = [], $viewFileBaseDir = "Views", $templateId = "page", $viewFileDir = null)` — 视图响应
@@ -130,7 +130,7 @@ class UserController extends Controller
         if ($file === "data.json") {
             return $this->response->download("/tmp/data.json", "export.json");
         }
-        return $this->response->list($total, $users);
+        return $this->response->pagination($total, $users);
     }
 }
 ```

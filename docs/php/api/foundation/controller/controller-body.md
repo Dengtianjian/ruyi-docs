@@ -5,7 +5,11 @@
 - **继承自**: `RequestBody`
 - **是否可继承**: 是
 
-HTTP 请求体（POST/PUT/PATCH body）的封装对象。构造时从 `Request` 提取 body 数据，按规则执行类型转换与校验。
+HTTP 请求体（POST/PUT/PATCH body）的封装对象，继承 `RequestBody`。作为控制器上下文中处理请求体参数的专用载体。
+
+**与 `ControllerQuery` 的取舍不同**：本类先调用父类 `RequestBody::__construct` 完成 mutator/validator 初始化，再以 `$request->body`（框架封装后的请求体组件）覆盖 `data`，确保数据类型转换与 `Controller::body()` 读取到的内容一致。
+
+构造时应用传入的 `$bodyMutator`（类型转换）与 `$bodyValidator`（校验规则），校验结果写入 `validatedResult`，供 `Controller::before()` 拦截使用。
 
 ## 构造
 
