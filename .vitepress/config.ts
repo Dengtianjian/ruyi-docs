@@ -129,10 +129,6 @@ export default defineConfig({
             {
               text: "依赖按需安装",
               link: "/php/framework/dependencies"
-            },
-            {
-              text: "应用概览",
-              link: "/php/application/overview"
             }
           ]
         },
@@ -262,7 +258,35 @@ export default defineConfig({
                   link: "/php/framework/data-object"
                 }
               ]
-            }
+            },
+            {
+              text: "门面",
+              collapsed: true,
+              items: [
+                {
+                  text: "Facade 门面基类",
+                  link: "/php/api/foundation/facade"
+                },
+                {
+                  text: "Crons 定时任务门面",
+                  link: "/php/api/facades/crons"
+                }
+              ]
+              },
+              {
+              text: "定时任务",
+              collapsed: true,
+              items: [
+                {
+                  text: "Cron 定时任务基类",
+                  link: "/php/api/foundation/crontab/cron"
+                },
+                {
+                  text: "Crons 任务管理器",
+                  link: "/php/api/foundation/crontab/crons"
+                }
+              ]
+              }
           ]
         },
         {
@@ -360,6 +384,16 @@ export default defineConfig({
               link: "/php/api/index",
             },
             {
+              text: "具体门面（kernel/Facades）",
+              collapsed: true,
+              items: [
+                {
+                  text: "Crons 定时任务门面",
+                  link: "/php/api/facades/crons",
+                },
+              ],
+            },
+            {
               text: "Foundation",
               collapsed: true,
               items: [
@@ -444,6 +478,24 @@ export default defineConfig({
                 {
                   text: "Common 全局函数",
                   link: "/php/api/foundation/common",
+                },
+                {
+                  text: "Facade 门面基类",
+                  link: "/php/api/foundation/facade",
+                },
+                {
+                  text: "Crontab 定时任务",
+                  collapsed: true,
+                  items: [
+                    {
+                      text: "Cron 基类",
+                      link: "/php/api/foundation/crontab/cron",
+                    },
+                    {
+                      text: "Crons 管理器",
+                      link: "/php/api/foundation/crontab/crons",
+                    },
+                  ],
                 },
                 {
                   text: "console",
@@ -859,10 +911,6 @@ export default defineConfig({
               text: "Service",
               collapsed: true,
               items: [
-                {
-                  text: "AuthService",
-                  link: "/php/api/service/auth-service",
-                },
                 {
                   text: "LanguageService",
                   link: "/php/api/service/language-service",

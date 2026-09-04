@@ -60,6 +60,7 @@ kernel/
 - [Service 服务基类](./foundation/service.md)
 - [URL 统一地址](./foundation/url.md)
 - [Common 全局函数](./foundation/common.md)
+- [Facade 门面基类](./foundation/facade.md)
 
 ### Foundation 命名空间子目录
 - [Console 控制台](./foundation/console/console.md)（[Command](./foundation/console/command.md)）
@@ -72,6 +73,7 @@ kernel/
 - [Middleware 中间件](./foundation/middleware/middleware.md)（[MiddlewareBase](./foundation/middleware/middleware-base.md)）
 - [Object 对象基类](./foundation/object/base-object.md)（[AbilityBaseObject](./foundation/object/ability-base-object.md) · [DataObject](./foundation/object/data-object.md)）
 - [Validation 校验](./foundation/validation/validator.md)（[Rules](./foundation/validation/rules.md) · [Rule](./foundation/validation/rule.md) · [RuleBuilder](./foundation/validation/rule-builder.md) · [RuleInterface](./foundation/validation/rule-interface.md)）
+- [Crontab 定时任务](./foundation/crontab/cron.md)（[Cron 基类](./foundation/crontab/cron.md) · [Crons 管理器](./foundation/crontab/crons.md)）
 
 ### Database 数据库
 - [PDO](./foundation/database/pdo/db.md)（[Query](./foundation/database/pdo/query.md) · [Model](./foundation/database/pdo/model.md) · [Schema](./foundation/database/pdo/schema.md) · [Table](./foundation/database/pdo/table.md) · [Connections](./foundation/database/pdo/connections.md) · [Driver](./foundation/database/pdo/driver.md) · [Statement](./foundation/database/pdo/statement.md) · [Paginator](./foundation/database/pdo/paginator.md) · [Relation](./foundation/database/pdo/relation/relation.md)）
@@ -79,7 +81,7 @@ kernel/
 - [SQLite](./foundation/database/sqlite/sqlite.md)（[SQLiteModel](./foundation/database/sqlite/sqlite-model.md)）
 
 ### 框架提供的应用类
-- [Service 服务类](./service/auth-service.md)（[LanguageService](./service/language-service.md) · [RedisService](./service/redis-service.md) · [StorageService](./service/storage-service.md)）
+- [Service 服务类](./service/language-service.md)（[RedisService](./service/redis-service.md) · [StorageService](./service/storage-service.md)）
 - [全局中间件](./middleware/global-auth-middleware.md)（[GlobalCorsMiddleware](./middleware/global-cors-middleware.md) · [GlobalWechatOfficialAccountMiddleware](./middleware/global-wechat-official-account-middleware.md)）
 - [Model 模型](./model/files-model.md)（[AccessTokenModel](./model/access-token-model.md) · [LoginsModel](./model/logins-model.md) · [AttachmentsModel](./model/attachments-model.md) · [ExtensionsModel](./model/extensions-model.md) · [OrderModel](./model/order-model.md) · [SettingsModel](./model/settings-model.md) · [WechatUsersModel](./model/wechat-users-model.md)）
 - [Traits 特性](./traits/model/files-model-trait.md)
@@ -88,6 +90,9 @@ kernel/
 ### Controller 命令与内置入口
 - [命令控制器](./controller/commands/make-command.md)（[make:app](./controller/commands/make-app-command.md) · [make:model](./controller/commands/make-model-command.md) · [make:controller](./controller/commands/make-controller-command.md) · [make:middleware](./controller/commands/make-middleware-command.md) · [schedule:run](./controller/commands/schedule-run-command.md)）
 - [Main 内置入口](./controller/main/index-controller.md)（[文件控制器](./controller/main/files/file-base-controller.md) · [扩展控制器](./controller/main/extensions/extension-list-view-controller.md)）
+
+### 具体门面（kernel/Facades）
+- [Crons 定时任务门面](./facades/crons.md)
 
 ### Platform 第三方平台
 - [Wechat 微信](./platform/wechat/wechat.md)（[AccessToken](./platform/wechat/access-token.md) · [小程序](./platform/wechat/miniprogram/wechat-mini-program.md) · [公众号](./platform/wechat/official-account/wechat-official-account.md) · [微信支付](./platform/wechat/wechat-pay/wechat-pay.md)）

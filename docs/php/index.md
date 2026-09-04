@@ -44,7 +44,6 @@
 - [Event 事件](./framework/event) — 事件注册与分发
 - [Log 日志](./framework/log) — 文件日志
 - [Console 控制台](./framework/console) — CLI 命令
-- [应用概览](./application/overview) — 控制器/模型/服务协作
 
 ### 数据库
 

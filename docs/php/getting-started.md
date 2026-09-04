@@ -472,4 +472,4 @@ $App->run();
 - [Controller 控制器](./framework/controller.md) — 控制器开发指南
 - [Middleware 中间件](./framework/middleware.md) — 中间件开发指南
 - [Config 配置](./php/config) — 多环境配置管理
-- [应用概览](./application/overview) — 控制器/模型/服务协作指南
+
