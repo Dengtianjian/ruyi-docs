@@ -938,6 +938,10 @@ export default defineConfig({
                   link: "/php/api/middleware/global-cors-middleware",
                 },
                 {
+                  text: "CORS 配置说明",
+                  link: "/php/api/middleware/cors",
+                },
+                {
                   text: "GlobalWechatOfficialAccountMiddleware",
                   link: "/php/api/middleware/global-wechat-official-account-middleware",
                 },
