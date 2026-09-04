@@ -35,6 +35,19 @@ Route::get("users/{id}", ShowUserController::class)->whereNumber("id");
 Route::any("fallback", FallbackController::class);
 ```
 
+> **OPTIONS 快捷放行**：`Route::options($uri, $controller = null)`——省略控制器时自动返回 **204 空响应**，跨域场景下由 `GlobalCorsMiddleware` 等中间件按需补 `Access-Control-*` 头。
+>
+> - `Route::options("users")`：仅该 URI 的 OPTIONS 请求返回 204。
+> - `Route::options()`（`$uri` 为 `null`）：通配任意 URI，全量放行 OPTIONS 预检——适合「不想逐个 URI 设置」的场景，一行即可全放行。
+> - 如需自定义预检逻辑，显式传入控制器/闭包即可。
+>
+> ```php
+> Route::options("users"); // 该 URI 的 OPTIONS 请求自动返回 204 空响应
+> Route::options();        // 任意 URI 的 OPTIONS 请求统一返回 204 空响应
+> ```
+>
+> 优先级：若某 URI 另有更具体的 `Route::options($uri, ...)` 或显式 OPTIONS 路由，以其为准；其余 OPTIONS 一律落回 `Route::options()`（null）的 204 兜底。
+
 ## `group($prefix, $callback)` — 路由组
 
 ```php
