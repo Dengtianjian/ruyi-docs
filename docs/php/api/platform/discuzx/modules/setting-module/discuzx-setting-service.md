@@ -2,7 +2,7 @@
 
 - **文件位置**: `kernel/Platform/DiscuzX/Modules/SettingModule/DiscuzXSettingService.php`
 - **命名空间**: `kernel\Platform\DiscuzX\Modules\SettingModule`
-- **继承**: `extends SettingService`
+- **继承**: `extends Service`
 - **是否可继承**: 是（静态服务类）
 
 Discuz!X 通用设置存储服务，装配 `DiscuzXSettingModuleBase`，注册获取/保存设置项的路由（`GET settings`、`PATCH settings`），并在应用启动时创建设置表。
@@ -24,7 +24,7 @@ static function bootstrap($settingBase = NULL, $RegisterRouter = TRUE)
 2. 注册路由：
    - `GET settings` → `DiscuzXGetSettingsController`（注入 `$settingBase`）
    - `PATCH settings` → `DiscuzXSaveSettingsController`（注入 `$settingBase`）
-3. 调用 `parent::bootstrap($settingBase)`。
+3. 装配完成；带权限控制的 `DiscuzXSettingModuleBase` 经路由参数直接注入各控制器使用。
 
 ### `bootUp` — 启动创建表（static）
 

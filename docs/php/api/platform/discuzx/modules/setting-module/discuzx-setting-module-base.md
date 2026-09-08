@@ -2,10 +2,10 @@
 
 - **文件位置**: `kernel/Platform/DiscuzX/Modules/SettingModule/DiscuzXSettingModuleBase.php`
 - **命名空间**: `kernel\Platform\DiscuzX\Modules\SettingModule`
-- **继承**: `extends SettingModuleBase`
+- **继承**: `extends SettingModule`
 - **是否可继承**: 是
 
-Discuz!X 通用设置存储模块基类。在通用 `SettingModuleBase` 基础上，扩展了按用户组/管理组进行设置项访问控制的能力，并提供设置项的增查改能力。
+Discuz!X 通用设置存储模块基类。在通用 `SettingModule` 基础上，扩展了按用户组/管理组进行设置项访问控制的能力，并提供设置项的增查改能力。
 
 ## 属性
 

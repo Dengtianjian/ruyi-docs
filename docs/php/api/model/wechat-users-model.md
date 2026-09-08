@@ -5,11 +5,11 @@
 - **继承**: `extends Foundation\Database\PDO\Model`
 - **表名**: `wechat_users`
 
-微信用户绑定模型，管理 openId / unionId / phone 与会员的关联。
+微信用户绑定模型，管理 openId / unionId / phone 与会员的关联。表结构在构造函数中以 `Schema` 数组声明（见 `$schema`），由 `Model` 基类在建表阶段自动建表。
 
 ## 字段
 
-`id` / `memberId` / `openId` / `unionId` / `phone` / `createdAt` / `updatedAt` / `deletedAt`（软删除）
+`id` / `member_id` / `open_id` / `union_id` / `phone` / `created_at` / `updated_at` / `deleted_at`（软删除标记列；当前未启用软删，`remove*` 方法走硬删除）
 
 ## 方法
 

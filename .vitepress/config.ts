@@ -259,20 +259,6 @@ export default defineConfig({
                 }
               ]
             },
-            {
-              text: "门面",
-              collapsed: true,
-              items: [
-                {
-                  text: "Facade 门面基类",
-                  link: "/php/api/foundation/facade"
-                },
-                {
-                  text: "Crons 定时任务门面",
-                  link: "/php/api/facades/crons"
-                }
-              ]
-              },
               {
               text: "定时任务",
               collapsed: true,
@@ -287,6 +273,62 @@ export default defineConfig({
                 }
               ]
               }
+          ]
+        },
+        {
+          text: "门面",
+          collapsed: false,
+          items: [
+            {
+              text: "Facade 介绍",
+              link: "/php/framework/facade/introduct"
+            },
+            {
+              text: "概念",
+              link: "/php/framework/facade-module-concept"
+            },
+            {
+              text: "创建门面",
+              link: "/php/framework/facade-module-create"
+            },
+            {
+              text: "Facade 门面基类",
+              link: "/php/api/foundation/facade"
+            },
+            {
+              text: "Crons 定时任务门面",
+              link: "/php/api/facades/crons"
+            },
+            {
+              text: "Crons 实战",
+              link: "/php/framework/facade/items/crons"
+            },
+            {
+              text: "Auth 门面",
+              link: "/php/api/modules/auth-module/auth"
+            }
+          ]
+        },
+        {
+          text: "模块",
+          collapsed: false,
+          items: [
+            {
+              text: "概念",
+              link: "/php/framework/facade-module-concept"
+            },
+            {
+              text: "创建模块",
+              link: "/php/framework/facade-module-create"
+            },
+            {
+              text: "SettingModule 设置模块",
+              link: "/php/api/modules/setting-module/setting"
+            },
+            {
+              text: "AuthModule 认证模块",
+              link: "/php/api/modules/auth-module/auth-module"
+            }
           ]
         },
         {
@@ -919,10 +961,6 @@ export default defineConfig({
                   text: "RedisService",
                   link: "/php/api/service/redis-service",
                 },
-                {
-                  text: "StorageService",
-                  link: "/php/api/service/storage-service",
-                },
               ],
             },
             {
@@ -980,10 +1018,6 @@ export default defineConfig({
                   link: "/php/api/model/order-model",
                 },
                 {
-                  text: "SettingsModel",
-                  link: "/php/api/model/settings-model",
-                },
-                {
                   text: "WechatUsersModel",
                   link: "/php/api/model/wechat-users-model",
                 },
@@ -994,8 +1028,8 @@ export default defineConfig({
               collapsed: true,
               items: [
                 {
-                  text: "SettingModuleBase",
-                  link: "/php/api/modules/setting-module/setting-module-base",
+                  text: "Setting",
+                  link: "/php/api/modules/setting-module/setting",
                 },
                 {
                   text: "SettingService",

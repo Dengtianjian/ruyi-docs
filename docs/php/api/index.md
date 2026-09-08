@@ -81,11 +81,11 @@ kernel/
 - [SQLite](./foundation/database/sqlite/sqlite.md)（[SQLiteModel](./foundation/database/sqlite/sqlite-model.md)）
 
 ### 框架提供的应用类
-- [Service 服务类](./service/language-service.md)（[RedisService](./service/redis-service.md) · [StorageService](./service/storage-service.md)）
+- [Service 服务类](./service/language-service.md)（[RedisService](./service/redis-service.md)）
 - [全局中间件](./middleware/global-auth-middleware.md)（[GlobalCorsMiddleware](./middleware/global-cors-middleware.md) · [GlobalWechatOfficialAccountMiddleware](./middleware/global-wechat-official-account-middleware.md)）
-- [Model 模型](./model/files-model.md)（[AccessTokenModel](./model/access-token-model.md) · [LoginsModel](./model/logins-model.md) · [AttachmentsModel](./model/attachments-model.md) · [ExtensionsModel](./model/extensions-model.md) · [OrderModel](./model/order-model.md) · [SettingsModel](./model/settings-model.md) · [WechatUsersModel](./model/wechat-users-model.md)）
+- [Model 模型](./model/files-model.md)（[AccessTokenModel](./model/access-token-model.md) · [LoginsModel](./model/logins-model.md) · [AttachmentsModel](./model/attachments-model.md) · [ExtensionsModel](./model/extensions-model.md) · [OrderModel](./model/order-model.md) · [WechatUsersModel](./model/wechat-users-model.md)）
 - [Traits 特性](./traits/model/files-model-trait.md)
-- [Modules 模块](./modules/setting-module/setting-module-base.md)（[SettingService](./modules/setting-module/setting-service.md) · [SettingsModel](./modules/setting-module/settings-model.md)）
+- [Modules 模块](./modules/setting-module/setting-module.md)（[Setting 门面](./modules/setting-module/setting.md) · [SettingsModel](./modules/setting-module/settings-model.md)）
 
 ### Controller 命令与内置入口
 - [命令控制器](./controller/commands/make-command.md)（[make:app](./controller/commands/make-app-command.md) · [make:model](./controller/commands/make-model-command.md) · [make:controller](./controller/commands/make-controller-command.md) · [make:middleware](./controller/commands/make-middleware-command.md) · [schedule:run](./controller/commands/schedule-run-command.md)）
