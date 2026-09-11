@@ -234,6 +234,43 @@ $p->resetVersion('2.0.0');
 // .version 文件内容变为 2.0.0，内存中 latestVersion 和 currentSemver 同步更新
 ```
 
+## 安装锁与安装密钥
+
+除版本管理外，Provisioner 还提供安装流程的辅助方法：
+
+| 方法 | 作用 |
+|------|------|
+| `installLocked()` | 判断安装是否已锁定（`install.lock` 文件存在） |
+| `lockInstall()` | 写入安装锁文件（时间戳），标记安装完成 |
+| `verifiyInstallKey($key)` | 校验安装密钥（`install.key` 内容比对） |
+| `refreshInstallKey()` | 重新生成并写入安装密钥（`uniqid()`） |
+| `updateVersion()` | 将 `config("version")` 写入 `.version` |
+| `version()` | 读取当前持久化的完整版本号（`.version` 文件内容） |
+
+```php
+$p = new Provisioner();
+
+// 安装完成后上锁，避免重复安装
+$p->lockInstall();
+
+// 判断是否已经安装过
+if ($p->installLocked()) {
+    // 已安装
+}
+
+// 校验安装密钥
+if ($p->verifiyInstallKey($inputKey)) {
+    // 密钥正确
+}
+
+// 重新生成安装密钥
+$p->refreshInstallKey();
+
+// 读写版本号
+$p->updateVersion();        // 将配置版本号写入 .version
+$current = $p->version();   // 读取完整版本号，不存在返回 null
+```
+
 ## 完整使用示例
 
 ### 基本升级流程
@@ -335,6 +372,6 @@ class Upgrade_1_1_0
 | 类 | 关系 | 说明 |
 |------|------|------|
 | [App](./app.md) | Provisioner 通常由 App 调用以执行初始化/升级 | 应用启动流程 |
-| [FileHelper](./file.md) | 用于拼接文件路径 | 路径辅助 |
+| Path | 用于拼接文件路径（`Path::join`） | 路径辅助 |
 
 > **注意**：Provisioner 是通用框架类，具体的升级、回滚、卸载等业务逻辑由各 App 实现，框架不提供系统级控制器。App 应在自身控制器中调用 Provisioner 完成版本管理。

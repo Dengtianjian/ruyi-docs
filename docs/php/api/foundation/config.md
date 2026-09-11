@@ -74,7 +74,7 @@ static read($filePath = null, $appId = null): bool
 **示例**
 
 ```php
-Config::read(FileHelper::combinedFilePath(Path::root(), "Configs", "Config.custom.php"));
+Config::read(Path::join(Path::root(), "Configs", "Config.custom.php"));
 ```
 
 ---

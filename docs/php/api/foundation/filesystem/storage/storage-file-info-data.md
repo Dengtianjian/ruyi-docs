@@ -40,7 +40,7 @@
 
 ### `__construct($data)` — 构造
 
-自动拼接 `filePath`：当传入数据**未显式提供** `filePath`（或其为空）、且同时提供 `path` 与 `name` 时，用 `FileHelper::combinedFilePath($path, $name)` 拼接。随后交给父类 `ReadonlyDataObject` 填充属性（缺键保留默认值）。
+自动拼接 `filePath`：当传入数据**未显式提供** `filePath`（或其为空）、且同时提供 `path` 与 `name` 时，用 `Path::join($path, $name)` 拼接。随后交给父类 `ReadonlyDataObject` 填充属性（缺键保留默认值）。
 
 **参数**
 

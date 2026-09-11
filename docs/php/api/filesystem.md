@@ -71,12 +71,12 @@ $fs->write(Path::storage() . "/config.json", $content);
 
 | 方法 | 说明 |
 |------|------|
-| `FileHelper::combinedFilePath(...$parts)` | 拼接多段路径 |
+| `Path::join(...$parts)` | 拼接多段路径 |
 
 ```php
 use kernel\Foundation\FileSystem\FileHelper;
 
-$path = FileHelper::combinedFilePath($basePath, $fileName);
+$path = Path::join($basePath, $fileName);
 ```
 
 ## Zip — 压缩

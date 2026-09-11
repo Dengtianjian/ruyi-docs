@@ -15,7 +15,7 @@
 ## 逻辑
 
 - 远程文件（`$File->remote`）：获取下载 URL 后 `302` 重定向
-- 本地文件：`FileHelper::combinedFilePath(Path::storage(), $File->filePath)` 后返回 `$this->response->download()`
+- 本地文件：`Path::join(Path::storage(), $File->filePath)` 后返回 `$this->response->download()`
 - 文件不存在返回 `404`
 
 ## 使用

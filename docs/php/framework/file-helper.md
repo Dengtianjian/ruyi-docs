@@ -100,12 +100,12 @@ FileHelper::extension('noextension');          // ""
 返回值：`string`
 
 ```php
-FileHelper::combinedFilePath('/var/www', 'app', 'config.php');
+Path::join('/var/www', 'app', 'config.php');
 // Linux:   "/var/www/app/config.php"
 // Windows: "\var\www\app\config.php"
 
 // 空路径段会被自动过滤
-FileHelper::combinedFilePath('/var/www', '', 'config.php');
+Path::join('/var/www', '', 'config.php');
 // 返回: "/var/www/config.php"
 ```
 

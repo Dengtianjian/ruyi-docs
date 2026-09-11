@@ -15,6 +15,11 @@
 - `.version` 文件存储完整版本号（如 `2.2.0.20260721.1746`）。
 - 对比时自动提取前三段基础版本号（`2.2.0`）与升级脚本版本号做比较。
 
+安装辅助：
+- `install()` / `lockInstall()` / `installLocked()`：创建数据/存储目录、写入并检测安装锁文件（`install.lock`）。
+- `verifiyInstallKey()` / `refreshInstallKey()`：校验与重新生成安装密钥（`install.key`）。
+- `resetVersion()` / `uninstall()`：强制改写版本号、删除 `.version` 版本记录。
+
 ## 属性
 
 | 属性 | 类型 | 默认 | 可见性 | 说明 |
@@ -35,6 +40,12 @@
 | `getStatus()` | 获取应用当前状态 |
 | `getPendingUpgrades(?string $targetVersion = null)` | 获取待升级的版本列表 |
 | `resetVersion(string $version)` | 强制重置当前版本号 |
+| `installLocked()` | 判断安装是否已锁定（`install.lock` 存在） |
+| `lockInstall()` | 写入安装锁文件，标记安装完成 |
+| `verifiyInstallKey($key)` | 校验安装密钥 |
+| `refreshInstallKey()` | 重新生成并写入安装密钥 |
+| `updateVersion()` | 将配置版本号写入 `.version` 文件 |
+| `version()` | 读取当前持久化的完整版本号 |
 
 ## 方法
 
@@ -156,3 +167,77 @@ $p->upgrade("2.0.0");       // 升级到 2.0.0（每次升级后自动持久化 
 **返回值**
 
 - `Provisioner`：当前实例（支持链式调用）。
+
+### `installLocked()` — 判断安装是否已锁定
+
+检测数据目录下的 `install.lock` 文件是否存在，存在即视为已完成安装。
+
+**参数**
+
+- 无。
+
+**返回值**
+
+- `bool`：已锁定返回 `true`，否则 `false`。
+
+### `lockInstall()` — 写入安装锁文件
+
+在 `{Path::data()}` 目录下创建 `install.lock`，内容为当前时间戳。
+
+**参数**
+
+- 无。
+
+**返回值**
+
+- `int|false`：写入的字节数，失败返回 `false`。
+
+### `verifiyInstallKey($key)` — 校验安装密钥
+
+读取 `install.key` 内容并与传入的 `$key` 比对。`$key` 为空时直接返回 `false`；`install.key` 不存在（无内容）时也返回 `false`。
+
+**参数**
+
+| 参数 | 类型 | 默认 | 说明 |
+|------|------|------|------|
+| `$key` | `string` | 无 | 待校验的安装密钥 |
+
+**返回值**
+
+- `bool`：密钥一致返回 `true`，否则 `false`。
+
+### `refreshInstallKey()` — 重新生成安装密钥
+
+在 `{Path::data()}` 目录下写入一个新的 `uniqid()` 作为 `install.key` 内容。
+
+**参数**
+
+- 无。
+
+**返回值**
+
+- `int|false`：写入的字节数，失败返回 `false`。
+
+### `updateVersion()` — 持久化配置版本号
+
+读取 `config("version")`（应用配置中的目标版本号）并写入 `{Path::data()}/.version`。
+
+**参数**
+
+- 无。
+
+**返回值**
+
+- `int|false`：写入的字节数，失败返回 `false`。
+
+### `version()` — 读取当前完整版本号
+
+返回 `{Path::data()}/.version` 文件的原文（如 `2.2.0.20260721.1746`）；文件不存在时返回 `null`。
+
+**参数**
+
+- 无。
+
+**返回值**
+
+- `string|null`：完整版本号原文，或 `null`。
