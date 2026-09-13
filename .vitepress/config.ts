@@ -44,6 +44,204 @@ export default defineConfig({
         {
           text: "介绍",
           link: "/vue/index"
+        },
+        {
+          text: "接入与构建",
+          collapsed: false,
+          items: [
+            {
+              text: "vite 插件",
+              link: "/vue/vite-plugin"
+            }
+          ]
+        },
+        {
+          text: "基础能力（foundation）",
+          collapsed: false,
+          items: [
+            {
+              text: "HTTP 请求",
+              link: "/vue/foundation/http"
+            },
+            {
+              text: "cookies",
+              link: "/vue/foundation/cookies"
+            },
+            {
+              text: "eventBus",
+              link: "/vue/foundation/event-bus"
+            },
+            {
+              text: "file",
+              link: "/vue/foundation/file"
+            },
+            {
+              text: "helper",
+              link: "/vue/foundation/helper"
+            },
+            {
+              text: "naiveUI",
+              link: "/vue/foundation/naive-ui"
+            }
+          ]
+        },
+        {
+          text: "服务（services）",
+          collapsed: false,
+          items: [
+            {
+              text: "SettingFormService",
+              link: "/vue/services/setting-form"
+            },
+            {
+              text: "commonService",
+              link: "/vue/services/common"
+            },
+            {
+              text: "dayjsService",
+              link: "/vue/services/dayjs"
+            },
+            {
+              text: "naiveUIService",
+              link: "/vue/services/naive-ui"
+            },
+            {
+              text: "generateRouterMenuOptions",
+              link: "/vue/services/naive-router-menu"
+            },
+            {
+              text: "DiscuzXSettingFormService",
+              link: "/vue/services/discuzx-setting-form"
+            }
+          ]
+        },
+        {
+          text: "组件（components）",
+          collapsed: false,
+          items: [
+            {
+              text: "Base",
+              collapsed: false,
+              items: [
+                {
+                  text: "AnthorFloating",
+                  link: "/vue/components/base/AnthorFloating"
+                },
+                {
+                  text: "RPanel",
+                  link: "/vue/components/base/RPanel"
+                },
+                {
+                  text: "RCopyText",
+                  link: "/vue/components/base/RCopyText"
+                },
+                {
+                  text: "RKeepAliveRouterView",
+                  link: "/vue/components/base/RKeepAliveRouterView"
+                },
+                {
+                  text: "RRouterMenu",
+                  link: "/vue/components/base/RRouterMenu"
+                },
+                {
+                  text: "RSpace",
+                  link: "/vue/components/base/RSpace"
+                },
+                {
+                  text: "RStatus",
+                  link: "/vue/components/base/RStatus"
+                },
+                {
+                  text: "RCommonFooter",
+                  link: "/vue/components/base/RCommonFooter"
+                },
+                {
+                  text: "RTwoColumnLayout",
+                  link: "/vue/components/base/RTwoColumnLayout"
+                }
+              ]
+            },
+            {
+              text: "Naive",
+              collapsed: false,
+              items: [
+                {
+                  text: "NaiveUIProvider",
+                  link: "/vue/components/naive/NaiveUIProvider"
+                },
+                {
+                  text: "NaiveUIMenu",
+                  link: "/vue/components/naive/NaiveUIMenu"
+                },
+                {
+                  text: "NaiveUIMenuLink",
+                  link: "/vue/components/naive/NaiveUIMenuLink"
+                },
+                {
+                  text: "RNaiveConfig",
+                  link: "/vue/components/naive/RNaiveConfig"
+                },
+                {
+                  text: "RNaiveFormItem",
+                  link: "/vue/components/naive/RNaiveFormItem"
+                },
+                {
+                  text: "RNaiveRouterMenu",
+                  link: "/vue/components/naive/RNaiveRouterMenu"
+                },
+                {
+                  text: "RNaiveRouterTabs",
+                  link: "/vue/components/naive/RNaiveRouterTabs"
+                },
+                {
+                  text: "RNaiveUpload",
+                  link: "/vue/components/naive/RNaiveUpload"
+                },
+                {
+                  text: "RCenterPagination",
+                  link: "/vue/components/naive/RCenterPagination"
+                }
+              ]
+            },
+            {
+              text: "DiscuzX",
+              collapsed: false,
+              items: [
+                {
+                  text: "RDiscuzXUploadAttachment",
+                  link: "/vue/components/discuzx/RDiscuzXUploadAttachment"
+                },
+                {
+                  text: "RDiscuzXUploadFile",
+                  link: "/vue/components/discuzx/RDiscuzXUploadFile"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          text: "接口（api）",
+          collapsed: false,
+          items: [
+            {
+              text: "common",
+              link: "/vue/api/index"
+            },
+            {
+              text: "DiscuzX",
+              link: "/vue/api/discuzx"
+            }
+          ]
+        },
+        {
+          text: "类型（types）",
+          collapsed: false,
+          items: [
+            {
+              text: "类型一览",
+              link: "/vue/types/index"
+            }
+          ]
         }
       ],
       '/php/': [
