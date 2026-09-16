@@ -25,21 +25,21 @@ HTTP                 index.ts          # 最底层，send() 返回完整 IRespon
 ## 构造与链式设置
 
 ```ts
-new HTTP(baseURL?, method?, query?, body?, pipes?, options?, headers?, globalMiddlewares?)
-new Request(prefix?, baseURL?, method?, query?, body?, pipes?, options?, headers?, globalMiddlewares?)
+new HTTP(baseUrl?, method?, query?, body?, transforms?, options?, headers?, globalMiddlewares?)
+new Request(prefix?, baseUrl?, method?, query?, body?, transforms?, options?, headers?, globalMiddlewares?)
 ```
 
 `Request` 与 `HTTP` 的唯一差别是第一个参数 `prefix`（会拼在 URI 最前面）。
 
 | 方法 | 作用 |
 | --- | --- |
-| `url(baseURL)` | 设置请求根地址 |
+| `url(baseUrl)` | 设置请求根地址 |
 | `prefix(value)` | 设置 URI 前缀，可传数组按顺序拼接 |
 | `query(key, value, allowNull?)` | 追加查询参数；`boolean` 会转成 `1/0`，值为 `null` 且 `allowNull` 为 `false` 时忽略 |
 | `body(data)` | 设置请求体；普通对象会自动 `JSON.stringify` 并补 `content-type: application/json` |
 | `header(key, value)` | 设置请求头 |
 | `options(key, value)` | 透传 `RequestInit` 的其它字段 |
-| `pipes(...names)` | 追加数据管道（会拼成 `_pipes=a,b` 查询参数） |
+| `transforms(...names)` | 追加数据转换指令（会拼成 `_transform=a,b` 查询参数，服务端 `Transform` 解析后按白名单执行） |
 | `setMiddleware(middleware)` | 追加**本次请求**的中间件 |
 
 `Request` 额外提供：
@@ -145,11 +145,11 @@ export class AttachmentsApi extends Request {
 ## 注意事项
 
 - **错误走 `reject`，且 `reject` 出来的不是 `Error` 而是 `IResponse`**：`statusCode > 299` 时 `fetch()` 会 `reject(Response)`；`Request` 的 `send()` 只处理 `then(res => res.data)`，所以用 `request` 时 `catch` 拿到的是 `IResponse`（可用 `err.message`、`err.details`）。网络异常才是原生 `Error`。
-- **请求结束后实例状态会被清空**（`query`、`body`、`headers`、`options`、`pipes`、本次中间件），因此同一个实例可以在多次请求间复用；但**并发使用同一个实例会互相覆盖参数**，需要并发时请每次 `new`。
+- **请求结束后实例状态会被清空**（`query`、`body`、`headers`、`options`、`transforms`、本次中间件），因此同一个实例可以在多次请求间复用；但**并发使用同一个实例会互相覆盖参数**，需要并发时请每次 `new`。
 - `RuyiRequest` 依赖 `localStorage`，token 写回逻辑只在响应头包含 `Authorization`/`authorization` 时触发。
-- `discuzXRequest` 会把 `prefix` 与 `uri` 用 `/` 拼成 `?uri=` 传给 `baseURL`，因此 `baseURL` 应是 DiscuzX 的入口地址。
+- `discuzXRequest` 会把 `prefix` 与 `uri` 用 `/` 拼成 `?uri=` 传给 `baseUrl`，因此 `baseUrl` 应是 DiscuzX 的入口地址。
 - 响应体不是 `application/json` 时，`data` 是**原始文本**（`await res.text()`），此时 `message` 保持默认 `'ok'`、`code` 等于 HTTP 状态码。
 - 构造参数里的 `headers` 是**全局请求头**（与单次请求的 `header()` 分开存放，请求结束后的清空逻辑不会重置它），适合放固定的公共头。
 - `options` 与默认值 `{ headers, method: 'get', mode: 'cors' }` 做的是**浅合并**，自己传 `headers` 会整体覆盖默认请求头。
-- `HTTP.genURL` 是已废弃的静态方法，请用实例上的 `generateRequestURL()`；它生成的 URL 末尾总会带 `?`（即使查询参数为空）。
+- `HTTP.genUrl` 是已废弃的静态方法，请用实例上的 `generateRequestUrl()`；它生成的 URL 末尾总会带 `?`（即使查询参数为空）。
 - 源码里 `Request.send()` 有一行调试输出 `console.log("send1")`，属于残留，不影响功能。

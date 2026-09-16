@@ -30,7 +30,7 @@
 
 > **该组件会污染 `DiscuzXFilesApi` 这个全局单例，多实例/多页面同时使用会互相干扰：**
 >
-> - 组件在 `setup` 阶段直接执行 `DiscuzXFilesApi.url(Props.action)`，等于**修改全局默认导出实例的 `baseURL`**，后挂载的组件会覆盖先前的地址。
+> - 组件在 `setup` 阶段直接执行 `DiscuzXFilesApi.url(Props.action)`，等于**修改全局默认导出实例的 `baseUrl`**，后挂载的组件会覆盖先前的地址。
 > - 上传前会把授权返回的 `auth` 字段逐个 `query(key, value)` 挂到同一个单例上，这些查询参数**不会被清除**，后续同实例的请求都会带上它们。
 > - `deleteFile` / `getUploadAuth` 都走这个被改过的单例。
 >

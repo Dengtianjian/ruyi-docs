@@ -2,7 +2,7 @@
 
 - **文件位置**: `packages/vue/api/discuzX/common/`
 - **引入方式**: 子路径**必须带 `.ts` 扩展名**，如 `import AttachmentApi from 'kit/vue/api/discuzX/common/AttachmentApi.ts'`
-- **共同点**: 全部继承 [`discuzXRequest`](/vue/foundation/http)，请求地址会拼成 `{baseURL}?uri=a/b/c` 的形式
+- **共同点**: 全部继承 [`discuzXRequest`](/vue/foundation/http)，请求地址会拼成 `{baseUrl}?uri=a/b/c` 的形式
 
 | 文件 | 导出 | 状态 |
 | --- | --- | --- |
@@ -49,10 +49,10 @@ const attachment = await AttachmentApi.uploadAttachment(file)
 | `uploadAttachment(file: File)` | `Promise<string>` |
 | `deleteAttachment(attachId: string)` | `Promise<number>` |
 | `getAttachment(attachId: string)` | `Promise<string>` |
-| `genAttachmentPreviewURL(attachId, width?, height?, radio?)` | 拼出预览直链，宽高/比例非空时追加 `w=` / `h=` / `r=` 查询参数 |
-| `genAttachmentDownloadURL(attachId)` | 拼出下载直链 |
+| `genAttachmentPreviewUrl(attachId, width?, height?, radio?)` | 拼出预览直链，宽高/比例非空时追加 `w=` / `h=` / `r=` 查询参数 |
+| `genAttachmentDownloadUrl(attachId)` | 拼出下载直链 |
 
-> 两个 URL 方法基于 `this.requestURL` 直接拼接 `` `${this.requestURL}&uri=...` ``，因此 **`baseURL` 里必须已经带 `?`**（如 `https://host/api?`），否则生成的地址不合法。
+> 两个 URL 方法基于 `this.requestUrl` 直接拼接 `` `${this.requestUrl}&uri=...` ``，因此 **`baseUrl` 里必须已经带 `?`**（如 `https://host/api?`），否则生成的地址不合法。
 
 ## DiscuzXFilesApi（`@deprecated`）
 

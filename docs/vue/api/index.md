@@ -16,7 +16,7 @@
 import { AttachmentsApi } from 'kit/vue/api/common/AttachmentsApi.ts'
 
 const api = new AttachmentsApi('attachments', import.meta.env.VITE_API_URL)
-await api.get('1')          // GET {baseURL}/attachments/1
+await api.get('1')          // GET {baseUrl}/attachments/1
 ```
 
 > 与同类文件不同，它**没有默认导出**（其它 api 文件通常默认导出一个已实例化对象）。
@@ -58,7 +58,7 @@ export default new UsersApi("users");
 
 要求：
 
-- **`baseURL` 必传**（第二个构造参数）。URL 由 `[baseURL, ...uri].join('/')` 拼成，不传时字符串里会直接出现 `null`（如 `null/users/login`）。
+- **`baseUrl` 必传**（第二个构造参数）。URL 由 `[baseUrl, ...uri].join('/')` 拼成，不传时字符串里会直接出现 `null`（如 `null/users/login`）。
 - 继承了 [`RuyiRequest`](/vue/foundation/http) 就会自动带上 `X-Ajax: 1` 与 `localStorage.Ruyi_Token` 的鉴权头；需要自定义鉴权/公共头请参考 `isdtj/src/foundation/Request.ts`，在 `globalMiddlewares` 里加自己的中间件。
 
 ---

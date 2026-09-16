@@ -10,11 +10,11 @@
 
 ## 构造
 
-`new DiscuzXSettingFormService(apiReuqestBaseURL, defaultValue)`
+`new DiscuzXSettingFormService(apiRequestBaseUrl, defaultValue)`
 
 | 参数 | 类型 | 默认 | 说明 |
 | --- | --- | --- | --- |
-| `apiReuqestBaseURL` | `string` | — | DiscuzX 入口地址，作为 api 的 `baseURL`（参数名保持了源码里的拼写） |
+| `apiRequestBaseUrl` | `string` | — | DiscuzX 入口地址，作为 api 的 `baseUrl` |
 | `defaultValue` | `T extends Record<string, any>` | — | 设置项默认值，键名即要拉取的 keys |
 
 ## 覆写的方法
@@ -45,7 +45,7 @@
 
 | 关注点 | `SettingFormService` | `DiscuzXSettingFormService` |
 | --- | --- | --- |
-| 接口实例 | 构造时外部传入 | 内部按 `apiReuqestBaseURL` 创建 |
+| 接口实例 | 构造时外部传入 | 内部按 `apiRequestBaseUrl` 创建 |
 | 取 keys 的对象 | `this.settings` | `this.value`（两者内容一致） |
 | `load()` 返回 | `this.value` | 接口原值 |
 | `save()` 提交内容 | `saveItems(toRaw(value))` 或 `value` | `saveList(settings)`，**不做 `toRaw`** |
