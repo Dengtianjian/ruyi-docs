@@ -77,6 +77,24 @@ UserModel::withTrashed()->where('status', 1)->get();   // ✅
 | `withTrashed()` | 不加条件 |
 | `onlyTrashed()` | `WHERE deleted_at IS NOT NULL` |
 
+## 条件链式（when / unless）
+
+可选条件可用 `when()` / `unless()` 优雅表达，无需为分支单独声明 `$builder` 变量：
+
+```php
+$users = UserModel::orderBy('id')
+  ->when($onlyActive, fn($q) => $q->where('active', 1))
+  ->unless($onlyTrashed, fn($q) => $q->withoutTrashed())
+  ->get();
+```
+
+- `when($condition, $callback, ?$default)`：条件为真时执行 `$callback($builder, $condition)`；为假且提供了 `$default` 时执行 `$default`。
+- `unless($condition, ...)`：等价于 `when(!$condition, ...)`。
+- 回调始终接收当前 Builder 作为第一个参数，返回 `$this` 维持链式。
+- 条件为假且不传 `$default` 时整段跳过，等价于「不追加该条件」。
+
+> 行为与 Laravel 的 `when()` / `unless()` 一致，可替代「存变量 + 条件 `->where()`」的写法。
+
 ## 预加载
 
 ```php
@@ -116,6 +134,8 @@ UserModel::where('status', 1)->all();
 |------|------|
 | `with(...$relations)` | 声明预加载的关联 |
 | `withTrashed()` / `onlyTrashed()` / `withoutTrashed()` | 软删除作用域 |
+| `when($condition, $callback, ?$default)` | 条件为真时执行回调（Laravel 风格可选条件） |
+| `unless($condition, $callback, ?$default)` | 条件为假时执行回调（when 的反向） |
 | `forceDelete($params)` | 绕过软删除，按当前条件真删 |
 | `getQuery()` | 获取内部 `Query`（未应用作用域） |
 | `toQuery()` | 应用作用域后返回 `Query`（供 Relation 使用） |

@@ -223,7 +223,7 @@ class LogModel extends Model
 `delete()` 不真删，写入 `deleted_at`；查询时默认过滤已删除行。
 
 ```php
-protected $softDelete = true;     // 默认开启
+protected $softDelete = false;    // 默认关闭，需显式开启
 protected $deleteTime = 'deleted_at';
 ```
 
