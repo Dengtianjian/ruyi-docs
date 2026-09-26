@@ -95,6 +95,21 @@ $users = UserModel::orderBy('id')
 
 > 行为与 Laravel 的 `when()` / `unless()` 一致，可替代「存变量 + 条件 `->where()`」的写法。
 
+## 结果处理（map）
+
+取到数据后需要对每条结果统一加工时，用 `map()` 注册一个逐项处理回调，在 `get()` / `first()` / `paginate()` 执行时应用，**用回调的返回值替换原数据**：
+
+```php
+$links = LinksModel::orWhereLike('show_pages', '%list%')
+  ->map(fn($item) => $item + ['host' => parse_url($item['url'], PHP_URL_HOST)])
+  ->get();
+```
+
+- 处理对象：`get()`/`all()` 逐行、`first()` 单条、`paginate()` 逐条分页项
+- 回调参数 `$item`：未声明 `with()` 时为结果行（关联数组）；声明了 `with()` 预加载时为 `Model` 实例（map 在 hydrate 之后应用）
+- 可链式；多次调用 `map()` 以最后一次为准；空结果（`null`/`false`）不触发回调
+- 与 `when()`/`unless()` 的区别：`when`/`unless` 作用于**查询条件**，`map` 作用于**查询结果**
+
 ## 预加载
 
 ```php
@@ -136,6 +151,7 @@ UserModel::where('status', 1)->all();
 | `withTrashed()` / `onlyTrashed()` / `withoutTrashed()` | 软删除作用域 |
 | `when($condition, $callback, ?$default)` | 条件为真时执行回调（Laravel 风格可选条件） |
 | `unless($condition, $callback, ?$default)` | 条件为假时执行回调（when 的反向） |
+| `map($callback)` | 注册结果集逐项处理回调（get / first / paginate 执行时应用） |
 | `forceDelete($params)` | 绕过软删除，按当前条件真删 |
 | `getQuery()` | 获取内部 `Query`（未应用作用域） |
 | `toQuery()` | 应用作用域后返回 `Query`（供 Relation 使用） |
