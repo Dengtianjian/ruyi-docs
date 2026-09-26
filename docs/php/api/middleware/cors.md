@@ -22,6 +22,8 @@
 - **`allowCredentials = true`**：额外输出 `Access-Control-Allow-Credentials: true`。注意凭据模式下 `Allow-Origin` 不可为字面量 `*`，本实现按请求 origin 动态回显，天然兼容。
 - **`Vary: Origin`**：当 `allowOrigin` 非通配时自动添加，提示缓存按来源区分。
 - **常驻头**：无论是否跨域，以下头始终输出：`Access-Control-Allow-Methods`、`Access-Control-Allow-Headers`、`Access-Control-Expose-Headers`、`Access-Control-Max-Age`。
+- **开发模式不限制来源**：`mode=development` 时忽略 `allowOrigin` 白名单，任意合法 `Origin` 一律放行并回显（`Cors::isDevelopment()` 命中即短路白名单校验），便于本地联调。
+- **开发模式下错误响应也带 CORS 头**：抛出异常时响应不经过后置中间件（异常会穿透 `$next()`），因此开发模式下 `GlobalCorsMiddleware` 改为**前置**调用 `Cors::emit()` 输出头，保证错误响应同样带 CORS 头，浏览器才能读到真正的报错（否则只看到空白）。生产模式仍为**后置**注入（`Cors::applyTo()`）。
 
 ## 配置示例
 
@@ -49,12 +51,20 @@ return [
 
 ### 开发期放开（任意来源 + 任意头）
 
+`mode=development` 时框架**自动不限制来源**（忽略 `allowOrigin` 白名单），无需为此专门配置：
+
 ```php
+// Config.local.php
 return [
-  "allowOrigin" => "*",
-  "allowHeaders" => ["*"], // 注意：此形态需自行保证安全
+  "mode" => "development",
+  "cors" => [
+    // allowOrigin 会被开发模式绕过；如前端带了自定义头，可按需放开
+    "allowHeaders" => "*",
+  ],
 ];
 ```
+
+> 如需在**非开发模式**下放开所有来源，直接设 `"allowOrigin" => "*"` 即可（此时 `allowHeaders` 等仍需按需配置）。
 
 ## 与 OPTIONS 预检的配合
 
@@ -71,5 +81,5 @@ Route::options("users");     // 仅该 URI 的 OPTIONS 放行
 
 ## 相关文件
 
-- `kernel/Middleware/GlobalCorsMiddleware.php`：全局中间件，薄封装，仅负责取 `Origin` 并调用 `Cors::applyTo()`。
-- `kernel/Foundation/HTTP/Cors.php`：CORS 计算与响应头装配（含 `DEFAULTS` 默认值）。
+- `kernel/Middleware/GlobalCorsMiddleware.php`：全局中间件，薄封装——取 `Origin` 后：非开发模式**后置** `Cors::applyTo()`；开发模式**前置** `Cors::emit()`。
+- `kernel/Foundation/HTTP/Cors.php`：CORS 计算与响应头装配（含 `DEFAULTS` 默认值）。`headers()` 产出头部数组、`applyTo()` 写入 `Response`、`emit()` 直接 `header()` 输出。
