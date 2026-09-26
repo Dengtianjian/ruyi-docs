@@ -502,6 +502,10 @@ export default defineConfig({
               link: "/php/framework/facade/items/crons"
             },
             {
+              text: "Storage 文件存储门面",
+              link: "/php/api/facades/storage"
+            },
+            {
               text: "Auth 门面",
               link: "/php/api/modules/auth-module/auth"
             }
@@ -630,6 +634,10 @@ export default defineConfig({
                 {
                   text: "Crons 定时任务门面",
                   link: "/php/api/facades/crons",
+                },
+                {
+                  text: "Storage 文件存储门面",
+                  link: "/php/api/facades/storage",
                 },
               ],
             },
@@ -875,6 +883,10 @@ export default defineConfig({
                       text: "Storage 存储",
                       collapsed: true,
                       items: [
+                        {
+                          text: "FileStorage",
+                          link: "/php/api/foundation/filesystem/storage/file-storage",
+                        },
                         {
                           text: "AbstractStorage",
                           link: "/php/api/foundation/filesystem/storage/abstract-storage",

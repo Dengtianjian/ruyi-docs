@@ -68,7 +68,7 @@ kernel/
 - [Data 数据工具](./foundation/data/arr.md)（[Str](./foundation/data/str.md) · [Numeric](./foundation/data/numeric.md) · [Date](./foundation/data/date.md) · [Money](./foundation/data/money.md) · [Mutator](./foundation/data/mutator.md) · [Serializer](./foundation/data/serializer.md) · [Transform](./foundation/data/transform.md)）
 - [Error 业务异常](./foundation/exception/error.md)（[ErrorCode](./foundation/exception/error-code.md) · [ExceptionHandler](./foundation/exception/exception-handler.md)）
 - [Extension 扩展](./foundation/extension/extensions.md)（[ExtensionMain](./foundation/extension/extension-main.md) · [ExtensionProvisioner](./foundation/extension/extension-provisioner.md)）
-- [FileSystem 文件系统](./foundation/filesystem/file-system.md)（[FileHelper](./foundation/filesystem/file-helper.md) · [Path](./foundation/filesystem/path.md) · [Zip](./foundation/filesystem/zip.md) · [Storage](./foundation/filesystem/storage/abstract-storage.md)）
+- [FileSystem 文件系统](./foundation/filesystem/file-system.md)（[FileHelper](./foundation/filesystem/file-helper.md) · [Path](./foundation/filesystem/path.md) · [Zip](./foundation/filesystem/zip.md) · [Storage](./foundation/filesystem/storage/abstract-storage.md) · [FileStorage](./foundation/filesystem/storage/file-storage.md)）
 - [HTTP 请求与响应](./foundation/http/request.md)（[Response](./foundation/http/response.md) · [URL](./foundation/http/url.md) · [Curl](./foundation/http/curl.md)）
 - [Middleware 中间件](./foundation/middleware/middleware.md)（[MiddlewareBase](./foundation/middleware/middleware-base.md)）
 - [Object 对象基类](./foundation/object/base-object.md)（[AbilityBaseObject](./foundation/object/ability-base-object.md) · [DataObject](./foundation/object/data-object.md)）
@@ -93,6 +93,7 @@ kernel/
 
 ### 具体门面（kernel/Facades）
 - [Crons 定时任务门面](./facades/crons.md)
+- [Storage 文件存储门面](./facades/storage.md)
 
 ### Platform 第三方平台
 - [Wechat 微信](./platform/wechat/wechat.md)（[AccessToken](./platform/wechat/access-token.md) · [小程序](./platform/wechat/miniprogram/wechat-mini-program.md) · [公众号](./platform/wechat/official-account/wechat-official-account.md) · [微信支付](./platform/wechat/wechat-pay/wechat-pay.md)）

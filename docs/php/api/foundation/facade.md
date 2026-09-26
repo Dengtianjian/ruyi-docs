@@ -24,6 +24,9 @@
 | `singleton(): bool` | 自动判定是否为单例门面（检测 `resolve()` 是否由子类声明） |
 | `accessor(): ?object` | 获取底层实例；单例时经 `resolve()` 创建并缓存，多例时由子类覆写 |
 | `resolve(): object` | 兜底实例工厂（仅单例门面覆写） |
+| `setInstance(object $instance): void` | 替换底层实例（单例门面），设置后不再触发 `resolve()` |
+| `getInstance(): ?object` | 获取已解析的底层实例（不触发 `resolve()`，未解析返回 null） |
+| `clearInstance(): void` | 清除已解析实例，下次静态调用重新解析 |
 | `__callStatic($method, $arguments): mixed` | 静态转发到实例方法 |
 
 ## 方法详解
@@ -46,6 +49,29 @@ Auth::singleton();    // false （覆写 accessor()）
 ### `resolve(): object` — 兜底实例工厂
 
 基类实现直接抛 `\BadMethodCallException`。**仅单例门面需要覆写**，返回该门面的默认实例（如自动扫描目录登记后的管理器）。
+
+### `setInstance()` / `getInstance()` / `clearInstance()` — 替换 / 读取 / 清除底层实例
+
+单例门面可在**应用装配阶段**用 `setInstance()` 注入自定义实例（例如给 `Storage` 门面注入多磁盘 / 云存储 / 元信息落库的实例），也可在测试中替换为桩实例。设置后所有静态调用转发到该实例，不再触发 `resolve()`。
+
+```php
+use kernel\Facades\Storage;
+use kernel\Foundation\FileSystem\Storage\FileStorage as FileStorageAggregate;
+use kernel\Foundation\FileSystem\Storage\LocalStorage;
+
+// 替换默认实例
+Storage::setInstance(
+  (new FileStorageAggregate([
+    "local" => new LocalStorage(),
+    "cos"   => $cosDisk,
+  ]))->enableDataSave()
+);
+
+Storage::getInstance();   // 取当前实例（未解析时为 null）
+Storage::clearInstance(); // 清除，下次调用重新 resolve()
+```
+
+> 多例门面（覆写 `accessor()`）不经过实例注册表，`setInstance()` 对其无效。
 
 ### `__callStatic($method, $arguments): mixed` — 静态转发
 
